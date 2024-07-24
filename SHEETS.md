@@ -4,15 +4,14 @@
 > Currently we use a ticket system to queue world management actions such as create and load. This is effective to ensure that we minimize concurrent world management which may cause world corruption. We are looking to improve this system to allow all "dangerous" plugin actions to be run in queues to allow for more control over the action processes and easy implementation of safety mesures
 
 <div style="border-left: 4px solid #00eb3b; background-color: rgba(80,80,80, 0.4); padding: 10px;">
-    These are designed to allow for the implementation of concurrent queues for an action
-    <br>(eg: multiple world creators/loaders concurrently)
+    Later implementation could allow for multiple workers running in parellel via abusing region threads (Folia) or running in concurrency on the same thread with robust world saftey measures
 </div>
 
 ----
 ## Ticket Manager 
 
 > This is the queue manager that will handle scheduling of all actions and allow for communication between the:
-<br><strong>customer</strong>(code that scheduled the ticket) and the <strong>worker</strong>(code processing the ticket)
+<br><strong>customer</strong>(code that scheduled the ticket) and the <strong>worker</strong>(code the ticket executes)
 
 ```mermaid
 %% the class design
@@ -105,8 +104,7 @@ graph TB
     D --> |Yes| E[Process ticket immediately]
     D --> |No| F[Status = Queued\nWaits for processing]
     
-    E --> K{Ticket processing}
-    K --> G{{Do stuff and Update the ticket\ne.g. status, position in queue,\netc...}}
+    E --> G{{Do stuff and Update the ticket\ne.g. status, position in queue,\netc...}}
     G --> L{Processing successful?}
     L --> |Yes| M[Mark ticket as completed]
     L --> |No| N[Mark ticket as failed]
@@ -212,7 +210,7 @@ classDiagram
 ## Example Ticket Sequence
 <h5>
     <div style="border-left: 4px solid #ffeb3b; background-color: rgba(255, 235, 59, 0.1); padding: 10px;">
-        Note: Customers are just the class that scheduled the ticket. They communicate to the worker through the TicketManager
+        Note: A Customer is just the code that scheduled the ticket. They communicate to the worker through the TicketManager
     </div>
 </h5>
 
@@ -286,7 +284,9 @@ sequenceDiagram
                 
                 %% ticketmanager passes answer to worker
                 TicketManager-->>Worker: provideDecision(ticket, question, decision)
-                %% worker processes the answer and continues 
+                %% worker processes the answer and continues
+
+                TicketManager --> Worker: Task ends here we don't loop
 
         end %% that was the last step so we actually move on to the task completion stage
 
