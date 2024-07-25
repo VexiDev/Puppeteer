@@ -14,7 +14,7 @@ public class WorldCreationWorker extends AbstractWorker {
     }
 
     @Override
-    public void processTicket(Ticket ticket) {
+    public void start(Ticket ticket) {
         try {
             updateStatus(ticket, StatusEnum.PROCESSING);
             notifyCustomer(ticket, "World creation started");

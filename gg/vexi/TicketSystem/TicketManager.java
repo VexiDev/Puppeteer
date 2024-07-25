@@ -75,7 +75,7 @@ public class TicketManager {
 
     private void executeTicket(Ticket ticket) {
         AbstractWorker worker = WorkerFactory.createWorker(ticket.getActionType());
-        worker.processTicket(ticket);
+        worker.start(ticket);
     }
 
     public CompletableFuture<Void> updateTicketStatus(Ticket ticket, StatusEnum status) {

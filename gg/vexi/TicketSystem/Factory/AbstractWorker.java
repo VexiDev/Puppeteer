@@ -14,7 +14,7 @@ public abstract class AbstractWorker {
         this.ticketManager = ticketManager;
     }
 
-    public abstract void processTicket(Ticket ticket);
+    public abstract void start(Ticket ticket);
 
     protected void notifyCustomer(Ticket ticket, String message) {
         ticketManager.notifyCustomer(ticket, message);
