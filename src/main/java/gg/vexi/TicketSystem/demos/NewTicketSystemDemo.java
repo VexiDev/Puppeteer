@@ -1,11 +1,5 @@
 package gg.vexi.TicketSystem.demos;
 
-import gg.vexi.TicketSystem.TicketManager;
-import gg.vexi.TicketSystem.Enums.ActionType;
-import gg.vexi.TicketSystem.Enums.StatusEnum;
-import gg.vexi.TicketSystem.Factory.WorkerFactory;
-import gg.vexi.TicketSystem.Tickets.Ticket;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +7,14 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.google.gson.JsonObject;
+
+import gg.vexi.TicketSystem.TicketManager;
+import gg.vexi.TicketSystem.Enums.ActionType;
+import gg.vexi.TicketSystem.Enums.StatusEnum;
+import gg.vexi.TicketSystem.Factory.WorkerFactory;
+import gg.vexi.TicketSystem.Tickets.Ticket;
 
 public class NewTicketSystemDemo {
     private static final Random random = new Random();
@@ -22,8 +24,8 @@ public class NewTicketSystemDemo {
         WorkerFactory.setTicketManager(ticketManager);
 
         // Schedule 2 creation tickets to fill up the queue
-        ticketManager.scheduleTicket(ActionType.WORLD_LOAD, new HashMap<>(), createCustomerCallback("Customer 1", ticketManager));
-        ticketManager.scheduleTicket(ActionType.WORLD_LOAD, new HashMap<>(), createCustomerCallback("Customer 2", ticketManager));
+        ticketManager.scheduleTicket(ActionType.WORLD_LOAD, new JsonObject(), createCustomerCallback("Customer 1", ticketManager));
+        ticketManager.scheduleTicket(ActionType.WORLD_LOAD, new JsonObject(), createCustomerCallback("Customer 2", ticketManager));
 
         // Start timer
         long startTime = System.currentTimeMillis();
@@ -32,7 +34,7 @@ public class NewTicketSystemDemo {
         AtomicReference<Ticket> trackedTicket = new AtomicReference<>();
         CompletableFuture<TicketManager.TicketResult> future = ticketManager.scheduleTicket(
             ActionType.WORLD_LOAD,
-            new HashMap<>(),
+            new JsonObject(),
             createCustomerCallback("Customer 3", ticketManager, trackedTicket)
         );
 

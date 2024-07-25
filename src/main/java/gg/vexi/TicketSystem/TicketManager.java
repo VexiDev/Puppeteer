@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.google.gson.JsonObject;
+
 import gg.vexi.TicketSystem.Enums.ActionType;
 import gg.vexi.TicketSystem.Enums.StatusEnum;
 import gg.vexi.TicketSystem.Factory.AbstractWorker;
@@ -32,7 +34,7 @@ public class TicketManager {
         allTickets = new ConcurrentHashMap<>();
     }
 
-    public CompletableFuture<TicketResult> scheduleTicket(ActionType actionType, Map<String, Object> parameters, CustomerCallback callback) {
+    public CompletableFuture<TicketResult> scheduleTicket(ActionType actionType, JsonObject parameters, CustomerCallback callback) {
         UUID customerId = UUID.randomUUID();
         customerCallbacks.put(customerId, callback);
 

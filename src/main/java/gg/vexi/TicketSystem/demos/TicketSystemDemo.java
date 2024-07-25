@@ -6,6 +6,8 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.google.gson.JsonObject;
+
 import gg.vexi.TicketSystem.TicketManager;
 import gg.vexi.TicketSystem.Enums.ActionType;
 import gg.vexi.TicketSystem.Factory.WorkerFactory;
@@ -25,19 +27,19 @@ public class TicketSystemDemo {
 
         futures.add(ticketManager.scheduleTicket(
             ActionType.WORLD_CREATION, 
-            new HashMap<>(), 
+            new JsonObject(), 
             createCustomerCallback("Customer 1", ticketManager)
         ));
 
         futures.add(ticketManager.scheduleTicket(
             ActionType.WORLD_LOAD, 
-            new HashMap<>(), 
+            new JsonObject(),
             createCustomerCallback("Customer 2", ticketManager)
         ));
 
         futures.add(ticketManager.scheduleTicket(
             ActionType.WORLD_CREATION, 
-            new HashMap<>(), 
+            new JsonObject(),
             createCustomerCallback("Customer 3", ticketManager)
         ));
 
