@@ -1,11 +1,13 @@
 package gg.vexi.TicketSystem;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,13 +31,17 @@ public class Test_TicketManager {
         // we should have a queue for each action type
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
         for (ActionType type : ActionType.values()) {
-            expected_queues.put(type, new ConcurrentLinkedQueue());
+            expected_queues.put(type, new ConcurrentLinkedQueue<>());
         }
 
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
 
         assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
-        assertEquals(expected_queues, actual_queues, "TicketManager does not have a concurrent queue for each actiontype");
+        
+        for (Map.Entry<ActionType, ConcurrentLinkedQueue<Ticket>> entry : expected_queues.entrySet()) {
+            assertTrue(actual_queues.containsKey(entry.getKey()), "Missing queue for action type: " + entry.getKey());
+            assertEquals(entry.getValue().size(), actual_queues.get(entry.getKey()).size(), "Queue size mismatch for action type: " + entry.getKey());
+        }
     }
 
     @Test
