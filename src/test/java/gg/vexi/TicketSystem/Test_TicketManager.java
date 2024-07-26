@@ -64,10 +64,18 @@ public class Test_TicketManager {
         // Try and get the next ticket, expect null because a ticket is active
         nextTicket = TicketManager.nextTicket();
         assertEquals(null, nextTicket, "Expected nextTicket to return null when a ticket is active, but it returned a ticket.");
+
     }
 
     @Test
     public void test_executeTicket() {
+        Ticket ticket1 = new Ticket();
+        TicketManager.scheduleTicket(ticket1);
+        Ticket nextTicket = TicketManager.nextTicket();
+
+        TicketManager.executeTicket(nextTicket);
+
+        assertEquals(nextTicket, TicketManager.getActive(), "activeTicket is not the ticket passed to executeTicket");
 
     }
 
