@@ -39,9 +39,7 @@ public class TicketManager {
 
     public ConcurrentLinkedQueue<Ticket> getQueue(ActionType type) { return actionQueues.get(type); }
 
-    public ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> getAllQueues() { 
-        return actionQueues;
-    }
+    public ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> getAllQueues() { return actionQueues; }
 
     public Ticket getActive(ActionType type) { return activeTickets.get(type); }
 
