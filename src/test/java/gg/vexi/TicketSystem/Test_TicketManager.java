@@ -1,16 +1,12 @@
 package gg.vexi.TicketSystem;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.junit.jupiter.api.Test;
 
-import com.google.gson.JsonObject;
-
-import gg.vexi.TicketSystem.TicketManager;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 
 public class Test_TicketManager {
