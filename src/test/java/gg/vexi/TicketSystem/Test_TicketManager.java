@@ -54,7 +54,9 @@ public class Test_TicketManager {
         expected_q.add(Ticket);
 
         // schedule a ticket
-        TicketManager.scheduleTicket(Ticket.getType(), Ticket);
+        boolean result = TicketManager.scheduleTicket(Ticket.getType(), Ticket);
+        assertEquals(true, result, "TicketManager did not return a valid result for scheduleTicket");
+
         // get queue length
         ConcurrentLinkedQueue<Ticket> actual_q = TicketManager.getQueue(ActionType.ACTION);
 
