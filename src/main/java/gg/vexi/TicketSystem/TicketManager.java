@@ -23,4 +23,8 @@ public class TicketManager {
 
     public ConcurrentLinkedQueue<Ticket> getQueue() { return Queue; }
 
+    public Ticket getActive() { return new Ticket(); }
+
+    public void setActive(Ticket ticket) {}
+
 }
