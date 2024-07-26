@@ -46,7 +46,7 @@ public class Test_TicketManager {
     }
 
     @Test
-    public void testNextTicket() {
+    public void test_NextTicket() {
         // Schedule 2 tickets
         Ticket ticket1 = new Ticket();
         Ticket ticket2 = new Ticket();
