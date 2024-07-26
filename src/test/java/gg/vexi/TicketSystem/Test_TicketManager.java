@@ -11,8 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.google.gson.JsonObject;
+
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
 
 public class Test_TicketManager {
 
@@ -47,7 +50,7 @@ public class Test_TicketManager {
     @Test
     public void test_ScheduleTicket() {
 
-        Ticket Ticket = new Ticket(ActionType.ACTION);
+        Ticket Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
 
         // build expected queue object
         ConcurrentLinkedQueue<Ticket> expected_q = new ConcurrentLinkedQueue<>();
@@ -70,8 +73,8 @@ public class Test_TicketManager {
     @Test
     public void test_NextTicket() {
         // Schedule 2 tickets
-        Ticket ticket1 = new Ticket(ActionType.ACTION);
-        Ticket ticket2 = new Ticket(ActionType.ACTION);
+        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
+        Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
         TicketManager.scheduleTicket(ticket1.getType(), ticket1);
         TicketManager.scheduleTicket(ticket2.getType(), ticket2);
 
@@ -91,7 +94,7 @@ public class Test_TicketManager {
 
     @Test
     public void test_executeTicket() {
-        Ticket ticket1 = new Ticket(ActionType.ACTION);
+        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
         TicketManager.scheduleTicket(ticket1.getType(), ticket1);
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
