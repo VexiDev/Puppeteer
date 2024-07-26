@@ -1,7 +1,9 @@
 package gg.vexi.TicketSystem;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 
 public class TicketManager {
@@ -32,6 +34,16 @@ public class TicketManager {
     }
 
     public ConcurrentLinkedQueue<Ticket> getQueue() { return Queue; }
+
+    public ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> getAllQueues() { 
+        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> map = new ConcurrentHashMap<>(); 
+        
+        for (ActionType type : ActionType.values()) {
+            map.put(type, new ConcurrentLinkedQueue<>());
+        }
+        
+        return map;
+    }
 
     public Ticket getActive() { return activeTicket; }
 
