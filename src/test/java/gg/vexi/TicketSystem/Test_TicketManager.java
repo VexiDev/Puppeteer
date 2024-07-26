@@ -54,9 +54,9 @@ public class Test_TicketManager {
         expected_q.add(Ticket);
 
         // schedule a ticket
-        TicketManager.scheduleTicket(Ticket);
+        TicketManager.scheduleTicket(Ticket.getType(), Ticket);
         // get queue length
-        ConcurrentLinkedQueue<Ticket> actual_q = TicketManager.getQueue();
+        ConcurrentLinkedQueue<Ticket> actual_q = TicketManager.getQueue(ActionType.ACTION);
 
         // check queue length
         assertEquals(expected_q.size(), actual_q.size(), "Queue sizes do not match");
@@ -70,19 +70,19 @@ public class Test_TicketManager {
         // Schedule 2 tickets
         Ticket ticket1 = new Ticket(ActionType.ACTION);
         Ticket ticket2 = new Ticket(ActionType.ACTION);
-        TicketManager.scheduleTicket(ticket1);
-        TicketManager.scheduleTicket(ticket2);
+        TicketManager.scheduleTicket(Ticket.getType(), ticket1);
+        TicketManager.scheduleTicket(Ticket.getType(), ticket2);
 
-        // Check that the nextTicket method returns the first scheduled ticket
-        Ticket nextTicket = TicketManager.nextTicket();
+        // Check that the nextTicket method returns the first scheduled ticket for that action type
+        Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
         assertNotNull(nextTicket, "Expected nextTicket to return a non-null ticket, but it returned null.");
         assertEquals(ticket1, nextTicket, "Expected the first scheduled ticket to be returned.");
 
         // Set the first ticket to active
-        TicketManager.setActive(nextTicket);
+        TicketManager.setActive(ActionType.ACTION, nextTicket);
 
-        // Try and get the next ticket, expect null because a ticket is active
-        nextTicket = TicketManager.nextTicket();
+        // Try and get the next ticket, expect null because a ticket of that action type is already active
+        nextTicket = TicketManager.nextTicket(ActionType.ACTION);
         assertEquals(null, nextTicket, "Expected nextTicket to return null when a ticket is active, but it returned a ticket.");
 
     }
@@ -90,12 +90,12 @@ public class Test_TicketManager {
     @Test
     public void test_executeTicket() {
         Ticket ticket1 = new Ticket(ActionType.ACTION);
-        TicketManager.scheduleTicket(ticket1);
-        Ticket nextTicket = TicketManager.nextTicket();
+        TicketManager.scheduleTicket(Ticket.getType(), ticket1);
+        Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
         TicketManager.executeTicket(nextTicket);
 
-        assertEquals(nextTicket, TicketManager.getActive(), "activeTicket is not the ticket passed to executeTicket");
+        assertEquals(nextTicket, TicketManager.getActive(ActionType.ACTION), "activeTicket is not the ticket passed to executeTicket");
 
     }
 
