@@ -7,6 +7,7 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 public class TicketManager {
 
     private final ConcurrentLinkedQueue<Ticket> Queue = new ConcurrentLinkedQueue<>();
+    private Ticket activeTicket;
     
     public TicketManager() {}
     
@@ -17,14 +18,21 @@ public class TicketManager {
         return true;
     }
     
-    protected Ticket nextTicket() { return Queue.poll(); }
+    protected Ticket nextTicket() { 
+        if (getActive() == null) {
+            return Queue.poll();
+        } else {
+            return null;
+        }
+    
+    }
 
     private void executeTicket() {}
 
     public ConcurrentLinkedQueue<Ticket> getQueue() { return Queue; }
 
-    public Ticket getActive() { return new Ticket(); }
+    public Ticket getActive() { return activeTicket; }
 
-    public void setActive(Ticket ticket) {}
+    public void setActive(Ticket ticket) { activeTicket = ticket; }
 
 }
