@@ -81,7 +81,7 @@ public class Test_TicketManager {
         assertEquals(ticket1, nextTicket, "Expected the first scheduled ticket to be returned.");
 
         // Set the first ticket to active
-        TicketManager.setActive(ActionType.ACTION, nextTicket);
+        TicketManager.setActive(nextTicket);
 
         // Try and get the next ticket, expect null because a ticket of that action type is already active
         nextTicket = TicketManager.nextTicket(ActionType.ACTION);
