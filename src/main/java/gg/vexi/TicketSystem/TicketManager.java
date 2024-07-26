@@ -8,21 +8,25 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 
 public class TicketManager {
 
-    private final ConcurrentLinkedQueue<Ticket> Queue = new ConcurrentLinkedQueue<>();
-    private Ticket activeTicket;
+    private final ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ActionType, Ticket> activeTickets = new ConcurrentHashMap<>();
     
-    public TicketManager() {}
+    public TicketManager() {
+        for (ActionType type : ActionType.values()) {
+            actionQueues.put(type, new ConcurrentLinkedQueue<>());
+        }
+    }
     
-    public boolean scheduleTicket(Ticket Ticket) {
-
-        Queue.add(Ticket);
+    public boolean scheduleTicket(ActionType TicketType, Ticket Ticket) {
+        
+        actionQueues.get(TicketType).add(Ticket);
 
         return true;
     }
     
-    protected Ticket nextTicket() { 
-        if (getActive() == null) {
-            return Queue.poll();
+    protected Ticket nextTicket(ActionType type) { 
+        if (getActive(type) == null) {
+            return actionQueues.get(type).poll();
         } else {
             return null;
         }
@@ -30,23 +34,17 @@ public class TicketManager {
     }
 
     protected void executeTicket(Ticket ticket) {
-        activeTicket = ticket;
+        activeTickets.put(ticket.getType(), ticket);
     }
 
-    public ConcurrentLinkedQueue<Ticket> getQueue() { return Queue; }
+    public ConcurrentLinkedQueue<Ticket> getQueue(ActionType type) { return actionQueues.get(type); }
 
     public ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> getAllQueues() { 
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> map = new ConcurrentHashMap<>(); 
-        
-        for (ActionType type : ActionType.values()) {
-            map.put(type, new ConcurrentLinkedQueue<>());
-        }
-        
-        return map;
+        return actionQueues;
     }
 
-    public Ticket getActive() { return activeTicket; }
+    public Ticket getActive(ActionType type) { return activeTickets.get(type); }
 
-    public void setActive(Ticket ticket) { activeTicket = ticket; }
+    public void setActive(Ticket ticket) { activeTickets.put(ticket.getType(), ticket); }
 
 }
