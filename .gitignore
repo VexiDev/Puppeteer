@@ -1,3 +1,5 @@
 **/*.class
 **/*.py
 .gradle/
+.kotlin/
+build/
