@@ -19,9 +19,13 @@ public class Test_Ticket {
 
     @Test
     public void test_init() {
+        // check if ticket even initialized correctly
         assertNotNull(Ticket, "Ticket is Null");
+        
+        // verify type
         assertNotNull(Ticket.getType(), "Ticket has no action type");
         assertEquals(true, Ticket.getType() instanceof ActionType, "Ticket does not have a valid action type");
+
     }
     
 }
