@@ -27,7 +27,9 @@ public class TicketManager {
     
     }
 
-    private void executeTicket() {}
+    protected void executeTicket(Ticket ticket) {
+        activeTicket = ticket;
+    }
 
     public ConcurrentLinkedQueue<Ticket> getQueue() { return Queue; }
 
