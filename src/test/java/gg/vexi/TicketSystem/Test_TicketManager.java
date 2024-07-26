@@ -40,7 +40,7 @@ public class Test_TicketManager {
     }
 
     @Test
-    public void test_NextTicket () {
+    public void test_nextTicket () {
 
         TicketManager TicketManager = new TicketManager();
         
@@ -60,7 +60,7 @@ public class Test_TicketManager {
     }
 
     @Test
-    public void Test_executeTicket() {
+    public void test_executeTicket() {
 
     }
 
