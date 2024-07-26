@@ -70,8 +70,8 @@ public class Test_TicketManager {
         // Schedule 2 tickets
         Ticket ticket1 = new Ticket(ActionType.ACTION);
         Ticket ticket2 = new Ticket(ActionType.ACTION);
-        TicketManager.scheduleTicket(Ticket.getType(), ticket1);
-        TicketManager.scheduleTicket(Ticket.getType(), ticket2);
+        TicketManager.scheduleTicket(ticket1.getType(), ticket1);
+        TicketManager.scheduleTicket(ticket2.getType(), ticket2);
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
@@ -90,7 +90,7 @@ public class Test_TicketManager {
     @Test
     public void test_executeTicket() {
         Ticket ticket1 = new Ticket(ActionType.ACTION);
-        TicketManager.scheduleTicket(Ticket.getType(), ticket1);
+        TicketManager.scheduleTicket(ticket1.getType(), ticket1);
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
         TicketManager.executeTicket(nextTicket);
