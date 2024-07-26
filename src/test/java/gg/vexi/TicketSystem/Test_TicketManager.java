@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 
 public class Test_TicketManager {
@@ -27,7 +28,7 @@ public class Test_TicketManager {
     @Test
     public void test_ScheduleTicket() {
 
-        Ticket Ticket = new Ticket();
+        Ticket Ticket = new Ticket(ActionType.ACTION);
 
         // build expected queue object
         ConcurrentLinkedQueue<Ticket> expected_q = new ConcurrentLinkedQueue<>();
@@ -48,8 +49,8 @@ public class Test_TicketManager {
     @Test
     public void test_NextTicket() {
         // Schedule 2 tickets
-        Ticket ticket1 = new Ticket();
-        Ticket ticket2 = new Ticket();
+        Ticket ticket1 = new Ticket(ActionType.ACTION);
+        Ticket ticket2 = new Ticket(ActionType.ACTION);
         TicketManager.scheduleTicket(ticket1);
         TicketManager.scheduleTicket(ticket2);
 
@@ -69,7 +70,7 @@ public class Test_TicketManager {
 
     @Test
     public void test_executeTicket() {
-        Ticket ticket1 = new Ticket();
+        Ticket ticket1 = new Ticket(ActionType.ACTION);
         TicketManager.scheduleTicket(ticket1);
         Ticket nextTicket = TicketManager.nextTicket();
 

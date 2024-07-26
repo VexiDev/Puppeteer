@@ -2,8 +2,12 @@ package gg.vexi.TicketSystem.Ticket;
 
 public class Ticket {
 
-    public Ticket() {}
+    private final ActionType type;
 
-    public ActionType getType() { return ActionType.ACTION; }
+    public Ticket(ActionType TicketType) {
+        type = TicketType;
+    }
+
+    public ActionType getType() { return type; }
 
 }

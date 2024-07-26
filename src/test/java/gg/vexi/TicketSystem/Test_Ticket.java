@@ -14,7 +14,7 @@ public class Test_Ticket {
 
     @BeforeEach
     public void setup() {
-        Ticket = new Ticket();
+        Ticket = new Ticket(ActionType.ACTION);
     }
 
     @Test
