@@ -27,12 +27,12 @@ public class Test_TicketManager {
         assertNotNull(TicketManager, "TicketManager is Null");
 
         // we should have a queue for each action type
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue> expected_queues = new ConcurrentHashMap<>();
+        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
         for (ActionType type : ActionType.values()) {
             expected_queues.put(type, new ConcurrentLinkedQueue());
         }
 
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue> actual_queues = TicketManager.getAllQueues();
+        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
 
         assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
         assertEquals(expected_queues, actual_queues, "TicketManager does not have a concurrent queue for each actiontype");
