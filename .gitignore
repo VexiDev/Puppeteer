@@ -1,5 +1,14 @@
+
+# Exclude certain file types
 **/*.class
 **/*.py
-.gradle/
+
+# Exclude gradle kotlin directories
 .kotlin/
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+
+# Exclude build directory
 build/
