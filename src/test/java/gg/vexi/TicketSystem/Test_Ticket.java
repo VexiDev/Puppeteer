@@ -8,7 +8,7 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 public class Test_Ticket {
 
     @Test
-    public void Test_init() {
+    public void test_init() {
         Ticket Ticket = new Ticket();
         assertNotNull(Ticket, "Ticket is Null");
     }

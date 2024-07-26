@@ -17,7 +17,7 @@ public class TicketManager {
         return true;
     }
     
-    private void nextTicket() {}
+    protected Ticket nextTicket() { return Queue.poll(); }
 
     private void executeTicket() {}
 
