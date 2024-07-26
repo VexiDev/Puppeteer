@@ -40,7 +40,7 @@ public class Test_TicketManager {
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
 
         assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
-        
+
         for (Map.Entry<ActionType, ConcurrentLinkedQueue<Ticket>> entry : expected_queues.entrySet()) {
             assertTrue(actual_queues.containsKey(entry.getKey()), "Missing queue for action type: " + entry.getKey());
             assertEquals(entry.getValue().size(), actual_queues.get(entry.getKey()).size(), "Queue size mismatch for action type: " + entry.getKey());
@@ -57,7 +57,7 @@ public class Test_TicketManager {
         expected_q.add(Ticket);
 
         // schedule a ticket
-        boolean result = TicketManager.scheduleTicket(Ticket.getType(), Ticket);
+        boolean result = TicketManager.queueTicket(Ticket.getType(), Ticket);
         assertEquals(true, result, "TicketManager did not return a valid result for scheduleTicket");
 
         // get queue length
@@ -75,8 +75,8 @@ public class Test_TicketManager {
         // Schedule 2 tickets
         Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
         Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
-        TicketManager.scheduleTicket(ticket1.getType(), ticket1);
-        TicketManager.scheduleTicket(ticket2.getType(), ticket2);
+        TicketManager.queueTicket(ticket1.getType(), ticket1);
+        TicketManager.queueTicket(ticket2.getType(), ticket2);
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
@@ -95,7 +95,7 @@ public class Test_TicketManager {
     @Test
     public void test_executeTicket() {
         Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
-        TicketManager.scheduleTicket(ticket1.getType(), ticket1);
+        TicketManager.queueTicket(ticket1.getType(), ticket1);
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
         TicketManager.executeTicket(nextTicket);
