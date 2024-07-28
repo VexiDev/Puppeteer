@@ -33,7 +33,6 @@ public class Test_Ticket {
         JsonObject expected_parameters = new JsonObject();
         expected_parameters.addProperty("setting_example", true);
 
-
         // verify ticket exists
         assertNotNull(Ticket, "Ticket is Null");
 
