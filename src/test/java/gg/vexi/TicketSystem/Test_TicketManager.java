@@ -29,21 +29,28 @@ public class Test_TicketManager {
 
     @Test
     public void test_init() {
-        // make sure ticketmanager actually initialized
-        assertNotNull(TicketManager, "TicketManager is Null");
+        // check if ticketmanager actually initialized correctly 
 
-        // we should have a queue for each action type
+        // build expected objects
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
         for (ActionType type : ActionType.values()) {
             expected_queues.put(type, new ConcurrentLinkedQueue<>());
         }
 
+        // verify ticketmanager exists
+        assertNotNull(TicketManager, "TicketManager is Null");
+
+        // get all ticketmanager queues
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
 
+        // verify we have all queues (we should have a queue for each action type)
         assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
 
+        // verify ticketmanager queue map contense against expected contense
         for (Map.Entry<ActionType, ConcurrentLinkedQueue<Ticket>> entry : expected_queues.entrySet()) {
+            // verify the ticketmanager queue map contains expected key
             assertTrue(actual_queues.containsKey(entry.getKey()), "Missing queue for action type: " + entry.getKey());
+            // verify the queue is of the correct length (0)
             assertEquals(entry.getValue().size(), actual_queues.get(entry.getKey()).size(), "Queue size mismatch for action type: " + entry.getKey());
         }
     }
