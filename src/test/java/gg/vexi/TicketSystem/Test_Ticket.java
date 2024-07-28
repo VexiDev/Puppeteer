@@ -13,6 +13,7 @@ import static gg.vexi.TicketSystem.TestUtils.assertJsonObjectEquals;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public class Test_Ticket {
 

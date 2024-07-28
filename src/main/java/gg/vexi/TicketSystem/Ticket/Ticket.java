@@ -11,13 +11,13 @@ public class Ticket {
     private final ActionType type;
     private final TicketPriority priority;
     private final JsonObject parameters;
-    private final CompletableFuture future;
+    private final CompletableFuture<TicketResult> future;
 
     public Ticket(
                 ActionType ActionType, 
                 TicketPriority TicketPriority, 
                 JsonObject Parameters, 
-                CompletableFuture TicketFuture) 
+                CompletableFuture<TicketResult> TicketFuture) 
     {
         Id = UUID.randomUUID();
         type = ActionType;
@@ -42,7 +42,7 @@ public class Ticket {
         return Id;
     }
 
-    public CompletableFuture getFuture() {
+    public CompletableFuture<TicketResult> getFuture() {
         return future;
     }
 
