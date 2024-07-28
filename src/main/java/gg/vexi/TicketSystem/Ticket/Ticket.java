@@ -1,6 +1,7 @@
 package gg.vexi.TicketSystem.Ticket;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
 
@@ -10,12 +11,19 @@ public class Ticket {
     private final ActionType type;
     private final TicketPriority priority;
     private final JsonObject parameters;
+    private final CompletableFuture future;
 
-    public Ticket(ActionType ActionType, TicketPriority TicketPriority, JsonObject Parameters) {
+    public Ticket(
+                ActionType ActionType, 
+                TicketPriority TicketPriority, 
+                JsonObject Parameters, 
+                CompletableFuture TicketFuture) 
+    {
         Id = UUID.randomUUID();
         type = ActionType;
         priority = TicketPriority;
         parameters = Parameters;
+        future = TicketFuture;
     }
 
     public ActionType getType() {
@@ -32,6 +40,10 @@ public class Ticket {
 
     public UUID getId() {
         return Id;
+    }
+
+    public CompletableFuture getFuture() {
+        return future;
     }
 
 }
