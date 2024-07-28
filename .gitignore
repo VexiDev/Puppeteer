@@ -3,6 +3,10 @@
 **/*.class
 **/*.py
 
+#exclude certain directories
+.vscode/
+python/
+
 # Exclude gradle kotlin directories
 .kotlin/
 .gradle/
