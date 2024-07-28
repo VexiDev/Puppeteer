@@ -1,5 +1,7 @@
 package gg.vexi.TicketSystem;
 
+import java.util.concurrent.CompletableFuture;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +28,11 @@ public class Test_Ticket {
     @Test
     public void test_init() {
         // check if ticket is initialized correctly
+        
+        // create expected objects
+        JsonObject expected_parameters = new JsonObject();
+        expected_parameters.addProperty("setting_example", true);
+
 
         // verify ticket exists
         assertNotNull(Ticket, "Ticket is Null");
@@ -42,11 +49,12 @@ public class Test_Ticket {
         assertEquals(true, Ticket.getPriority() instanceof TicketPriority, "Ticket does not have a valid priority level");
 
         // verify parameters
-        JsonObject expected_parameters = new JsonObject();
-        expected_parameters.addProperty("setting_example", true);
-
         assertNotNull(Ticket.getParameters(), "Ticket has no action type");
         assertJsonObjectEquals(expected_parameters, Ticket.getParameters());
+
+        // verify future
+        assertNotNull(Ticket.getFuture(), "Ticket has no future");
+        assertEquals(true, Ticket.getFuture() instanceof CompletableFuture<TicketResult>);
     }
     
 }
