@@ -22,7 +22,7 @@ public class Test_Ticket {
     public void setup() {
         JsonObject parameters = new JsonObject();
         parameters.addProperty("setting_example", true);
-        Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, parameters);
+        Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, parameters, new CompletableFuture<>());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class Test_Ticket {
 
         // verify future
         assertNotNull(Ticket.getFuture(), "Ticket has no future");
-        assertEquals(true, Ticket.getFuture() instanceof CompletableFuture<TicketResult>);
+        assertEquals(true, Ticket.getFuture() instanceof CompletableFuture);
     }
     
 }

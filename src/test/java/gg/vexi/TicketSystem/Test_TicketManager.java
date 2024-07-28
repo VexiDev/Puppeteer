@@ -1,6 +1,7 @@
 package gg.vexi.TicketSystem;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -50,7 +51,7 @@ public class Test_TicketManager {
     @Test
     public void test_ScheduleTicket() {
 
-        Ticket Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
+        Ticket Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
 
         // build expected queue object
         ConcurrentLinkedQueue<Ticket> expected_q = new ConcurrentLinkedQueue<>();
@@ -73,8 +74,8 @@ public class Test_TicketManager {
     @Test
     public void test_NextTicket() {
         // Schedule 2 tickets
-        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
-        Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
+        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
         TicketManager.queueTicket(ticket1.getType(), ticket1);
         TicketManager.queueTicket(ticket2.getType(), ticket2);
 
@@ -94,7 +95,7 @@ public class Test_TicketManager {
 
     @Test
     public void test_executeTicket() {
-        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
+        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
         TicketManager.queueTicket(ticket1.getType(), ticket1);
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
