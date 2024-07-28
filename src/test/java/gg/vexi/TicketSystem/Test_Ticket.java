@@ -25,7 +25,9 @@ public class Test_Ticket {
 
     @Test
     public void test_init() {
-        // check if ticket even initialized correctly
+        // check if ticket is initialized correctly
+
+        // verify ticket exists
         assertNotNull(Ticket, "Ticket is Null");
 
         // verify id exists
@@ -45,7 +47,6 @@ public class Test_Ticket {
 
         assertNotNull(Ticket.getParameters(), "Ticket has no action type");
         assertJsonObjectEquals(expected_parameters, Ticket.getParameters());
-
     }
     
 }
