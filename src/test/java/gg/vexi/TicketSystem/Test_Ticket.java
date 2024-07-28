@@ -27,6 +27,9 @@ public class Test_Ticket {
     public void test_init() {
         // check if ticket even initialized correctly
         assertNotNull(Ticket, "Ticket is Null");
+
+        // verify id exists
+        assertNotNull(Ticket.getId(), "Ticket ID is Null");
         
         // verify type
         assertNotNull(Ticket.getType(), "Ticket has no action type");
