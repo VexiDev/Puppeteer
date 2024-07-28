@@ -53,6 +53,7 @@ public class Test_TicketManager {
             // verify the queue is of the correct length (0)
             assertEquals(entry.getValue().size(), actual_queues.get(entry.getKey()).size(), "Queue size mismatch for action type: " + entry.getKey());
         }
+        
     }
 
     @Test
