@@ -53,7 +53,7 @@ public class Test_Ticket {
 
         // verify future
         assertNotNull(Ticket.getFuture(), "Ticket has no future");
-        assertEquals(true, Ticket.getFuture() instanceof CompletableFuture);
+        assertEquals(true, Ticket.getFuture() instanceof CompletableFuture<TicketResult>);
     }
     
 }
