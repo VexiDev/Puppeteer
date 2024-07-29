@@ -1,5 +1,6 @@
 package gg.vexi.TicketSystem;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,7 +54,7 @@ public class Test_TicketManager {
             // verify the queue is of the correct length (0)
             assertEquals(entry.getValue().size(), actual_queues.get(entry.getKey()).size(), "Queue size mismatch for action type: " + entry.getKey());
         }
-        
+
     }
 
     @Test
@@ -66,8 +67,8 @@ public class Test_TicketManager {
         expected_q.add(Ticket);
 
         // schedule a ticket
-        boolean result = TicketManager.queueTicket(Ticket.getType(), Ticket);
-        assertEquals(true, result, "TicketManager did not return a valid result for scheduleTicket");
+        Ticket result = TicketManager.queueTicket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
+        assertNotNull(result, "TicketManager returned null value for queueTicket()");
 
         // get queue length
         ConcurrentLinkedQueue<Ticket> actual_q = TicketManager.getQueue(ActionType.ACTION);
@@ -80,15 +81,26 @@ public class Test_TicketManager {
     }
 
     @Test
-    public void test_NextTicket() {
-        // Schedule 2 tickets
+    public void test_NextTicket() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
+        // create necessary objects
         Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
         Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        TicketManager.queueTicket(ticket1.getType(), ticket1);
-        TicketManager.queueTicket(ticket2.getType(), ticket2);
+        
+        // get actions_queue from ticketmanager using reflection
+        Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
+        actions_queue_field.setAccessible(true);
+        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actions_queue = 
+        (ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>>) actions_queue_field.get(TicketManager);
+
+        // Simulate the queue if we had 2 tickets in in the queue  
+        actions_queue.get(ticket1.getType()).add(ticket1);
+
+        assertNotNull(ticket1, "TicketManager returned null value for queueTicket() [ticket1]");
+        assertNotNull(ticket2, "TicketManager returned null value for queueTicket() [ticket2]");
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
+
         assertNotNull(nextTicket, "Expected nextTicket to return a non-null ticket, but it returned null.");
         assertEquals(ticket1, nextTicket, "Expected the first scheduled ticket to be returned.");
 
@@ -103,8 +115,14 @@ public class Test_TicketManager {
 
     @Test
     public void test_executeTicket() {
-        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        TicketManager.queueTicket(ticket1.getType(), ticket1);
+        // Schedule ticket  
+        // >>> (OLD METHOD! COULD IMPLEMENT USING OVERLOADING?) <<<
+        // Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        // TicketManager.queueTicket(ticket1.getType(), ticket1);
+        Ticket ticket1 = TicketManager.queueTicket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
+
+        assertNotNull(ticket1, "Ticket is null");
+
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
         TicketManager.executeTicket(nextTicket);
