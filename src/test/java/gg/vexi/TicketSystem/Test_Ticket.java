@@ -17,7 +17,7 @@ import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public class Test_Ticket {
 
-    Ticket Ticket;
+    private Ticket Ticket;
 
     @BeforeEach
     public void setup() {
