@@ -84,7 +84,11 @@ public class Test_TicketManager {
         // create necessary objects
         Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
         Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        
+       
+       // verify tickets exist
+        assertNotNull(ticket1, "TicketManager returned null value for queueTicket() [ticket1]");
+        assertNotNull(ticket2, "TicketManager returned null value for queueTicket() [ticket2]");
+
         // get actions_queue from ticketmanager using reflection
         Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
         actions_queue_field.setAccessible(true);
@@ -93,9 +97,6 @@ public class Test_TicketManager {
 
         // Simulate the queue if we had 2 tickets in in the queue  
         actions_queue.get(ticket1.getType()).add(ticket1);
-
-        assertNotNull(ticket1, "TicketManager returned null value for queueTicket() [ticket1]");
-        assertNotNull(ticket2, "TicketManager returned null value for queueTicket() [ticket2]");
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
