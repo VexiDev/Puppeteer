@@ -21,61 +21,75 @@ public class TicketManager {
             actionQueues.put(type, new ConcurrentLinkedQueue<>());
         }
     }
-    
-    
-    protected void addTicketToQueue(Ticket ticket) { 
-        
+
+    protected void addTicketToQueue(Ticket ticket) {
+
         actionQueues.get(ticket.getType()).add(ticket);
-    
+
     }
 
     public Ticket createTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
-        
+
         CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
         Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); // create our ticket
 
-        return ticket; 
+        return ticket;
     }
-
 
     // overload if customer already created ticket themselves with createTicket()
-    public void queueTicket(Ticket ticket) { addTicketToQueue(ticket); } 
-
-    public Ticket queueTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
-        
-        Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
-        
-        addTicketToQueue(ticket); 
-
-        return ticket; 
+    public void queueTicket(Ticket ticket) {
+        addTicketToQueue(ticket);
     }
 
+    public Ticket queueTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+
+        Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
+
+        addTicketToQueue(ticket);
+
+        return ticket;
+    }
 
     protected Ticket nextTicket(ActionType type) {
-        
+
         if (getActive(type) == null) {
-            
+
             return actionQueues.get(type).poll();
-        
+
         } else {
-        
+
             return null;
         }
 
     }
 
     protected void executeTicket(Ticket ticket) {
-        
+
         // get ticket type
         ActionType ticket_type = ticket.getType();
 
         // make ticket active
-        activeTickets.put(ticket_type, ticket);
+        activeTickets.putIfAbsent(ticket_type, ticket);
 
         // this is where we create and run our worker!
-        // we then wait for the worker to be done 
-        // mark ticket as complete (+remove from active)
-        // then poll the next ticket.
+        // • we then wait for the worker to be done 
+        // • mark ticket as complete (+remove from active)
+        // • then poll the next ticket.
+        // for now simulate work being done then return the future
+        waitThenCompleteFuture(ticket);
+
+    }
+
+    protected void waitThenCompleteFuture(Ticket ticket) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            System.out.println("waitThenCompleteFuture interrupted!");
+        }
+
+        ticket.getFuture().complete(new TicketResult());
+
+        activeTickets.remove(ticket.getType());
 
     }
 
@@ -87,12 +101,17 @@ public class TicketManager {
         return actionQueues;
     }
 
+
+    public void setActive(Ticket ticket) {
+        activeTickets.put(ticket.getType(), ticket);
+    }
+
     public Ticket getActive(ActionType type) {
         return activeTickets.get(type);
     }
 
-    public void setActive(Ticket ticket) {
-        activeTickets.put(ticket.getType(), ticket);
+    public ConcurrentHashMap<ActionType, Ticket> getAllActive() {
+        return activeTickets;
     }
 
 }
