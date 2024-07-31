@@ -58,7 +58,7 @@ public class Test_TicketManager {
     }
 
     @Test
-    public void test_ScheduleTicket() {
+    public void test_addTicketToQueue() {
 
         Ticket Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
 
@@ -66,9 +66,8 @@ public class Test_TicketManager {
         ConcurrentLinkedQueue<Ticket> expected_q = new ConcurrentLinkedQueue<>();
         expected_q.add(Ticket);
 
-        // schedule a ticket
-        Ticket result = TicketManager.queueTicket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
-        assertNotNull(result, "TicketManager returned null value for queueTicket()");
+        // add ticket to that ticket's action queue
+        TicketManager.addTicketToQueue(Ticket);
 
         // get queue length
         ConcurrentLinkedQueue<Ticket> actual_q = TicketManager.getQueue(ActionType.ACTION);
