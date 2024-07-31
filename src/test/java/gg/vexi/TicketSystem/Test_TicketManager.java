@@ -115,19 +115,17 @@ public class Test_TicketManager {
 
     @Test
     public void test_executeTicket() {
-        // Schedule ticket  
-        // >>> (OLD METHOD! COULD IMPLEMENT USING OVERLOADING?) <<<
-        // Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        // TicketManager.queueTicket(ticket1.getType(), ticket1);
-        Ticket ticket1 = TicketManager.queueTicket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject());
-
+        // create ticket object
+        Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+       
+        // verify ticket isn't null
         assertNotNull(ticket1, "Ticket is null");
 
-        Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
+        // execute the ticket
+        TicketManager.executeTicket(ticket1);
 
-        TicketManager.executeTicket(nextTicket);
-
-        assertEquals(nextTicket, TicketManager.getActive(ActionType.ACTION), "activeTicket is not the ticket passed to executeTicket");
+        // verify the ticket was set to active ticket
+        assertEquals(ticket1, TicketManager.getActive(ActionType.ACTION), "activeTicket is not the ticket passed to executeTicket");
 
     }
 
