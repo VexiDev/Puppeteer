@@ -1,10 +1,15 @@
 package gg.vexi.TicketSystem;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.google.gson.JsonObject;
+
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public class TicketManager {
 
@@ -16,25 +21,62 @@ public class TicketManager {
             actionQueues.put(type, new ConcurrentLinkedQueue<>());
         }
     }
-
-    public boolean queueTicket(ActionType TicketType, Ticket Ticket) {
-
-        actionQueues.get(TicketType).add(Ticket);
-
-        return true;
+    
+    
+    protected void addTicketToQueue(Ticket ticket) { 
+        
+        actionQueues.get(ticket.getType()).add(ticket);
+    
     }
 
+    public Ticket createTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+        
+        CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
+        Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); // create our ticket
+
+        return ticket; 
+    }
+
+
+    // overload if customer already created ticket themselves with createTicket()
+    public void queueTicket(Ticket ticket) { addTicketToQueue(ticket); } 
+
+    public Ticket queueTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+        
+        Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
+        
+        addTicketToQueue(ticket); 
+
+        return ticket; 
+    }
+
+
     protected Ticket nextTicket(ActionType type) {
+        
         if (getActive(type) == null) {
+            
             return actionQueues.get(type).poll();
+        
         } else {
+        
             return null;
         }
 
     }
 
     protected void executeTicket(Ticket ticket) {
-        activeTickets.put(ticket.getType(), ticket);
+        
+        // get ticket type
+        ActionType ticket_type = ticket.getType();
+
+        // make ticket active
+        activeTickets.put(ticket_type, ticket);
+
+        // this is where we create and run our worker!
+        // we then wait for the worker to be done 
+        // mark ticket as complete (+remove from active)
+        // then poll the next ticket.
+
     }
 
     public ConcurrentLinkedQueue<Ticket> getQueue(ActionType type) {
