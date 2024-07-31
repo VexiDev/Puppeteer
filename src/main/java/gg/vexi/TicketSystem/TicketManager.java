@@ -25,7 +25,6 @@ public class TicketManager {
     protected void addTicketToQueue(Ticket ticket) {
 
         actionQueues.get(ticket.getType()).add(ticket);
-
     }
 
     public Ticket createTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
@@ -38,7 +37,10 @@ public class TicketManager {
 
     // overload if customer already created ticket themselves with createTicket()
     public void queueTicket(Ticket ticket) {
+
         addTicketToQueue(ticket);
+        tryExecuteNextTicket(ticket.getType());
+    
     }
 
     public Ticket queueTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
@@ -46,6 +48,7 @@ public class TicketManager {
         Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
 
         addTicketToQueue(ticket);
+        tryExecuteNextTicket(action_type);
 
         return ticket;
     }
@@ -53,13 +56,23 @@ public class TicketManager {
     protected Ticket nextTicket(ActionType type) {
 
         if (getActive(type) == null) {
-
+            
             return actionQueues.get(type).poll();
 
         } else {
 
             return null;
         }
+    }
+
+    protected void tryExecuteNextTicket(ActionType action_type) {
+
+        Ticket next_ticket = nextTicket(action_type);
+
+        if (next_ticket == null) { return; }
+
+        executeTicket(next_ticket);
+        
 
     }
 
