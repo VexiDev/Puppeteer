@@ -105,6 +105,7 @@ public class Test_TicketManager {
 
         // Simulate the queue if we had 2 tickets in in the queue  
         actions_queue.get(ticket1.getType()).offer(ticket1);
+        actions_queue.get(ticket2.getType()).offer(ticket2);
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
