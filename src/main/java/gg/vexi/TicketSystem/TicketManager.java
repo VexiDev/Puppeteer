@@ -108,7 +108,8 @@ public class TicketManager {
             System.out.println("waitThenCompleteFuture interrupted!");
         }
 
-        ticket.getFuture().complete(new TicketResult());
+        ticket.getFuture().complete(new TicketResult(ticket));
+
         completeTicket(ticket);
     }
 
