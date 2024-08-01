@@ -45,12 +45,13 @@ class Test_Customer {
 
         // set check value to ensure execution order
         AtomicInteger check = new AtomicInteger(0);
+        AtomicInteger expected_check = new AtomicInteger(1);
 
         // <<<< EXECUTES FIRST WHEN TICKET FUTURE COMPLETE >>>>>>>
         ticketFuture.thenAccept(result -> {
 
-            // verify check
-            assertEquals(0, check.incrementAndGet(), "ticketFuture.thenAccept did not run first");
+            // verify current check and incrememnt check by 1
+            assertEquals(new AtomicInteger(0).get(), check.getAndSet(1), "ticketFuture.thenAccept did not run first");
 
         });
 
@@ -68,7 +69,7 @@ class Test_Customer {
         TicketResult ticket_result = ticket_result_holder.get();
 
         // <<<< EXECUTES AFTER thenAccept >>>>>>>
-        assertEquals(1, check, "ticketFuture.thenAccept did not run first");
+        assertEquals(expected_check.get(), check.get(), "ticketFuture.thenAccept did not run first");
 
         // verify ticket_result
         assertNotNull(ticket_result, "Ticket result does not exist");
