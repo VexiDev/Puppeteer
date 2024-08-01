@@ -1,6 +1,7 @@
 package gg.vexi.TicketSystem;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,7 +41,7 @@ public class Test_TicketManager {
 
         // verify ticketmanager exists
         assertNotNull(TicketManager, "TicketManager is Null");
-        
+
         // get actual active map 
         ConcurrentHashMap<ActionType, Ticket> actual_active_map = TicketManager.getAllActive();
 
@@ -91,16 +92,16 @@ public class Test_TicketManager {
         // create necessary objects
         Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
         Ticket ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-       
-       // verify tickets exist
+
+        // verify tickets exist
         assertNotNull(ticket1, "TicketManager returned null value for queueTicket() [ticket1]");
         assertNotNull(ticket2, "TicketManager returned null value for queueTicket() [ticket2]");
 
         // get actions_queue from ticketmanager using reflection
         Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
         actions_queue_field.setAccessible(true);
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actions_queue = 
-        (ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>>) actions_queue_field.get(TicketManager);
+        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actions_queue
+                = (ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>>) actions_queue_field.get(TicketManager);
 
         // Simulate the queue if we had 2 tickets in in the queue  
         actions_queue.get(ticket1.getType()).add(ticket1);
@@ -124,7 +125,7 @@ public class Test_TicketManager {
     public void test_executeTicket() {
         // create ticket object
         Ticket ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-       
+
         // verify ticket isn't null
         assertNotNull(ticket1, "Ticket is null");
 
