@@ -137,4 +137,64 @@ public class Test_TicketManager {
 
     }
 
+    @Test
+    public void test_ticketPriorityOrdering() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
+        // create expected objects
+        List<TicketPriority> expected_order = List.of(TicketPriority.SYSTEM, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
+
+        // get actions_queue from ticketmanager using reflection
+        Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
+        actions_queue_field.setAccessible(true);
+        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actions_queue
+                = (ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>>) actions_queue_field.get(TicketManager);
+
+        // created test tickets
+        Ticket normal_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        Ticket normal_ticket2 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        Ticket elevated_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.ELEVATED, new JsonObject(), new CompletableFuture<>());
+        Ticket high_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
+        Ticket high_ticket2 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
+        Ticket high_ticket3 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
+        Ticket system_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.SYSTEM, new JsonObject(), new CompletableFuture<>());
+
+        // bundle tickets into a list
+        List<Ticket> ticket_list = List.of(
+                normal_ticket1,
+                normal_ticket2,
+                elevated_ticket1,
+                high_ticket1,
+                high_ticket2,
+                high_ticket3,
+                system_ticket1
+        );
+
+        // add all tickets to their respective queue (all the same queue now)
+        for (Ticket ticket : ticket_list) {
+            actions_queue.get(ticket.getType()).offer(ticket);
+        }
+        // verify that tickets are in the correct order
+        // system > high > elevated > normal
+        TicketPriority lastPriority = null;
+        TicketPriority currentPriority;
+        int lastPriorityIndex = -1;
+        Ticket current_ticket;
+
+        while ((current_ticket = actions_queue.get(ActionType.ACTION).poll()) != null) {
+            currentPriority = current_ticket.getPriority();
+            int currentPriorityIndex = expected_order.indexOf(currentPriority);
+
+            assertTrue(currentPriorityIndex != -1, 
+                "Unexpected priority found: " + currentPriority);
+
+            if (lastPriority != null) {
+                assertTrue(currentPriorityIndex >= lastPriorityIndex,
+                    "Priority out of order. Found " + currentPriority + 
+                    " after " + lastPriority);
+            }
+
+            lastPriority = currentPriority;
+            lastPriorityIndex = currentPriorityIndex;
+        }
+    }
+
 }
