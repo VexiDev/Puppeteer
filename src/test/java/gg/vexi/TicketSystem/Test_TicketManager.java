@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,9 +34,9 @@ public class Test_TicketManager {
         // check if ticketmanager actually initialized correctly 
 
         // build expected objects
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
+        ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
         for (ActionType type : ActionType.values()) {
-            expected_queues.put(type, new ConcurrentLinkedQueue<>());
+            expected_queues.put(type, new PriorityBlockingQueue<>());
         }
 
         // verify ticketmanager exists
@@ -51,12 +51,12 @@ public class Test_TicketManager {
         assertEquals(new ConcurrentHashMap<>().size(), actual_active_map.size());
 
         // get actual ticketmanager queues
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
+        ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
 
         // verify we have all queues (we should have a queue for each action type)
         assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
         // verify ticketmanager queue map contense against expected contense
-        for (Map.Entry<ActionType, ConcurrentLinkedQueue<Ticket>> entry : expected_queues.entrySet()) {
+        for (Map.Entry<ActionType, PriorityBlockingQueue<Ticket>> entry : expected_queues.entrySet()) {
             // verify the ticketmanager queue map contains expected key
             assertTrue(actual_queues.containsKey(entry.getKey()), "Missing queue for action type: " + entry.getKey());
             // verify the queue is of the correct length (0)
@@ -71,14 +71,14 @@ public class Test_TicketManager {
         Ticket Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
 
         // build expected queue object
-        ConcurrentLinkedQueue<Ticket> expected_q = new ConcurrentLinkedQueue<>();
+        PriorityBlockingQueue<Ticket> expected_q = new PriorityBlockingQueue<>();
         expected_q.add(Ticket);
 
         // add ticket to that ticket's action queue
         TicketManager.addTicketToQueue(Ticket);
 
         // get queue length
-        ConcurrentLinkedQueue<Ticket> actual_q = TicketManager.getQueue(ActionType.ACTION);
+        PriorityBlockingQueue<Ticket> actual_q = TicketManager.getQueue(ActionType.ACTION);
 
         // check queue length
         assertEquals(expected_q.size(), actual_q.size(), "Queue sizes do not match");
@@ -100,8 +100,8 @@ public class Test_TicketManager {
         // get actions_queue from ticketmanager using reflection
         Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
         actions_queue_field.setAccessible(true);
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actions_queue
-                = (ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>>) actions_queue_field.get(TicketManager);
+        ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> actions_queue
+                = (ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(TicketManager);
 
         // Simulate the queue if we had 2 tickets in in the queue  
         actions_queue.get(ticket1.getType()).add(ticket1);
@@ -138,13 +138,13 @@ public class Test_TicketManager {
     }
 
     @Test
-    public void test_ticketPriorityOrdering() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
+    public void test_TicketPriorityOrdering() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
 
         // get actions_queue from ticketmanager using reflection
         Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
         actions_queue_field.setAccessible(true);
-        ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actions_queue
-                = (ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>>) actions_queue_field.get(TicketManager);
+        ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> actions_queue
+                = (ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(TicketManager);
 
         // created test tickets
         Ticket normal_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
@@ -153,7 +153,7 @@ public class Test_TicketManager {
         Ticket high_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
         Ticket high_ticket2 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
         Ticket high_ticket3 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
-        Ticket system_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.SYSTEM, new JsonObject(), new CompletableFuture<>());
+        Ticket highest_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.HIGHEST, new JsonObject(), new CompletableFuture<>());
 
         // bundle tickets into a list (out of order)
         List<Ticket> ticket_list = List.of(
@@ -163,7 +163,7 @@ public class Test_TicketManager {
                 high_ticket1,
                 normal_ticket2,
                 high_ticket3,
-                system_ticket1
+                highest_ticket1
         );
 
         // add all tickets to their respective queue (all the same queue for now)
@@ -171,7 +171,7 @@ public class Test_TicketManager {
             actions_queue.get(ticket.getType()).offer(ticket);
         }
         // verify that tickets are in the correct order
-        List<TicketPriority> expected_order = List.of(TicketPriority.SYSTEM, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
+        List<TicketPriority> expected_order = List.of(TicketPriority.HIGHEST, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
         TicketPriority lastPriority = null;
         TicketPriority currentPriority;
         int lastPriorityIndex = -1;

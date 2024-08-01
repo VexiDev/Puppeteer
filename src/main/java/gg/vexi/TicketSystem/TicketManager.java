@@ -2,7 +2,7 @@ package gg.vexi.TicketSystem;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.gson.JsonObject;
 
@@ -13,12 +13,12 @@ import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public class TicketManager {
 
-    private final ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<ActionType, Ticket> activeTickets = new ConcurrentHashMap<>();
 
     public TicketManager() {
         for (ActionType type : ActionType.values()) {
-            actionQueues.put(type, new ConcurrentLinkedQueue<>());
+            actionQueues.put(type, new PriorityBlockingQueue<>());
         }
     }
 
@@ -112,11 +112,11 @@ public class TicketManager {
         completeTicket(ticket);
     }
 
-    public ConcurrentLinkedQueue<Ticket> getQueue(ActionType type) {
+    public PriorityBlockingQueue<Ticket> getQueue(ActionType type) {
         return actionQueues.get(type);
     }
 
-    public ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> getAllQueues() {
+    public ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> getAllQueues() {
         return actionQueues;
     }
 

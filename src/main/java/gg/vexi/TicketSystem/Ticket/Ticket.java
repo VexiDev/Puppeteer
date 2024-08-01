@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
 
-public class Ticket {
+public class Ticket implements Comparable<Ticket> {
 
     private final UUID Id;
     private final ActionType type;
@@ -24,6 +24,13 @@ public class Ticket {
         priority = TicketPriority;
         parameters = Parameters;
         future = TicketFuture;
+    }
+
+
+    // compare method for automatic sorting when in queues
+    @Override
+    public int compareTo(Ticket other) {
+        return Integer.compare(other.priority.ordinal(), this.priority.ordinal());
     }
 
     public ActionType getType() {
