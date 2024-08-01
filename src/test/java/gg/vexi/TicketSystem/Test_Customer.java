@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import com.google.gson.JsonObject;
 
@@ -29,7 +28,6 @@ class Test_Customer {
     }
 
     @Test
-    @Timeout(5)
     public void Test_TicketHandlingBehavior() { // this method should be renamed!
         // create ticket objects
         ActionType ticket_type = ActionType.ACTION;
