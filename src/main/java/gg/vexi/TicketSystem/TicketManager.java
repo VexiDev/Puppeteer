@@ -95,6 +95,8 @@ public class TicketManager {
 
     protected void completeTicket(Ticket ticket) {
 
+        ticket.getFuture().complete(new TicketResult(ticket));
+
         activeTickets.remove(ticket.getType());
     
         tryExecuteNextTicket(ticket.getType());
@@ -103,12 +105,10 @@ public class TicketManager {
 
     protected void waitThenCompleteFuture(Ticket ticket) {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             System.out.println("waitThenCompleteFuture interrupted!");
         }
-
-        ticket.getFuture().complete(new TicketResult(ticket));
 
         completeTicket(ticket);
     }
