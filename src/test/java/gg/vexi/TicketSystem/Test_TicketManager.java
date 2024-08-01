@@ -139,8 +139,6 @@ public class Test_TicketManager {
 
     @Test
     public void test_ticketPriorityOrdering() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
-        // create expected objects
-        List<TicketPriority> expected_order = List.of(TicketPriority.SYSTEM, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
 
         // get actions_queue from ticketmanager using reflection
         Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
@@ -157,23 +155,23 @@ public class Test_TicketManager {
         Ticket high_ticket3 = new Ticket(ActionType.ACTION, TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
         Ticket system_ticket1 = new Ticket(ActionType.ACTION, TicketPriority.SYSTEM, new JsonObject(), new CompletableFuture<>());
 
-        // bundle tickets into a list
+        // bundle tickets into a list (out of order)
         List<Ticket> ticket_list = List.of(
+                high_ticket2,
                 normal_ticket1,
-                normal_ticket2,
                 elevated_ticket1,
                 high_ticket1,
-                high_ticket2,
+                normal_ticket2,
                 high_ticket3,
                 system_ticket1
         );
 
-        // add all tickets to their respective queue (all the same queue now)
+        // add all tickets to their respective queue (all the same queue for now)
         for (Ticket ticket : ticket_list) {
             actions_queue.get(ticket.getType()).offer(ticket);
         }
         // verify that tickets are in the correct order
-        // system > high > elevated > normal
+        List<TicketPriority> expected_order = List.of(TicketPriority.SYSTEM, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
         TicketPriority lastPriority = null;
         TicketPriority currentPriority;
         int lastPriorityIndex = -1;
@@ -183,13 +181,10 @@ public class Test_TicketManager {
             currentPriority = current_ticket.getPriority();
             int currentPriorityIndex = expected_order.indexOf(currentPriority);
 
-            assertTrue(currentPriorityIndex != -1, 
-                "Unexpected priority found: " + currentPriority);
+            assertTrue(currentPriorityIndex != -1, "Unexpected priority found: " + currentPriority);
 
             if (lastPriority != null) {
-                assertTrue(currentPriorityIndex >= lastPriorityIndex,
-                    "Priority out of order. Found " + currentPriority + 
-                    " after " + lastPriority);
+                assertTrue(currentPriorityIndex >= lastPriorityIndex, "Priority out of order. Found " + currentPriority + " after " + lastPriority);
             }
 
             lastPriority = currentPriority;
