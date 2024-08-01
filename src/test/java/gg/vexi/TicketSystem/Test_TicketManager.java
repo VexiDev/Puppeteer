@@ -37,7 +37,6 @@ public class Test_TicketManager {
         for (ActionType type : ActionType.values()) {
             expected_queues.put(type, new ConcurrentLinkedQueue<>());
         }
-        ConcurrentHashMap<ActionType, Ticket> expected_active_map = new ConcurrentHashMap<>();
 
         // verify ticketmanager exists
         assertNotNull(TicketManager, "TicketManager is Null");
@@ -48,7 +47,7 @@ public class Test_TicketManager {
         // verify active tickets map exists
         assertNotNull(actual_active_map, "Actual active map is Null");
         // verify it has no entries
-        assertEquals(expected_active_map.size(), actual_active_map.size());
+        assertEquals(new ConcurrentHashMap<>().size(), actual_active_map.size());
 
         // get actual ticketmanager queues
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
