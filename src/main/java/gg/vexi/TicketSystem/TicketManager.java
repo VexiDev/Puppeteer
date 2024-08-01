@@ -120,7 +120,6 @@ public class TicketManager {
         return actionQueues;
     }
 
-
     public void setActive(Ticket ticket) {
         activeTickets.put(ticket.getType(), ticket);
     }

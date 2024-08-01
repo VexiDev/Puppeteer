@@ -27,8 +27,11 @@ class Test_Customer {
         TicketManager = new TicketManager();
     }
 
+    // this method should be renamed! 
+    //(it does a full interaction test from going from:
+    //only parameters -> queued ticket -> waiting for ticket completion -> handling completion(WIP) -> more later on...
     @Test
-    public void Test_TicketHandlingBehavior() { // this method should be renamed!
+    public void Test_TicketHandlingBehavior() {
         // create ticket objects
         ActionType ticket_type = ActionType.ACTION;
         TicketPriority priority = TicketPriority.NORMAL;
