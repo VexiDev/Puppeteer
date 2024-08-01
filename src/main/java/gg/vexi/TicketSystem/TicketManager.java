@@ -24,7 +24,7 @@ public class TicketManager {
 
     protected void addTicketToQueue(Ticket ticket) {
 
-        actionQueues.get(ticket.getType()).add(ticket);
+        actionQueues.get(ticket.getType()).offer(ticket);
     }
 
     public Ticket createTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {

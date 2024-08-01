@@ -72,7 +72,7 @@ public class Test_TicketManager {
 
         // build expected queue object
         PriorityBlockingQueue<Ticket> expected_q = new PriorityBlockingQueue<>();
-        expected_q.add(Ticket);
+        expected_q.offer(Ticket);
 
         // add ticket to that ticket's action queue
         TicketManager.addTicketToQueue(Ticket);
@@ -104,7 +104,7 @@ public class Test_TicketManager {
                 = (ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(TicketManager);
 
         // Simulate the queue if we had 2 tickets in in the queue  
-        actions_queue.get(ticket1.getType()).add(ticket1);
+        actions_queue.get(ticket1.getType()).offer(ticket1);
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
         Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
