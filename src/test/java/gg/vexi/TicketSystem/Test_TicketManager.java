@@ -37,16 +37,24 @@ public class Test_TicketManager {
         for (ActionType type : ActionType.values()) {
             expected_queues.put(type, new ConcurrentLinkedQueue<>());
         }
+        ConcurrentHashMap<ActionType, Ticket> expected_active_map = new ConcurrentHashMap<>();
 
         // verify ticketmanager exists
         assertNotNull(TicketManager, "TicketManager is Null");
+        
+        // get actual active map 
+        ConcurrentHashMap<ActionType, Ticket> actual_active_map = TicketManager.getAllActive();
 
-        // get all ticketmanager queues
+        // verify active tickets map exists
+        assertNotNull(actual_active_map, "Actual active map is Null");
+        // verify it has no entries
+        assertEquals(expected_active_map.size(), actual_active_map.size());
+
+        // get actual ticketmanager queues
         ConcurrentHashMap<ActionType, ConcurrentLinkedQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
 
         // verify we have all queues (we should have a queue for each action type)
         assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
-
         // verify ticketmanager queue map contense against expected contense
         for (Map.Entry<ActionType, ConcurrentLinkedQueue<Ticket>> entry : expected_queues.entrySet()) {
             // verify the ticketmanager queue map contains expected key
@@ -104,7 +112,7 @@ public class Test_TicketManager {
         assertNotNull(nextTicket, "Expected nextTicket to return a non-null ticket, but it returned null.");
         assertEquals(ticket1, nextTicket, "Expected the first scheduled ticket to be returned.");
 
-        // Set the first ticket to active
+        // Set the first ticket to active (aka simulate what executeTucket would do)
         TicketManager.setActive(nextTicket);
 
         // Try and get the next ticket, expect null because a ticket of that action type is already active
