@@ -9,7 +9,7 @@ public class Ticket implements Comparable<Ticket> {
 
     private final UUID Id;
     private final ActionType type;
-    private final TicketPriority priority;
+    private final TicketPriority priority; // may be made non-final if we implement a way to change ticket priority later on
     private final JsonObject parameters;
     private final CompletableFuture<TicketResult> future;
 
