@@ -9,6 +9,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,12 +104,16 @@ public class Test_TicketManager {
         ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> actions_queue
                 = (ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(TicketManager);
 
+        // attempt to get next ticket before adding any tickets (will always null)
+        Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
+        assertEquals(null, nextTicket, "nextTicket returned a not null value before we added any tickets to the queue: "+nextTicket);
+
         // Simulate the queue if we had 2 tickets in in the queue  
-        actions_queue.get(ticket1.getType()).offer(ticket1);
-        actions_queue.get(ticket2.getType()).offer(ticket2);
+        actions_queue.get(ActionType.ACTION).offer(ticket1);
+        actions_queue.get(ActionType.ACTION).offer(ticket2);
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
-        Ticket nextTicket = TicketManager.nextTicket(ActionType.ACTION);
+        nextTicket = TicketManager.nextTicket(ActionType.ACTION);
 
         assertNotNull(nextTicket, "Expected nextTicket to return a non-null ticket, but it returned null.");
         assertEquals(ticket1, nextTicket, "Expected the first scheduled ticket to be returned.");
@@ -116,7 +121,10 @@ public class Test_TicketManager {
         // Set the first ticket to active (aka simulate what executeTucket would do)
         TicketManager.setActive(nextTicket);
 
-        // Try and get the next ticket, expect null because a ticket of that action type is already active
+        // verify the actions_queue for our ticket is not empty
+        assertFalse(actions_queue.get(ActionType.ACTION).isEmpty(), "Queue for ticket2 is empty after polling first ticket");
+
+        // Try and get the next ticket
         nextTicket = TicketManager.nextTicket(ActionType.ACTION);
         assertEquals(null, nextTicket, "Expected nextTicket to return null when a ticket is active, but it returned a ticket.");
 
