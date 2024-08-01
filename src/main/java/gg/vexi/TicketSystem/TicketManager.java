@@ -88,9 +88,17 @@ public class TicketManager {
         // • we then wait for the worker to be done 
         // • mark ticket as complete (+remove from active)
         // • then poll the next ticket.
-        // for now simulate work being done then return the future
-        waitThenCompleteFuture(ticket);
+        // for now simulate work being done
+        CompletableFuture.runAsync(() -> waitThenCompleteFuture(ticket));
 
+    }
+
+    protected void completeTicket(Ticket ticket) {
+
+        activeTickets.remove(ticket.getType());
+    
+        tryExecuteNextTicket(ticket.getType());
+    
     }
 
     protected void waitThenCompleteFuture(Ticket ticket) {
@@ -101,9 +109,7 @@ public class TicketManager {
         }
 
         ticket.getFuture().complete(new TicketResult());
-
-        activeTickets.remove(ticket.getType());
-
+        completeTicket(ticket);
     }
 
     public ConcurrentLinkedQueue<Ticket> getQueue(ActionType type) {
