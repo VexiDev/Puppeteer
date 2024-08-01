@@ -18,7 +18,7 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 import gg.vexi.TicketSystem.Ticket.TicketResult;
 
-class Test_Customer {
+class BehaviorTests {
 
     private TicketManager TicketManager;
 
@@ -31,7 +31,7 @@ class Test_Customer {
     //(it does a full interaction test from going from:
     //only parameters -> queued ticket -> waiting for ticket completion -> handling completion(WIP) -> more later on...
     @Test
-    public void Test_TicketHandlingBehavior() {
+    public void test_TicketHandling() {
         // create ticket objects
         ActionType ticket_type = ActionType.ACTION;
         TicketPriority priority = TicketPriority.NORMAL;

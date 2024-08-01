@@ -15,7 +15,7 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 import gg.vexi.TicketSystem.Ticket.TicketResult;
 
-public class Test_Ticket {
+public class TicketTests {
 
     private Ticket Ticket;
 
