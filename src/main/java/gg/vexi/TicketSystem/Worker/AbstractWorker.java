@@ -18,8 +18,12 @@ public abstract class AbstractWorker {
 
     }
 
+    // getters
     public WorkerStatus getStatus() { return status; }
     public CompletableFuture<TicketResult> getFuture() { return future; }
     public Ticket getTicket() { return associated_ticket; }
+
+    // setters
+    public void setStatus(WorkerStatus new_status) { status = new_status; }
 
 }
