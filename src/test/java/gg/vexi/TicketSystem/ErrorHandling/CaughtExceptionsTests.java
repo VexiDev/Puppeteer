@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ErrorHandlingTests {
+class CaughtExceptionsTests {
 
     CaughtExceptions CaughtExceptions;
 
@@ -19,7 +19,7 @@ class ErrorHandlingTests {
 
 
     @Test
-    public void test_init() {
+    public void test_init() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
 
         // get errors map from caughtexceptions using reflection
         Field CaughtExceptions_field = CaughtExceptions.getClass().getDeclaredField("Errors");
