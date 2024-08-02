@@ -14,7 +14,7 @@ public class CaughtExceptions {
 
     private final ArrayList<Error> Errors = new ArrayList<>();
 
-    public void add() {}
+    public void add(Error e) { Errors.add(e); }
 
     public boolean any() { return !Errors.isEmpty(); }
 
