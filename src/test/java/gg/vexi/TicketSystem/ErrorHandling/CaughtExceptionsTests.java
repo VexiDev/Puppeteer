@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
+
 class CaughtExceptionsTests {
 
     CaughtExceptions CaughtExceptions;
