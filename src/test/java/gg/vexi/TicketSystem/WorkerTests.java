@@ -1,8 +1,19 @@
 package gg.vexi.TicketSystem;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.concurrent.CompletableFuture;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.google.gson.JsonObject;
+
+import gg.vexi.TicketSystem.Mock.MockWorker;
+import gg.vexi.TicketSystem.Ticket.ActionType;
+import gg.vexi.TicketSystem.Ticket.Ticket;
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.Worker.WorkerStatus;
 
 class WorkerTests {
 
@@ -10,7 +21,8 @@ class WorkerTests {
 
     @BeforeEach
     public void setup() {
-        worker = new MockWorker();
+        Ticket ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        worker = new MockWorker(ticket);
     }
 
     // Since workers are just going to be implementations of an abstract worker class
