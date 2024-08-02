@@ -8,36 +8,40 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import gg.vexi.TicketSystem.Exceptions.Error;
-
 public class CaughtExceptions {
 
-    private final ArrayList<Error> Errors = new ArrayList<>();
+    private final ArrayList<Anomaly> Errors = new ArrayList<>();
 
-    public void add(Error e) { Errors.add(e); }
+    public void add(Anomaly e) {
+        Errors.add(e);
+    }
 
-    public boolean any() { return !Errors.isEmpty(); }
+    public boolean any() {
+        return !Errors.isEmpty();
+    }
 
-    public ArrayList<Error> getAll() {
-        ArrayList<Error> allErrors = new ArrayList<>();
-        for (Error error : Errors) { allErrors.add(error); }
+    public ArrayList<Anomaly> getAll() {
+        ArrayList<Anomaly> allErrors = new ArrayList<>();
+        for (Anomaly error : Errors) {
+            allErrors.add(error);
+        }
         return allErrors;
     }
 
     public JsonObject toJson() {
 
-        ConcurrentHashMap<String, List<Error>> groupedErrors = new ConcurrentHashMap<>();
-        for (Error error : Errors) {
+        ConcurrentHashMap<String, List<Anomaly>> groupedErrors = new ConcurrentHashMap<>();
+        for (Anomaly error : Errors) {
             groupedErrors.computeIfAbsent(error.getType(), k -> new ArrayList<>()).add(error);
         }
 
         JsonObject result = new JsonObject();
-        for (ConcurrentHashMap.Entry<String, List<Error>> entry : groupedErrors.entrySet()) {
+        for (ConcurrentHashMap.Entry<String, List<Anomaly>> entry : groupedErrors.entrySet()) {
             String type = entry.getKey();
-            List<Error> errorList = entry.getValue();
+            List<Anomaly> errorList = entry.getValue();
 
             JsonArray jsonArray = new JsonArray();
-            for (Error error : errorList) {
+            for (Anomaly error : errorList) {
                 JsonObject errorJson = new JsonObject();
                 errorJson.add("id", new JsonPrimitive(error.getId()));
                 errorJson.add("message", new JsonPrimitive(error.getMessage()));

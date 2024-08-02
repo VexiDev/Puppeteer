@@ -2,13 +2,13 @@ package gg.vexi.TicketSystem.Exceptions;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Error {
+public class Anomaly {
 
     final private long id = new AtomicLong(System.currentTimeMillis()).getAndIncrement();
     final private String type;
     final private String message;
 
-    public Error(String error_type, String error_msg) {
+    public Anomaly(String error_type, String error_msg) {
         type = error_type;
         message = error_msg;
     }
