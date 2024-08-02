@@ -12,6 +12,13 @@ public class TestUtils {
             assertTrue(actual.has(key), "Missing key: " + key);
             assertEquals(expected.get(key), actual.get(key), "Mismatch for key: " + key);
         }
-        assertEquals(expected.size(), actual.size(), "Different number of properties");
+        assertEquals(expected.size(), actual.size(), "Different JsonObject sizes");
     }
+
+    public static void checkArgument(boolean expression, String errorMessage) {
+        if (!expression) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
 }
