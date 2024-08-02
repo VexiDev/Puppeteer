@@ -1,9 +1,18 @@
 package gg.vexi.TicketSystem.Exceptions;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+
+import com.google.gson.JsonObject;
 
 public class CaughtExceptions {
 
-    ConcurrentHashMap<Long, Error> Errors = new ConcurrentHashMap<>();
+    ArrayList<Error> Errors = new ArrayList<>();
 
+    public void add() {}
+
+    public boolean any() { return !Errors.isEmpty(); }
+
+    public ArrayList<Error> getAll() {}
+
+    public JsonObject toJson() {}
 }
