@@ -8,4 +8,7 @@ public class MockWorker extends AbstractWorker implements WorkerInterface {
 
     public MockWorker(Ticket ticket) { super(ticket); }
 
+    @Override
+    public void start() {}
+
 }
