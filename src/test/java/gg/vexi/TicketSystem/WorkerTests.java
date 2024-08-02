@@ -32,13 +32,22 @@ class WorkerTests {
     public void test_init() {
 
         // verify default worker attributes are set
-        assertNotNull(worker.getTicket(), "Worker associated Ticket is null");
-        assertNotNull(worker.getFuture(), "Worker future is null");
-        assertNotNull(worker.getStatus(), "Worker status is null");
+        assertNotNull(worker.getTicket(), "MockWorker associated Ticket is null");
+        assertNotNull(worker.getFuture(), "MockWorker future is null");
+        assertNotNull(worker.getStatus(), "MockWorker status is null");
 
         // verify default status for worker is ready
-        assertEquals(WorkerStatus.READY, worker.getStatus(), "Worker default status is not READY");
+        assertEquals(WorkerStatus.READY, worker.getStatus(), "MockWorker default status is not READY");
+    }
 
+
+    @Test
+    public void test_start() {
+
+        // start the worker
+        worker.start();
+
+        assertEquals(WorkerStatus.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");
     }
 
 }
