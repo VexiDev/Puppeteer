@@ -27,7 +27,14 @@ class BehaviorTests {
         TicketManager = new TicketManager();
     }
 
-    // this method should be renamed! 
+
+// -----------------------------------------------------------------------------
+// --vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv--
+// --> ALL METHODS IN THIS FILE MUST BE RENAMED TO REPRESENT WHAT THEY TEST! <--
+// --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+// -----------------------------------------------------------------------------
+
+
     //(it does a full interaction test from going from:
     //only parameters -> queued ticket -> waiting for ticket completion -> handling completion(WIP) -> more later on...
     @Test
