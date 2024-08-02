@@ -47,7 +47,7 @@ class WorkerTests {
         // start the worker
         worker.start();
 
-        assertEquals(WorkerStatus.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");
+        assertEquals(WorkerStatus.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");    
     }
 
 }
