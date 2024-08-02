@@ -26,4 +26,6 @@ public abstract class AbstractWorker {
     // setters
     public void setStatus(WorkerStatus new_status) { status = new_status; }
 
+    public abstract void start();
+
 }
