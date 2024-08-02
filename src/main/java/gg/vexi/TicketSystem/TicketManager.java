@@ -113,6 +113,7 @@ public class TicketManager {
         completeTicket(ticket);
     }
 
+    // getters
     public PriorityBlockingQueue<Ticket> getQueue(ActionType type) {
         return actionQueues.get(type);
     }
@@ -121,16 +122,17 @@ public class TicketManager {
         return actionQueues;
     }
 
-    public void setActive(Ticket ticket) {
-        activeTickets.put(ticket.getType(), ticket);
-    }
-
     public Ticket getActive(ActionType type) {
         return activeTickets.get(type);
     }
 
     public ConcurrentHashMap<ActionType, Ticket> getAllActive() {
         return activeTickets;
+    }
+
+    // setters
+    public void setActive(Ticket ticket) {
+        activeTickets.put(ticket.getType(), ticket);
     }
 
 }
