@@ -17,6 +17,7 @@ public class TicketResult<T> {
         exceptions = caughtExceptions;
     }
 
+
     public Ticket getTicket() {
         return target_ticket;
     }
