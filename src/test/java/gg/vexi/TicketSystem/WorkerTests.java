@@ -13,7 +13,6 @@ import gg.vexi.TicketSystem.Mock.MockWorker;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
-import gg.vexi.TicketSystem.Worker.WorkerStatus;
 
 class _Worker {
 
@@ -37,7 +36,7 @@ class _Worker {
         assertNotNull(worker.getStatus(), "MockWorker status is null");
 
         // verify default status for worker is ready
-        assertEquals(WorkerStatus.READY, worker.getStatus(), "MockWorker default status is not READY");
+        assertEquals(Status.READY, worker.getStatus(), "MockWorker default status is not READY");
     }
 
 
@@ -47,7 +46,7 @@ class _Worker {
         // start the worker
         worker.start();
 
-        assertEquals(WorkerStatus.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");    
+        assertEquals(Status.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");    
     }
 
 }
