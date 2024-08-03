@@ -12,8 +12,8 @@ public class CaughtExceptions {
 
     private final ArrayList<Anomaly> Errors = new ArrayList<>();
 
-    public void add(Anomaly e) {
-        Errors.add(e);
+    public void add(Anomaly error) {
+        Errors.add(error);
     }
 
     public boolean any() {
@@ -21,14 +21,10 @@ public class CaughtExceptions {
     }
 
     public ArrayList<Anomaly> getAll() {
-        ArrayList<Anomaly> allErrors = new ArrayList<>();
-        for (Anomaly error : Errors) {
-            allErrors.add(error);
-        }
-        return allErrors;
+        return Errors;
     }
 
-    public JsonObject toJson() {
+    public JsonObject getAsJson() {
 
         ConcurrentHashMap<String, List<Anomaly>> groupedErrors = new ConcurrentHashMap<>();
         for (Anomaly error : Errors) {
