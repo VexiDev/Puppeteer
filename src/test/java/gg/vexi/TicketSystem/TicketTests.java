@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import static gg.vexi.TicketSystem.TestUtils.assertJsonObjectEquals;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
@@ -60,7 +61,7 @@ class _Ticket {
     @Test
     public void test_TicketResult() {
 
-        TicketResult ticketResult = new TicketResult(Ticket);
+        TicketResult ticketResult = new TicketResult(Ticket, Status.CREATED, null, new CaughtExceptions());
         assertNotNull(ticketResult, "TicketResult is null");
 
         assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");
