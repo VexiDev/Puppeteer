@@ -56,5 +56,15 @@ class _Ticket {
         assertNotNull(Ticket.getFuture(), "Ticket has no future");
         assertTrue(Ticket.getFuture() instanceof CompletableFuture<TicketResult>);
     }
-    
+
+    @Test
+    public void test_TicketResult() {
+
+        TicketResult ticketResult = new TicketResult(Ticket);
+        assertNotNull(ticketResult, "TicketResult is null");
+
+        assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");
+        assertNotNull(ticketResult.getStatus(), "TicketResult status enum (status code) is null");
+        assertNotNull(ticketResult.getExceptions(), "TicketResult CaughtExceptions is null");
+    }
 }
