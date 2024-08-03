@@ -58,4 +58,7 @@ public class TestUtils {
         }
     }
 
+    // temp method to `read` an object without doing anything until i figure out how to suppress unused warnings in VSCode
+    public static void this_method_does_nothing(Object object) {}
+
 }

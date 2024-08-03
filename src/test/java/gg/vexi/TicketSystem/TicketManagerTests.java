@@ -21,7 +21,7 @@ import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 
-public class TicketManagerTests {
+class _TicketManager {
 
     private TicketManager TicketManager;
 

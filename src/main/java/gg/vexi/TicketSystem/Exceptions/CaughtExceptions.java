@@ -10,9 +10,9 @@ import com.google.gson.JsonPrimitive;
 
 public class CaughtExceptions {
 
-    private final ArrayList<Anomaly> Errors = new ArrayList<>();
+    private final ArrayList<ExceptionRecord> Errors = new ArrayList<>();
 
-    public void add(Anomaly error) {
+    public void add(ExceptionRecord error) {
         Errors.add(error);
     }
 
@@ -20,24 +20,24 @@ public class CaughtExceptions {
         return !Errors.isEmpty();
     }
 
-    public ArrayList<Anomaly> getAll() {
+    public ArrayList<ExceptionRecord> getAll() {
         return Errors;
     }
 
     public JsonObject getAsJson() {
 
-        ConcurrentHashMap<String, List<Anomaly>> groupedErrors = new ConcurrentHashMap<>();
-        for (Anomaly error : Errors) {
+        ConcurrentHashMap<String, List<ExceptionRecord>> groupedErrors = new ConcurrentHashMap<>();
+        for (ExceptionRecord error : Errors) {
             groupedErrors.computeIfAbsent(error.getType(), k -> new ArrayList<>()).add(error);
         }
 
         JsonObject result = new JsonObject();
-        for (ConcurrentHashMap.Entry<String, List<Anomaly>> entry : groupedErrors.entrySet()) {
+        for (ConcurrentHashMap.Entry<String, List<ExceptionRecord>> entry : groupedErrors.entrySet()) {
             String type = entry.getKey();
-            List<Anomaly> errorList = entry.getValue();
+            List<ExceptionRecord> errorList = entry.getValue();
 
             JsonArray jsonArray = new JsonArray();
-            for (Anomaly error : errorList) {
+            for (ExceptionRecord error : errorList) {
                 JsonObject errorJson = new JsonObject();
                 errorJson.add("id", new JsonPrimitive(error.getId()));
                 errorJson.add("message", new JsonPrimitive(error.getMessage()));

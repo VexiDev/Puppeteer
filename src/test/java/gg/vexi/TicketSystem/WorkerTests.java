@@ -15,7 +15,7 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 import gg.vexi.TicketSystem.Worker.WorkerStatus;
 
-class WorkerTests {
+class _Worker {
 
     private MockWorker worker;
 

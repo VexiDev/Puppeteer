@@ -8,19 +8,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import gg.vexi.TicketSystem.Exceptions.Anomaly;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
+import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.TestUtils;
+import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 
-class CaughtExceptionsTests {
+class _CaughtExceptions {
 
     CaughtExceptions CaughtExceptions;
-    ArrayList<Anomaly> errors_list;
+    ArrayList<ExceptionRecord> errors_list;
 
     @BeforeEach
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
@@ -29,8 +31,11 @@ class CaughtExceptionsTests {
 
         Field CaughtExceptions_field = CaughtExceptions.getClass().getDeclaredField("Errors");
         CaughtExceptions_field.setAccessible(true);
-        errors_list = (ArrayList<Anomaly>) CaughtExceptions_field.get(CaughtExceptions);
+        errors_list = (ArrayList<ExceptionRecord>) CaughtExceptions_field.get(CaughtExceptions);
 
+        //vscode is highlighting _ExceptionRecord as unused and its annoying me
+        // until i find out how to make vscode notice it i will be `using` it here -__-
+        this_method_does_nothing(new _ExceptionRecord());
     }
 
     @Test
@@ -45,7 +50,7 @@ class CaughtExceptionsTests {
     @Test
     public void test_add() {
 
-        Anomaly error = new Anomaly("Test_Error", "Error_Message");
+        ExceptionRecord error = new ExceptionRecord("Test_Error", "Error_Message");
         CaughtExceptions.add(error);
 
         assertEquals(1, errors_list.size(), "Errors list size mismatch");
@@ -56,7 +61,7 @@ class CaughtExceptionsTests {
 
         assertFalse(CaughtExceptions.any(), "Any() returned true with no errors");
 
-        Anomaly error = new Anomaly("Test_Error", "Error_Message");
+        ExceptionRecord error = new ExceptionRecord("Test_Error", "Error_Message");
         errors_list.add(error);
 
         assertTrue(CaughtExceptions.any(), "Any() returned false with no errors");
@@ -65,14 +70,14 @@ class CaughtExceptionsTests {
 
     @Test
     public void test_getAsJson() {
-        
+
         // build expected json object
         JsonObject expected_json = new JsonObject();
         for (int i = 0; i < 3; i++) {
             JsonObject error = new JsonObject();
             error.addProperty("id", i);
             error.addProperty("message", "Error_Message" + i);
-            
+
             String type = (i < 2) ? "type1" : "type2";
             if (!expected_json.has(type)) {
                 expected_json.add(type, new JsonArray());
@@ -81,9 +86,9 @@ class CaughtExceptionsTests {
         }
 
         // add errors to errors_list
-        Anomaly error_0 = new Anomaly("type1", "Error_Message0");
-        Anomaly error_1 = new Anomaly("type1", "Error_Message1");
-        Anomaly error_2 = new Anomaly("type2", "Error_Message2");
+        ExceptionRecord error_0 = new ExceptionRecord("type1", "Error_Message0");
+        ExceptionRecord error_1 = new ExceptionRecord("type1", "Error_Message1");
+        ExceptionRecord error_2 = new ExceptionRecord("type2", "Error_Message2");
         errors_list.add(error_0);
         errors_list.add(error_1);
         errors_list.add(error_2);
