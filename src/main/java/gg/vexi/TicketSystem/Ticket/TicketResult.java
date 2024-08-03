@@ -1,20 +1,35 @@
 package gg.vexi.TicketSystem.Ticket;
 
-import com.google.gson.JsonObject;
-
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
+import gg.vexi.TicketSystem.Status;
 
-public class TicketResult {
+public class TicketResult<T> {
 
     private final Ticket target_ticket;
-    private final JsonObject data = new JsonObject();
-    private final boolean status = true;
+    private final Status status;
+    private final CaughtExceptions exceptions;
+    private final T data;
 
-    public TicketResult(Ticket ticket) { target_ticket = ticket; }
+    public TicketResult(Ticket ticket, Status result_status, T Data, CaughtExceptions caughtExceptions) {
+        target_ticket = ticket;
+        status = result_status;
+        data = Data;
+        exceptions = caughtExceptions;
+    }
 
-    public Ticket getTicket() { return target_ticket; }
-    public JsonObject getData() { return data; }
+    public Ticket getTicket() {
+        return target_ticket;
+    }
 
-    public boolean getStatus() { return status; }
-    public CaughtExceptions getExceptions() { return new CaughtExceptions(); }
+    public T getData() {
+        return data;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public CaughtExceptions getExceptions() {
+        return exceptions;
+    }
 }

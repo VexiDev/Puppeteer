@@ -6,6 +6,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
@@ -95,7 +96,7 @@ public class TicketManager {
 
     protected void completeTicket(Ticket ticket) {
 
-        ticket.getFuture().complete(new TicketResult(ticket));
+        ticket.getFuture().complete(new TicketResult(ticket, Status.CREATED, null, new CaughtExceptions()));
 
         activeTickets.remove(ticket.getType());
     
