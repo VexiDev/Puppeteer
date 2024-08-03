@@ -101,4 +101,24 @@ class _CaughtExceptions {
         TestUtils.assertJsonEqualsIgnoringId(expected_json, actual_json);
 
     }
+
+    // Exception Records are the type and message associated with an exception
+    @Nested
+    class _ExceptionRecord {
+
+        @Test
+        public void test_init() {
+
+            ExceptionRecord error = new ExceptionRecord("Test_Error", "Test_Error_Message");
+
+            assertNotNull(error.getId(), "VError id is null");
+            assertNotNull(error.getType(), "VError type is null");
+            assertNotNull(error.getMessage(), "VError message is null");
+
+            assertEquals("Test_Error", error.getType(), "VError type is not set correctly");
+            assertEquals("Test_Error_Message", error.getMessage(), "VError message is not set correctly");
+
+        }
+
+    }
 }
