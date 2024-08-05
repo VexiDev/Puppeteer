@@ -10,26 +10,26 @@ import com.google.gson.JsonPrimitive;
 
 public class CaughtExceptions {
 
-    private final ArrayList<ExceptionRecord> Errors = new ArrayList<>();
+    private final ArrayList<ExceptionRecord> Exceptions = new ArrayList<>();
 
 
 
     public void add(ExceptionRecord error) {
-        Errors.add(error);
+        Exceptions.add(error);
     }
 
     public boolean any() {
-        return !Errors.isEmpty();
+        return !Exceptions.isEmpty();
     }
 
     public ArrayList<ExceptionRecord> getAll() {
-        return Errors;
+        return Exceptions;
     }
 
     public JsonObject getAsJson() {
 
         ConcurrentHashMap<String, List<ExceptionRecord>> groupedErrors = new ConcurrentHashMap<>();
-        for (ExceptionRecord error : Errors) {
+        for (ExceptionRecord error : Exceptions) {
             groupedErrors.computeIfAbsent(error.getType(), k -> new ArrayList<>()).add(error);
         }
 

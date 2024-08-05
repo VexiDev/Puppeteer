@@ -45,8 +45,6 @@ public abstract class AbstractWorker<T> {
         future.complete(result);
     }
 
-
-
     // getters
     public Status getStatus() {
         return status;

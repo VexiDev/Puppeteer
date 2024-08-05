@@ -29,7 +29,7 @@ class _CaughtExceptions {
 
         CaughtExceptions = new CaughtExceptions();
 
-        Field CaughtExceptions_field = CaughtExceptions.getClass().getDeclaredField("Errors");
+        Field CaughtExceptions_field = CaughtExceptions.getClass().getDeclaredField("Exceptions");
         CaughtExceptions_field.setAccessible(true);
         errors_list = (ArrayList<ExceptionRecord>) CaughtExceptions_field.get(CaughtExceptions);
     }
@@ -38,8 +38,8 @@ class _CaughtExceptions {
     public void test_init() {
 
         //verify errors is an empty map and is not null
-        assertNotNull(errors_list, "Errors map is null");
-        assertEquals(0, errors_list.size(), "Errors map is not an empty hashmap");
+        assertNotNull(errors_list, "Exceptions map is null");
+        assertEquals(0, errors_list.size(), "Exceptions map is not an empty hashmap");
 
         //vscode is highlighting _ExceptionRecord as unused and its annoying me
         // until i find out how to make vscode notice it i will be `using` it here -__-
@@ -52,7 +52,7 @@ class _CaughtExceptions {
         ExceptionRecord error = new ExceptionRecord("Test_Error", "Error_Message");
         CaughtExceptions.add(error);
 
-        assertEquals(1, errors_list.size(), "Errors list size mismatch");
+        assertEquals(1, errors_list.size(), "Exceptions list size mismatch");
     }
 
     @Test
