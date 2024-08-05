@@ -87,7 +87,6 @@ class _Worker {
     @Test
     public void test_recordException() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
         
-
         Worker_noGeneric worker = new Worker_noGeneric(ticket);
 
         Field exception_object_field = worker.getClass().getSuperclass().getDeclaredField("exceptionHandler");
@@ -96,13 +95,12 @@ class _Worker {
 
         assertTrue(exceptions_holder.getAll().isEmpty(), "Exceptions list is not empty on init");
 
-        ExceptionRecord record = new ExceptionRecord("ErrorTest_001", "This is a test record for the recordExceptions() method");
+        ExceptionRecord record = new ExceptionRecord("ErrorTest_001", "This is a test record for the test_recordExceptions() method");
         worker.recordException(record);
 
         assertFalse(exceptions_holder.getAll().isEmpty(), "Exceptions list is empty after using recordException()");
         assertTrue(exceptions_holder.getAll().size() == 1, "Exceptions list has incorrect list size");
         assertEquals("ErrorTest_001", exceptions_holder.getAll().get(0).getType(), "Mismatched type value in record at index 0");
-
     }
 
     @Test
