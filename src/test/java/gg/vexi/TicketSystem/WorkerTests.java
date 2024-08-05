@@ -42,20 +42,20 @@ class _Worker {
         Worker_primitiveGeneric worker_primitiveGeneric = new Worker_primitiveGeneric(ticket);
 
         List<AbstractWorker<?>> workers = List.<AbstractWorker<?>>of(
-            worker_noGeneric,
-            worker_jsonGeneric,
-            worker_objectGeneric,
-            worker_primitiveGeneric
+                worker_noGeneric,
+                worker_jsonGeneric,
+                worker_objectGeneric,
+                worker_primitiveGeneric
         );
 
         // the test loop for worker types
         for (AbstractWorker<?> worker : workers) {
-            
+
             // verify default worker attributes of explicit type are not null
             assertNotNull(worker.getTicket(), "MockWorker associated Ticket is null");
             assertNotNull(worker.getFuture(), "MockWorker future is null");
             assertNotNull(worker.getStatus(), "MockWorker status is null");
-            
+
             // verify default status for worker is ready by default
             assertEquals(Status.READY, worker.getStatus(), "MockWorker default status is not READY");
         }

@@ -8,10 +8,12 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 // using ExceptionRecord as our object just cause I need a good example object
 public class Worker_objectGeneric extends AbstractWorker<ExceptionRecord> {
 
-    public Worker_objectGeneric(Ticket ticket) { super(ticket); }
+    public Worker_objectGeneric(Ticket ticket) {
+        super(ticket);
+    }
 
     @Override
-    public void start() {
+    public void main() {
         super.setStatus(Status.PROCESSING);
     }
 }

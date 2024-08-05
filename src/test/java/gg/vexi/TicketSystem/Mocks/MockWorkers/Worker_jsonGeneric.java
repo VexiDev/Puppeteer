@@ -8,10 +8,12 @@ import gg.vexi.TicketSystem.Ticket.Ticket;
 
 public class Worker_jsonGeneric extends AbstractWorker<JsonObject> {
 
-    public Worker_jsonGeneric(Ticket ticket) { super(ticket); }
+    public Worker_jsonGeneric(Ticket ticket) {
+        super(ticket);
+    }
 
     @Override
-    public void start() {
+    public void main() {
         super.setStatus(Status.PROCESSING);
     }
 }
