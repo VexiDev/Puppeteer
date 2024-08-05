@@ -1,5 +1,7 @@
 package gg.vexi.TicketSystem.Mocks.MockWorkers;
 
+import com.google.gson.JsonObject;
+
 import gg.vexi.TicketSystem.AbstractWorker;
 import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.Ticket.Ticket;

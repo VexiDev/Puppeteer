@@ -5,9 +5,9 @@ import java.util.concurrent.CompletableFuture;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketResult;
 
-public abstract class AbstractWorker {
+public abstract class AbstractWorker<T> {
 
-    Status status = Status.READY;
+    Status status = Status.CREATED;
     final CompletableFuture<TicketResult> future;
     final Ticket associated_ticket;
 
@@ -15,6 +15,7 @@ public abstract class AbstractWorker {
         
         future = new CompletableFuture<>();
         associated_ticket = ticket;
+        status = Status.READY;
 
     }
 
