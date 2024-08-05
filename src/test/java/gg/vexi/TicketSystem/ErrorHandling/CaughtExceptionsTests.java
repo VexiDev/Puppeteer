@@ -111,12 +111,12 @@ class _CaughtExceptions {
 
             ExceptionRecord error = new ExceptionRecord("Test_Error", "Test_Error_Message");
 
-            assertNotNull(error.getId(), "VError id is null");
-            assertNotNull(error.getType(), "VError type is null");
-            assertNotNull(error.getMessage(), "VError message is null");
+            assertNotNull(error.getId(), "ExceptionRecord id is null");
+            assertNotNull(error.getType(), "ExceptionRecord type is null");
+            assertNotNull(error.getMessage(), "ExceptionRecord message is null");
 
-            assertEquals("Test_Error", error.getType(), "VError type is not set correctly");
-            assertEquals("Test_Error_Message", error.getMessage(), "VError message is not set correctly");
+            assertEquals("Test_Error", error.getType(), "ExceptionRecord type is not set correctly");
+            assertEquals("Test_Error_Message", error.getMessage(), "ExceptionRecord message is not set correctly");
 
         }
 
