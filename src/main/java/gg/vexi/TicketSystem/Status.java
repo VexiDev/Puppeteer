@@ -1,9 +1,17 @@
 package gg.vexi.TicketSystem;
 
 public enum Status {
+
+    // Process steps
     CREATED,
     READY,
     PROCESSING,
-    COMPLETE,
-    FAILED
+    COMPLETED,
+
+    // Success
+    SUCCESS,
+
+    // Failure
+    FAILED,
+    ERROR
 }
