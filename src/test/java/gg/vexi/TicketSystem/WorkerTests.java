@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -67,10 +68,22 @@ class _Worker {
 
         Worker_noGeneric worker = new Worker_noGeneric(ticket);
 
-        // start the worker
-        worker.start();
+        // run the worker
+        worker.main();
 
-        assertEquals(Status.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");    
+        assertEquals(Status.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");
+    }
+
+    // tests the complete() method which takes a result status, data, caughtexceptions and the original ticket to build the TicketResult
+    @Test
+    public void test_complete() {
+        fail("TEST NOT IMPLEMENTED");
+    }
+
+    // tests the recordException() method which is just a wrapper of CaughtExceptions.add()
+    @Test
+    public void test_recordException() {
+        fail("TEST NOT IMPLEMENTED");
     }
 
     @Test
@@ -86,8 +99,10 @@ class _Worker {
 
         });
 
-        worker.start();
-        worker.completeSuccess(expected_data);
+        worker.main();
+
+        // this should not be possible because complete() should only be accessible from within the worker
+        worker.complete(Status.SUCCESS, expected_data);
 
     }
 
