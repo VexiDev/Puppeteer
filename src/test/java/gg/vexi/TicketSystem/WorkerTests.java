@@ -5,15 +5,17 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_jsonGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_noGeneric;
-import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_primitiveGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_objectGeneric;
+import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_primitiveGeneric;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
@@ -60,7 +62,6 @@ class _Worker {
 
     }
 
-
     @Test
     public void test_start() {
 
@@ -70,6 +71,22 @@ class _Worker {
         worker.start();
 
         assertEquals(Status.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");    
+    }
+
+    @Test
+    public void test_ResultDataType() {
+
+        Worker_objectGeneric worker = new Worker_objectGeneric(ticket);
+        ExceptionRecord expected_data = new ExceptionRecord("ExampleRecord", "This is an example record for the test_completeSuccess() unit test");
+
+        worker.start();
+        worker.completeSuccess(expected_data);
+        worker.getFuture().thenAccept((ticketResult) -> {
+
+            assertTrue(ticketResult.getData() instanceof ExceptionRecord, "TicketResult data is not an instance of ExceptionRecord");
+
+        });
+
     }
 
 }
