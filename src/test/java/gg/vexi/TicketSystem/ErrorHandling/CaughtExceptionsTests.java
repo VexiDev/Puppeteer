@@ -32,10 +32,6 @@ class _CaughtExceptions {
         Field CaughtExceptions_field = CaughtExceptions.getClass().getDeclaredField("Errors");
         CaughtExceptions_field.setAccessible(true);
         errors_list = (ArrayList<ExceptionRecord>) CaughtExceptions_field.get(CaughtExceptions);
-
-        //vscode is highlighting _ExceptionRecord as unused and its annoying me
-        // until i find out how to make vscode notice it i will be `using` it here -__-
-        this_method_does_nothing(new _ExceptionRecord());
     }
 
     @Test
@@ -45,6 +41,9 @@ class _CaughtExceptions {
         assertNotNull(errors_list, "Errors map is null");
         assertEquals(0, errors_list.size(), "Errors map is not an empty hashmap");
 
+        //vscode is highlighting _ExceptionRecord as unused and its annoying me
+        // until i find out how to make vscode notice it i will be `using` it here -__-
+        this_method_does_nothing(new _ExceptionRecord());
     }
 
     @Test

@@ -4,13 +4,16 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import static gg.vexi.TicketSystem.TestUtils.assertJsonObjectEquals;
+import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
@@ -56,16 +59,36 @@ class _Ticket {
         // verify future
         assertNotNull(Ticket.getFuture(), "Ticket has no future");
         assertTrue(Ticket.getFuture() instanceof CompletableFuture<TicketResult>);
+
+        //vscode is highlighting _TicketResult as unused and its annoying me
+        // until i find out how to make vscode notice it i will be `using` it here -__-
+        this_method_does_nothing(new _TicketResult());
+
     }
 
-    @Test
-    public void test_TicketResult() {
+    // TicketResult is the object returned by a worker to TicketManager to finish processing the ticket
+    @Nested
+    class _TicketResult { 
+        
+        @Test
+        public void test_TicketResult() {
 
-        TicketResult ticketResult = new TicketResult(new CaughtExceptions(), Ticket, Status.CREATED, null);
-        assertNotNull(ticketResult, "TicketResult is null");
+            TicketResult ticketResult = new TicketResult(new CaughtExceptions(), Ticket, Status.CREATED, null);
+            assertNotNull(ticketResult, "TicketResult is null");
 
-        assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");
-        assertNotNull(ticketResult.getStatus(), "TicketResult status enum (status code) is null");
-        assertNotNull(ticketResult.getExceptions(), "TicketResult CaughtExceptions is null");
+            assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");
+            assertNotNull(ticketResult.getStatus(), "TicketResult status enum (status code) is null");
+            assertNotNull(ticketResult.getExceptions(), "TicketResult CaughtExceptions is null");
+        }
+
+            // wrapper of if (status == SUCCESS)
+            @Test
+            public void test_isSuccessful() { fail("TEST NOT IMPLEMENTED"); }
+
+            // technically direct wrapper of CaughtExceptions.any(); but i guess its actually a wrapper for TicketResult.getExceptions().any();
+            @Test
+            public void test_hasExceptions() { fail("TEST NOT IMPLEMENTED"); }
+
+
     }
 }
