@@ -61,7 +61,7 @@ class _Ticket {
     @Test
     public void test_TicketResult() {
 
-        TicketResult ticketResult = new TicketResult(Ticket, Status.CREATED, null, new CaughtExceptions());
+        TicketResult ticketResult = new TicketResult(new CaughtExceptions(), Ticket, Status.CREATED, null);
         assertNotNull(ticketResult, "TicketResult is null");
 
         assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");

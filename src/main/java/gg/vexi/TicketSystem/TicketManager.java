@@ -96,7 +96,7 @@ public class TicketManager {
 
     protected void completeTicket(Ticket ticket) {
 
-        ticket.getFuture().complete(new TicketResult(ticket, Status.CREATED, null, new CaughtExceptions()));
+        ticket.getFuture().complete(new TicketResult<JsonObject>(new CaughtExceptions(), ticket, Status.CREATED, null));
 
         activeTickets.remove(ticket.getType());
     

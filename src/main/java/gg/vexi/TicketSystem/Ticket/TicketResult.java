@@ -5,16 +5,16 @@ import gg.vexi.TicketSystem.Status;
 
 public class TicketResult<T> {
 
+    private final CaughtExceptions exceptions;
     private final Ticket target_ticket;
     private final Status status;
-    private final CaughtExceptions exceptions;
     private final T data;
 
-    public TicketResult(Ticket ticket, Status result_status, T Data, CaughtExceptions caughtExceptions) {
+    public TicketResult(CaughtExceptions caughtExceptions, Ticket ticket, Status result_status, T Data) {
+        exceptions = caughtExceptions;
         target_ticket = ticket;
         status = result_status;
         data = Data;
-        exceptions = caughtExceptions;
     }
 
 
