@@ -1,9 +1,11 @@
 package gg.vexi.TicketSystem;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_jsonGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_noGeneric;
@@ -82,8 +85,24 @@ class _Worker {
 
     // tests the recordException() method which is just a wrapper of CaughtExceptions.add()
     @Test
-    public void test_recordException() {
-        fail("TEST NOT IMPLEMENTED");
+    public void test_recordException() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
+        
+
+        Worker_noGeneric worker = new Worker_noGeneric(ticket);
+
+        Field exception_object_field = worker.getClass().getSuperclass().getDeclaredField("exceptionHandler");
+        exception_object_field.setAccessible(true);
+        CaughtExceptions exceptions_holder = (CaughtExceptions) exception_object_field.get(worker);
+
+        assertTrue(exceptions_holder.getAll().isEmpty(), "Exceptions list is not empty on init");
+
+        ExceptionRecord record = new ExceptionRecord("ErrorTest_001", "This is a test record for the recordExceptions() method");
+        worker.recordException(record);
+
+        assertFalse(exceptions_holder.getAll().isEmpty(), "Exceptions list is empty after using recordException()");
+        assertTrue(exceptions_holder.getAll().size() == 1, "Exceptions list has incorrect list size");
+        assertEquals("ErrorTest_001", exceptions_holder.getAll().get(0).getType(), "Mismatched type value in record at index 0");
+
     }
 
     @Test
