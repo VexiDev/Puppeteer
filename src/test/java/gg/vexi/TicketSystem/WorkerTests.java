@@ -1,5 +1,6 @@
 package gg.vexi.TicketSystem;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,19 +10,21 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.TicketSystem.Mock.MockWorker;
+import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_jsonGeneric;
+import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_noGeneric;
+import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_primitiveGeneric;
+import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_objectGeneric;
 import gg.vexi.TicketSystem.Ticket.ActionType;
 import gg.vexi.TicketSystem.Ticket.Ticket;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 
 class _Worker {
 
-    private MockWorker worker;
+    Ticket ticket;
 
     @BeforeEach
     public void setup() {
-        Ticket ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        worker = new MockWorker(ticket);
+        ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
     }
 
     // Since workers are just going to be implementations of an abstract worker class
@@ -30,18 +33,38 @@ class _Worker {
     @Test
     public void test_init() {
 
-        // verify default worker attributes are set
-        assertNotNull(worker.getTicket(), "MockWorker associated Ticket is null");
-        assertNotNull(worker.getFuture(), "MockWorker future is null");
-        assertNotNull(worker.getStatus(), "MockWorker status is null");
+        // initialize mock workers
+        Worker_noGeneric worker_noGeneric = new Worker_noGeneric(ticket);
+        Worker_jsonGeneric worker_jsonGeneric = new Worker_jsonGeneric(ticket);
+        Worker_objectGeneric worker_objectGeneric = new Worker_objectGeneric(ticket);
+        Worker_primitiveGeneric worker_primitiveGeneric = new Worker_primitiveGeneric(ticket);
 
-        // verify default status for worker is ready
-        assertEquals(Status.READY, worker.getStatus(), "MockWorker default status is not READY");
+        List<AbstractWorker<?>> workers = List.<AbstractWorker<?>>of(
+            worker_noGeneric,
+            worker_jsonGeneric,
+            worker_objectGeneric,
+            worker_primitiveGeneric
+        );
+
+        // the test loop for worker types
+        for (AbstractWorker<?> worker : workers) {
+            
+            // verify default worker attributes of explicit type are not null
+            assertNotNull(worker.getTicket(), "MockWorker associated Ticket is null");
+            assertNotNull(worker.getFuture(), "MockWorker future is null");
+            assertNotNull(worker.getStatus(), "MockWorker status is null");
+            
+            // verify default status for worker is ready by default
+            assertEquals(Status.READY, worker.getStatus(), "MockWorker default status is not READY");
+        }
+
     }
 
 
     @Test
     public void test_start() {
+
+        Worker_noGeneric worker = new Worker_noGeneric(ticket);
 
         // start the worker
         worker.start();
