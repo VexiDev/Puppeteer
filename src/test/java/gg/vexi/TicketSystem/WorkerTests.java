@@ -74,18 +74,20 @@ class _Worker {
     }
 
     @Test
-    public void test_ResultDataType() {
+    public void test_resultGenericType() {
 
         Worker_objectGeneric worker = new Worker_objectGeneric(ticket);
-        ExceptionRecord expected_data = new ExceptionRecord("ExampleRecord", "This is an example record for the test_completeSuccess() unit test");
+        ExceptionRecord expected_data = new ExceptionRecord("ExampleRecord_06302005", "This is an example record for the test_completeSuccess() unit test");
 
-        worker.start();
-        worker.completeSuccess(expected_data);
         worker.getFuture().thenAccept((ticketResult) -> {
 
             assertTrue(ticketResult.getData() instanceof ExceptionRecord, "TicketResult data is not an instance of ExceptionRecord");
+            assertTrue(ticketResult.getData().getType().equals("ExampleRecord_06302005"), "TicketResult ExceptionRecord Object does not have the correct exception type");
 
         });
+
+        worker.start();
+        worker.completeSuccess(expected_data);
 
     }
 
