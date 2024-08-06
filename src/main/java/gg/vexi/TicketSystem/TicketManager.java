@@ -73,8 +73,6 @@ public class TicketManager {
         if (next_ticket == null) { return; }
 
         executeTicket(next_ticket);
-        
-
     }
 
     protected void executeTicket(Ticket ticket) {
@@ -91,17 +89,15 @@ public class TicketManager {
         // • then poll the next ticket.
         // for now simulate work being done
         CompletableFuture.runAsync(() -> waitThenCompleteFuture(ticket));
-
     }
 
     protected void completeTicket(Ticket ticket) {
 
-        ticket.getFuture().complete(new TicketResult<JsonObject>(new CaughtExceptions(), ticket, Status.CREATED, null));
+        ticket.getFuture().complete(new TicketResult<JsonObject>(new CaughtExceptions(), ticket, Status.FAILED, null));
 
         activeTickets.remove(ticket.getType());
     
         tryExecuteNextTicket(ticket.getType());
-    
     }
 
     protected void waitThenCompleteFuture(Ticket ticket) {
