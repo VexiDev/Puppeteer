@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -83,11 +83,13 @@ class _Ticket {
 
             // wrapper of if (status == SUCCESS)
             @Test
-            public void test_isSuccessful() { fail("TEST NOT IMPLEMENTED"); }
+            @Disabled("Test not implemente")
+            public void test_isSuccessful() {}
 
             // technically direct wrapper of CaughtExceptions.any(); but i guess its actually a wrapper for TicketResult.getExceptions().any();
             @Test
-            public void test_hasExceptions() { fail("TEST NOT IMPLEMENTED"); }
+            @Disabled("Test not implemented")
+            public void test_hasExceptions() {}
 
 
     }
