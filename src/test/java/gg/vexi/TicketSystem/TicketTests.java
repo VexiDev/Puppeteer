@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
-import gg.vexi.TicketSystem.ticket.ActionType;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 import gg.vexi.TicketSystem.ticket.TicketResult;
@@ -22,13 +21,13 @@ import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 
 class _Ticket {
 
-    private Ticket Ticket;
+    private Ticket ticket;
 
     @BeforeEach
     public void setup() {
         JsonObject parameters = new JsonObject();
         parameters.addProperty("setting_example", true);
-        Ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, parameters, new CompletableFuture<>());
+        ticket = new Ticket("test_action", TicketPriority.NORMAL, parameters, new CompletableFuture<>());
     }
 
     @Test
@@ -40,26 +39,26 @@ class _Ticket {
         expected_parameters.addProperty("setting_example", true);
 
         // verify ticket exists
-        assertNotNull(Ticket, "Ticket is Null");
+        assertNotNull(ticket, "Ticket is Null");
 
         // verify id exists
-        assertNotNull(Ticket.getId(), "Ticket ID is Null");
+        assertNotNull(ticket.getId(), "Ticket ID is Null");
         
         // verify type
-        assertNotNull(Ticket.getType(), "Ticket has no action type");
-        assertTrue(Ticket.getType() instanceof ActionType, "Ticket does not have a valid action type");
+        assertNotNull(ticket.getType(), "Ticket has no action type");
+        assertTrue(ticket.getType() instanceof String, "Ticket does not have a valid action type");
 
         // verify priority
-        assertNotNull(Ticket.getPriority(), "Ticket has no priority level");
-        assertTrue(Ticket.getPriority() instanceof TicketPriority, "Ticket does not have a valid priority level");
+        assertNotNull(ticket.getPriority(), "Ticket has no priority level");
+        assertTrue(ticket.getPriority() instanceof TicketPriority, "Ticket does not have a valid priority level");
 
         // verify parameters
-        assertNotNull(Ticket.getParameters(), "Ticket has no action type");
-        assertJsonObjectEquals(expected_parameters, Ticket.getParameters());
+        assertNotNull(ticket.getParameters(), "Ticket has no action type");
+        assertJsonObjectEquals(expected_parameters, ticket.getParameters());
 
         // verify future
-        assertNotNull(Ticket.getFuture(), "Ticket has no future");
-        assertTrue(Ticket.getFuture() instanceof CompletableFuture<TicketResult>);
+        assertNotNull(ticket.getFuture(), "Ticket has no future");
+        assertTrue(ticket.getFuture() instanceof CompletableFuture<TicketResult>);
 
         //vscode is highlighting _TicketResult as unused and its annoying me
         // until i find out how to make vscode notice it i will be `using` it here -__-
@@ -74,7 +73,7 @@ class _Ticket {
         @Test
         public void test_TicketResult() {
 
-            TicketResult ticketResult = new TicketResult(new CaughtExceptions(), Ticket, Status.CREATED, null);
+            TicketResult ticketResult = new TicketResult(new CaughtExceptions(), ticket, Status.CREATED, null);
             assertNotNull(ticketResult, "TicketResult is null");
 
             assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");

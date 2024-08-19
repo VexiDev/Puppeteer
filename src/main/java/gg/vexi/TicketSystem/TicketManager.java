@@ -11,22 +11,20 @@ import java.util.concurrent.PriorityBlockingQueue;
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
-import gg.vexi.TicketSystem.annotations.AssociatedRequest;
+import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.annotations.scanner.AnnotationScanner;
 import gg.vexi.TicketSystem.core.AbstractWorker;
-import gg.vexi.TicketSystem.ticket.ActionType;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 import gg.vexi.TicketSystem.ticket.TicketResult;
 
 public class TicketManager {
 
-    private final WorkerRegistry WorkerRegistry;
-    private final Map<ActionType, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
-    private final Map<ActionType, Ticket> activeTickets = new ConcurrentHashMap<>();
+    private final WorkerRegistry workerRegistry = new WorkerRegistry();
+    private final Map<String, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
+    private final Map<String, Ticket> activeTickets = new ConcurrentHashMap<>();
 
     public TicketManager() {
-        this.WorkerRegistry = new WorkerRegistry();
         try {
             autoRegisterWorkeres("gg.vexi.TicketSystem");  // Replace with your package name
         } catch (IOException | ClassNotFoundException e) {
@@ -56,17 +54,19 @@ public class TicketManager {
 
 
     protected void addTicketToQueue(Ticket ticket) {
-
         actionQueues.get(ticket.getType()).offer(ticket);
     }
 
-    public Ticket createTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+    public Ticket createTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
 
         CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
         Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); // create our ticket
 
         return ticket;
     }
+
+
+
 
     // overload if customer already created ticket themselves with createTicket()
     public void queueTicket(Ticket ticket) {
@@ -76,7 +76,10 @@ public class TicketManager {
     
     }
 
-    public Ticket queueTicket(ActionType action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+
+
+
+    public Ticket queueTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
 
         Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
 
@@ -86,7 +89,10 @@ public class TicketManager {
         return ticket;
     }
 
-    protected Ticket nextTicket(ActionType type) {
+
+
+
+    protected Ticket nextTicket(String type) {
 
         if (getActive(type) == null) {
             
@@ -98,7 +104,10 @@ public class TicketManager {
         }
     }
 
-    protected void tryExecuteNextTicket(ActionType action_type) {
+
+
+
+    protected void tryExecuteNextTicket(String action_type) {
 
         Ticket next_ticket = nextTicket(action_type);
 
@@ -107,10 +116,13 @@ public class TicketManager {
         executeTicket(next_ticket);
     }
 
+
+
+
     protected void executeTicket(Ticket ticket) {
 
         // get ticket type
-        ActionType ticket_type = ticket.getType();
+        String ticket_type = ticket.getType();
 
         // make ticket active
         activeTickets.putIfAbsent(ticket_type, ticket);
@@ -123,6 +135,9 @@ public class TicketManager {
         CompletableFuture.runAsync(() -> waitThenCompleteFuture(ticket));
     }
 
+
+
+
     protected void completeTicket(Ticket ticket) {
 
         ticket.getFuture().complete(new TicketResult(new CaughtExceptions(), ticket, Status.FAILED, null));
@@ -131,6 +146,9 @@ public class TicketManager {
     
         tryExecuteNextTicket(ticket.getType());
     }
+
+
+
 
     protected void waitThenCompleteFuture(Ticket ticket) {
         try {
@@ -142,20 +160,23 @@ public class TicketManager {
         completeTicket(ticket);
     }
 
+
+
+
     // getters
-    public PriorityBlockingQueue<Ticket> getQueue(ActionType type) {
+    public PriorityBlockingQueue<Ticket> getQueue(String type) {
         return actionQueues.get(type);
     }
 
-    public Map<ActionType, PriorityBlockingQueue<Ticket>> getAllQueues() {
+    public Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
         return actionQueues;
     }
 
-    public Ticket getActive(ActionType type) {
+    public Ticket getActive(String type) {
         return activeTickets.get(type);
     }
 
-    public Map<ActionType, Ticket> getAllActive() {
+    public Map<String, Ticket> getAllActive() {
         return activeTickets;
     }
 

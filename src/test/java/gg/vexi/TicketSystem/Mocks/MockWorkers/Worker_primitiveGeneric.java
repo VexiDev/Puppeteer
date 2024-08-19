@@ -1,10 +1,11 @@
 package gg.vexi.TicketSystem.Mocks.MockWorkers;
 
 import gg.vexi.TicketSystem.Status;
+import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
-// <T> does not allow primitives so this is to test auto-unboxing
+@AssociatedActionType("PrimitiveTypeResultWorker")
 public class Worker_primitiveGeneric extends AbstractWorker {
 
     public Worker_primitiveGeneric(Ticket ticket) {

@@ -39,7 +39,7 @@ class _Behavior {
     @Test
     public void test_TicketHandling() {
         // create ticket objects
-        ActionType ticket_type = ActionType.ACTION;
+        String ticket_type = "test_action";
         TicketPriority priority = TicketPriority.NORMAL;
         JsonObject parameters = new JsonObject();
         parameters.addProperty("test_customer_parameter_1", true);

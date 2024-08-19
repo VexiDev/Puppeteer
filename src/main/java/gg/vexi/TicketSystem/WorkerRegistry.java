@@ -20,4 +20,8 @@ public class WorkerRegistry {
         }
         return factory.get();
     }
+
+    public Map<String, Supplier<AbstractWorker>> getFullRegistry() {
+        return registry;
+    }
 }

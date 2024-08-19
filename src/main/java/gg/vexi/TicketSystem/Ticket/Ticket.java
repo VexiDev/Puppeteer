@@ -8,13 +8,13 @@ import com.google.gson.JsonObject;
 public class Ticket implements Comparable<Ticket> {
 
     private final UUID Id;
-    private final ActionType type;
+    private final String type;
     private final TicketPriority priority; // may be made non-final if we implement a way to change ticket priority later on
     private final JsonObject parameters;
     private final CompletableFuture<TicketResult> future;
 
     public Ticket(
-                ActionType ActionType, 
+                String ActionType,
                 TicketPriority TicketPriority, 
                 JsonObject Parameters, 
                 CompletableFuture<TicketResult> TicketFuture) 
@@ -33,7 +33,7 @@ public class Ticket implements Comparable<Ticket> {
         return Integer.compare(other.priority.ordinal(), this.priority.ordinal());
     }
 
-    public ActionType getType() {
+    public String getType() {
         return type;
     }
 

@@ -21,7 +21,6 @@ import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_noGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_objectGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_primitiveGeneric;
 import gg.vexi.TicketSystem.core.AbstractWorker;
-import gg.vexi.TicketSystem.ticket.ActionType;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 
@@ -31,7 +30,7 @@ class _Worker {
 
     @BeforeEach
     public void setup() {
-        ticket = new Ticket(ActionType.ACTION, TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        ticket = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
     }
 
     // Since workers are just going to be implementations of an abstract worker class
