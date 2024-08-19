@@ -7,10 +7,10 @@ import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketResult;
 
-public abstract class AbstractWorker<T> {
+public abstract class AbstractWorker {
 
     Status status = Status.CREATED;
-    final CompletableFuture<TicketResult<T>> future;
+    final CompletableFuture<TicketResult> future;
     final Ticket associated_ticket;
     final CaughtExceptions exceptionHandler;
 
@@ -40,8 +40,8 @@ public abstract class AbstractWorker<T> {
     public final void recordException(ExceptionRecord record) { exceptionHandler.add(record); }
 
     // exit point of worker
-    protected void complete(Status result_status, T data) {
-        TicketResult<T> result = new TicketResult<>(new CaughtExceptions(), associated_ticket, result_status, data);
+    protected void complete(Status result_status, Object data) {
+        TicketResult result = new TicketResult(new CaughtExceptions(), associated_ticket, result_status, data);
         future.complete(result);
     }
 
@@ -50,7 +50,7 @@ public abstract class AbstractWorker<T> {
         return status;
     }
 
-    public CompletableFuture<TicketResult<T>> getFuture() {
+    public CompletableFuture<TicketResult> getFuture() {
         return future;
     }
 

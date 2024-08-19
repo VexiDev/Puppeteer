@@ -25,6 +25,7 @@ class _CaughtExceptions {
     ArrayList<ExceptionRecord> errors_list;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
 
         CaughtExceptions = new CaughtExceptions();
@@ -41,8 +42,7 @@ class _CaughtExceptions {
         assertNotNull(errors_list, "Exceptions map is null");
         assertEquals(0, errors_list.size(), "Exceptions map is not an empty hashmap");
 
-        //vscode is highlighting _ExceptionRecord as unused and its annoying me
-        // until i find out how to make vscode notice it i will be `using` it here -__-
+        //some compiler settings makes @SuppressWarnings("unused") not work will fix eventually
         this_method_does_nothing(new _ExceptionRecord());
     }
 

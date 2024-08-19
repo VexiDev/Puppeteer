@@ -45,7 +45,7 @@ class _Worker {
         Worker_objectGeneric worker_objectGeneric = new Worker_objectGeneric(ticket);
         Worker_primitiveGeneric worker_primitiveGeneric = new Worker_primitiveGeneric(ticket);
 
-        List<AbstractWorker<?>> workers = List.<AbstractWorker<?>>of(
+        List<AbstractWorker> workers = List.<AbstractWorker>of(
                 worker_noGeneric,
                 worker_jsonGeneric,
                 worker_objectGeneric,
@@ -53,7 +53,7 @@ class _Worker {
         );
 
         // the test loop for worker types
-        for (AbstractWorker<?> worker : workers) {
+        for (AbstractWorker worker : workers) {
 
             // verify default worker attributes of explicit type are not null
             assertNotNull(worker.getTicket(), "MockWorker associated Ticket is null");
@@ -111,7 +111,8 @@ class _Worker {
         worker.getFuture().thenAccept((ticketResult) -> {
 
             assertTrue(ticketResult.getData() instanceof ExceptionRecord, "TicketResult data is not an instance of ExceptionRecord");
-            assertTrue(ticketResult.getData().getType().equals("ExampleRecord_06302005"), "TicketResult ExceptionRecord Object does not have the correct exception type");
+            ExceptionRecord ticket_result_data = (ExceptionRecord) ticketResult.getData();
+            assertTrue(ticket_result_data.getType().equals("ExampleRecord_06302005"), "TicketResult ExceptionRecord Object does not have the correct exception type");
 
         });
 

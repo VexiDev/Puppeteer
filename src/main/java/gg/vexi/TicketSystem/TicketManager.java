@@ -93,7 +93,7 @@ public class TicketManager {
 
     protected void completeTicket(Ticket ticket) {
 
-        ticket.getFuture().complete(new TicketResult<JsonObject>(new CaughtExceptions(), ticket, Status.FAILED, null));
+        ticket.getFuture().complete(new TicketResult(new CaughtExceptions(), ticket, Status.FAILED, null));
 
         activeTickets.remove(ticket.getType());
     

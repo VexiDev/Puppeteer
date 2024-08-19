@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.TicketSystem.model.ticket.ActionType;
-import gg.vexi.TicketSystem.ticket.ActionType;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 import gg.vexi.TicketSystem.ticket.TicketResult;

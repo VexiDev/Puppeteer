@@ -3,14 +3,14 @@ package gg.vexi.TicketSystem.ticket;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Status;
 
-public class TicketResult<T> {
+public class TicketResult {
 
     private final CaughtExceptions exceptions;
     private final Ticket target_ticket;
     private final Status status;
-    private final T data;
+    private final Object data;
 
-    public TicketResult(CaughtExceptions caughtExceptions, Ticket ticket, Status result_status, T Data) {
+    public TicketResult(CaughtExceptions caughtExceptions, Ticket ticket, Status result_status, Object Data) {
         exceptions = caughtExceptions;
         target_ticket = ticket;
         status = result_status;
@@ -22,7 +22,7 @@ public class TicketResult<T> {
         return target_ticket;
     }
 
-    public T getData() {
+    public Object getData() {
         return data;
     }
 
