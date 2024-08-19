@@ -1,5 +1,6 @@
 package gg.vexi.TicketSystem;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -14,8 +15,8 @@ import gg.vexi.TicketSystem.ticket.TicketResult;
 
 public class TicketManager {
 
-    private final ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<ActionType, Ticket> activeTickets = new ConcurrentHashMap<>();
+    private final Map<ActionType, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
+    private final Map<ActionType, Ticket> activeTickets = new ConcurrentHashMap<>();
 
     public TicketManager() {
         for (ActionType type : ActionType.values()) {
@@ -115,7 +116,7 @@ public class TicketManager {
         return actionQueues.get(type);
     }
 
-    public ConcurrentHashMap<ActionType, PriorityBlockingQueue<Ticket>> getAllQueues() {
+    public Map<ActionType, PriorityBlockingQueue<Ticket>> getAllQueues() {
         return actionQueues;
     }
 
@@ -123,7 +124,7 @@ public class TicketManager {
         return activeTickets.get(type);
     }
 
-    public ConcurrentHashMap<ActionType, Ticket> getAllActive() {
+    public Map<ActionType, Ticket> getAllActive() {
         return activeTickets;
     }
 
