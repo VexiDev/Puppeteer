@@ -7,10 +7,10 @@ import java.util.concurrent.PriorityBlockingQueue;
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
-import gg.vexi.TicketSystem.Ticket.ActionType;
-import gg.vexi.TicketSystem.Ticket.Ticket;
-import gg.vexi.TicketSystem.Ticket.TicketPriority;
-import gg.vexi.TicketSystem.Ticket.TicketResult;
+import gg.vexi.TicketSystem.ticket.ActionType;
+import gg.vexi.TicketSystem.ticket.Ticket;
+import gg.vexi.TicketSystem.ticket.TicketPriority;
+import gg.vexi.TicketSystem.ticket.TicketResult;
 
 public class TicketManager {
 

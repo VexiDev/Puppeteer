@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
-import gg.vexi.TicketSystem.Ticket.Ticket;
-import gg.vexi.TicketSystem.Ticket.TicketResult;
+import gg.vexi.TicketSystem.ticket.Ticket;
+import gg.vexi.TicketSystem.ticket.TicketResult;
 
 public abstract class AbstractWorker<T> {
 

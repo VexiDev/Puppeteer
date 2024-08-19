@@ -1,4 +1,4 @@
-package gg.vexi.TicketSystem.Ticket;
+package gg.vexi.TicketSystem.ticket;
 
 public enum ActionType {
     ACTION

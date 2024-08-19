@@ -20,9 +20,9 @@ import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_jsonGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_noGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_objectGeneric;
 import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_primitiveGeneric;
-import gg.vexi.TicketSystem.Ticket.ActionType;
-import gg.vexi.TicketSystem.Ticket.Ticket;
-import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.ticket.ActionType;
+import gg.vexi.TicketSystem.ticket.Ticket;
+import gg.vexi.TicketSystem.ticket.TicketPriority;
 
 class _Worker {
 

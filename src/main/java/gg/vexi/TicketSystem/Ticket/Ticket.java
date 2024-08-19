@@ -1,4 +1,4 @@
-package gg.vexi.TicketSystem.Ticket;
+package gg.vexi.TicketSystem.ticket;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

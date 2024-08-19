@@ -2,7 +2,7 @@ package gg.vexi.TicketSystem.Mocks.MockWorkers;
 
 import gg.vexi.TicketSystem.AbstractWorker;
 import gg.vexi.TicketSystem.Status;
-import gg.vexi.TicketSystem.Ticket.Ticket;
+import gg.vexi.TicketSystem.ticket.Ticket;
 
 public class Worker_noGeneric extends AbstractWorker {
 
