@@ -1,5 +1,8 @@
 package gg.vexi.TicketSystem;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,6 +11,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
+import gg.vexi.TicketSystem.annotations.AssociatedRequest;
+import gg.vexi.TicketSystem.annotations.scanner.AnnotationScanner;
+import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.ActionType;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
@@ -15,14 +21,39 @@ import gg.vexi.TicketSystem.ticket.TicketResult;
 
 public class TicketManager {
 
+    private final WorkerRegistry WorkerRegistry;
     private final Map<ActionType, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
     private final Map<ActionType, Ticket> activeTickets = new ConcurrentHashMap<>();
 
     public TicketManager() {
-        for (ActionType type : ActionType.values()) {
-            actionQueues.put(type, new PriorityBlockingQueue<>());
+        this.WorkerRegistry = new WorkerRegistry();
+        try {
+            autoRegisterWorkeres("gg.vexi.TicketSystem");  // Replace with your package name
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to auto-register processes", e);
         }
     }
+
+    private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
+        List<Class<?>> processClasses = AnnotationScanner.findAnnotatedClasses(packageName, AssociatedRequest.class);
+        
+        for (Class<?> processClass : processClasses) {
+            AssociatedRequest annotation = processClass.getAnnotation(AssociatedRequest.class);
+            String requestType = annotation.value();
+            registerWorker(processClass, requestType);
+        }
+    }
+
+    private void registerWorker(Class<?> processClass, String requestType) {
+        WorkerRegistry.registerWorker(requestType, () -> {
+            try {
+                return (AbstractWorker) processClass.getDeclaredConstructor().newInstance();
+            } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+                throw new RuntimeException("Failed to instantiate process class", e);
+            }
+        });
+    }
+
 
     protected void addTicketToQueue(Ticket ticket) {
 
