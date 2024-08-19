@@ -1,9 +1,10 @@
 
-# Exclude certain file types
+# Exclude certain files and/or file types
 **/*.class
 **/*.py
+.LCK**
 
-#exclude certain directories
+#Exclude certain directories
 .vscode/
 python/
 
