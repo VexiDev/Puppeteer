@@ -1,7 +1,7 @@
 package gg.vexi.TicketSystem.Mocks.MockWorkers;
 
-import gg.vexi.TicketSystem.AbstractWorker;
 import gg.vexi.TicketSystem.Status;
+import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
 // using ExceptionRecord as our object just cause I need a good example object

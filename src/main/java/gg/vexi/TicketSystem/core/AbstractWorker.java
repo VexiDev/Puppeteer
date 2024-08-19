@@ -1,7 +1,8 @@
-package gg.vexi.TicketSystem;
+package gg.vexi.TicketSystem.core;
 
 import java.util.concurrent.CompletableFuture;
 
+import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.ticket.Ticket;
