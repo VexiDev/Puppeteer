@@ -35,17 +35,17 @@ public class TicketManager {
     }
 
     private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
-        List<Class<?>> processClasses = AnnotationScanner.findAnnotatedClasses(packageName, AssociatedRequest.class);
+        List<Class<?>> processClasses = AnnotationScanner.findAnnotatedClasses(packageName, AssociatedActionType.class);
         
         for (Class<?> processClass : processClasses) {
-            AssociatedRequest annotation = processClass.getAnnotation(AssociatedRequest.class);
+            AssociatedActionType annotation = processClass.getAnnotation(AssociatedActionType.class);
             String requestType = annotation.value();
             registerWorker(processClass, requestType);
         }
     }
 
     private void registerWorker(Class<?> processClass, String requestType) {
-        WorkerRegistry.registerWorker(requestType, () -> {
+        workerRegistry.registerWorker(requestType, () -> {
             try {
                 return (AbstractWorker) processClass.getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
