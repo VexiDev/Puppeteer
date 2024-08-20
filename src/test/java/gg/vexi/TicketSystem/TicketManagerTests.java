@@ -130,7 +130,7 @@ class _TicketManager {
         TicketManager.setActive(nextTicket);
 
         // verify the actions_queue for our ticket is not empty
-        assertFalse(actions_queue.get("test_action").isEmpty(), "Queue for ticket2 is empty after polling first ticket");
+        assertFalse(actionQueues.get("test_action").isEmpty(), "Queue for ticket2 is empty after polling first ticket");
 
         // Try and get the next ticket
         nextTicket = TicketManager.nextTicket("test_action");
