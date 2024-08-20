@@ -27,8 +27,16 @@ public class TicketManager {
     public TicketManager() {
         try {
             autoRegisterWorkeres("gg.vexi.TicketSystem");  // Replace with your package name
+            initActionQueues();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to auto-register processes", e);
+        }
+    }
+
+    private void initActionQueues() {
+        // initialize the maps for each worker in the registry
+        for (String action : workerRegistry.getAllActionTypes()) {
+            actionQueues.put(action, new PriorityBlockingQueue<>());
         }
     }
 
