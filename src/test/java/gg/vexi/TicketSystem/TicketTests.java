@@ -2,6 +2,7 @@ package gg.vexi.TicketSystem;
 
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,8 +97,13 @@ class _Ticket {
         // technically direct wrapper of CaughtExceptions.any(); but i guess its actually a wrapper for TicketResult.getExceptions().any();
         @Test
         @Disabled("Test not implemented")
-        public void test_hasExceptions() {}
+        public void test_hasExceptions() {
 
+            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.CREATED, null);
 
-    }
+            boolean hasExceptions = TicketResult.hasExceptions();
+
+            assertNotNull(hasExceptions, "TicketResult returned null when checking exceptions");
+            assertFalse(hasExceptions, "TicketResult has exceptions");
+        }
 }
