@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -119,6 +120,7 @@ class _Worker {
         worker.main();
 
         // this should not be possible because complete() should only be accessible from within the worker
+        this_method_does_nothing(expected_data); // <-- temp
         // worker.complete(Status.SUCCESS, expected_data); // <-- errors with "protected access" (need to learn more about the __protected__ access level)
 
     }
