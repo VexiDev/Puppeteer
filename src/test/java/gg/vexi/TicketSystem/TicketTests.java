@@ -93,7 +93,6 @@ class _Ticket {
 
         }
 
-        // technically direct wrapper of CaughtExceptions.any(); but i guess its actually a wrapper for TicketResult.getExceptions().any();
         @Test
         // @Disabled("Test not implemented")
         public void test_hasExceptions() {

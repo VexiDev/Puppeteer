@@ -1,29 +1,31 @@
 package gg.vexi.TicketSystem;
 
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_jsonGeneric;
-import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_noGeneric;
-import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_objectGeneric;
-import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_primitiveGeneric;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.CustomObjectResult_Worker;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.JsonObjectResult_Worker;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.PrimitiveTypeResult_Worker;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.VoidResult_Worker;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
+import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
+import gg.vexi.TicketSystem.ticket.TicketResult;
 
 class _Worker {
 
@@ -41,10 +43,10 @@ class _Worker {
     public void test_init() {
 
         // initialize mock workers
-        Worker_noGeneric worker_noGeneric = new Worker_noGeneric(ticket);
-        Worker_jsonGeneric worker_jsonGeneric = new Worker_jsonGeneric(ticket);
-        Worker_objectGeneric worker_objectGeneric = new Worker_objectGeneric(ticket);
-        Worker_primitiveGeneric worker_primitiveGeneric = new Worker_primitiveGeneric(ticket);
+        VoidResult_Worker worker_noGeneric = new VoidResult_Worker(ticket);
+        JsonObjectResult_Worker worker_jsonGeneric = new JsonObjectResult_Worker(ticket);
+        CustomObjectResult_Worker worker_objectGeneric = new CustomObjectResult_Worker(ticket);
+        PrimitiveTypeResult_Worker worker_primitiveGeneric = new PrimitiveTypeResult_Worker(ticket);
 
         List<AbstractWorker> workers = List.<AbstractWorker>of(
                 worker_noGeneric,
@@ -70,7 +72,7 @@ class _Worker {
     @Test
     public void test_start() {
 
-        Worker_noGeneric worker = new Worker_noGeneric(ticket);
+        VoidResult_Worker worker = new VoidResult_Worker(ticket);
 
         // run the worker
         worker.main();
@@ -78,16 +80,37 @@ class _Worker {
         assertEquals(Status.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");
     }
 
-    // tests the complete() method which takes a result status, data, caughtexceptions and the original ticket to build the TicketResult
+    // tests the complete() method which takes a result status and data to build the TicketResult and completes its future with it
     @Test
-    @Disabled("Test not implemented yet")
-    public void test_complete() {}
+    // @Disabled("Test not implemented yet")
+    public void test_complete() {
+
+        VoidResult_Worker worker = new VoidResult_Worker(ticket);
+        CompletableFuture<TicketResult> workerFuture = worker.getFuture();
+
+        workerFuture.thenAccept(actualResult -> {
+            // build expected result
+            TicketResult expectedResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
+            assertEquals(expectedResult, actualResult, "Result mismatch");
+        });
+
+        // run the worker
+        worker.main();
+        
+        assertTimeoutPreemptively(
+            Duration.ofSeconds(5),
+            () -> {
+                workerFuture.join();
+            },
+            "worker future took too long to execute (>5 seconds)"
+        );
+    }
 
     // tests the recordException() method which is just a wrapper of CaughtExceptions.add()
     @Test
     public void test_recordException() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
         
-        Worker_noGeneric worker = new Worker_noGeneric(ticket);
+        VoidResult_Worker worker = new VoidResult_Worker(ticket);
 
         Field exception_object_field = worker.getClass().getSuperclass().getDeclaredField("exceptionHandler");
         exception_object_field.setAccessible(true);
@@ -106,7 +129,7 @@ class _Worker {
     @Test
     public void test_resultGenericType() {
 
-        Worker_objectGeneric worker = new Worker_objectGeneric(ticket);
+        CustomObjectResult_Worker worker = new CustomObjectResult_Worker(ticket);
         ExceptionRecord expected_data = new ExceptionRecord("ExampleRecord_06302005", "This is an example record for the test_completeSuccess() unit test");
 
         worker.getFuture().thenAccept((ticketResult) -> {
