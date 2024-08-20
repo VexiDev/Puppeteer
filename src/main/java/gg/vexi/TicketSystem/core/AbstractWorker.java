@@ -2,9 +2,9 @@ package gg.vexi.TicketSystem.core;
 
 import java.util.concurrent.CompletableFuture;
 
-import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
+import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketResult;
 
@@ -42,7 +42,7 @@ public abstract class AbstractWorker {
 
     // exit point of worker
     protected void complete(Status result_status, Object data) {
-        TicketResult result = new TicketResult(new CaughtExceptions(), associated_ticket, result_status, data);
+        TicketResult result = new TicketResult(exceptionHandler, associated_ticket, result_status, data);
         future.complete(result);
     }
 
