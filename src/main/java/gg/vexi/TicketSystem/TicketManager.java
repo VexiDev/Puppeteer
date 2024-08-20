@@ -27,35 +27,30 @@ public class TicketManager {
     public TicketManager() {
         try {
             autoRegisterWorkeres("gg.vexi.TicketSystem");  // Replace with your package name
-            initActionQueues();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to auto-register processes", e);
         }
     }
 
-    private void initActionQueues() {
-        // initialize the maps for each worker in the registry
-        for (String action : workerRegistry.getAllActionTypes()) {
-            actionQueues.put(action, new PriorityBlockingQueue<>());
-        }
-    }
-
     private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
-        List<Class<?>> processClasses = AnnotationScanner.findAnnotatedClasses(packageName, AssociatedActionType.class);
+        List<Class<?>> workerClasses = AnnotationScanner.findAnnotatedClasses(packageName, AssociatedActionType.class);
         
-        for (Class<?> processClass : processClasses) {
-            AssociatedActionType annotation = processClass.getAnnotation(AssociatedActionType.class);
-            String requestType = annotation.value();
-            registerWorker(processClass, requestType);
+        for (Class<?> workerClass : workerClasses) {
+            AssociatedActionType annotation = workerClass.getAnnotation(AssociatedActionType.class);
+            String actionType = annotation.value();
+            registerWorker(workerClass, actionType);
+            // create a queue for this actiontype
+            actionQueues.put(actionType, new PriorityBlockingQueue<>());
         }
     }
 
-    private void registerWorker(Class<?> processClass, String requestType) {
-        workerRegistry.registerWorker(requestType, () -> {
+    private void registerWorker(Class<?> workerClass, String actionType) {
+        workerRegistry.registerWorker(actionType, () -> {
             try {
-                return (AbstractWorker) processClass.getDeclaredConstructor().newInstance();
+                actionQueues.put(actionType, new PriorityBlockingQueue<>());
+                return (AbstractWorker) workerClass.getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
-                throw new RuntimeException("Failed to instantiate process class", e);
+                throw new RuntimeException("Failed to instantiate worker class", e);
             }
         });
     }
