@@ -5,10 +5,10 @@ import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
-@AssociatedActionType("VoidResult_Worker")
-public class Worker_noGeneric extends AbstractWorker {
+@AssociatedActionType("CustomObjectResult_Worker")
+public class CustomObjectResult_Worker extends AbstractWorker {
 
-    public Worker_noGeneric(Ticket ticket) {
+    public CustomObjectResult_Worker(Ticket ticket) {
         super(ticket);
     }
 

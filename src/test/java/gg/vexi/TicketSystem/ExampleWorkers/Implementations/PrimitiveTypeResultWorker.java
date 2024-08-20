@@ -6,9 +6,9 @@ import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
 @AssociatedActionType("PrimitiveTypeResultWorker")
-public class Worker_primitiveGeneric extends AbstractWorker {
+public class PrimitiveTypeResultWorker extends AbstractWorker {
 
-    public Worker_primitiveGeneric(Ticket ticket) {
+    public PrimitiveTypeResultWorker(Ticket ticket) {
         super(ticket);
     }
 
