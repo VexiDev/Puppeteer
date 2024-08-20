@@ -4,12 +4,13 @@ import java.util.concurrent.CompletableFuture;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
+import gg.vexi.TicketSystem.State;
 import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public abstract class AbstractWorker {
 
-    Status status = Status.CREATED;
+    State status = State.CREATED;
     final CompletableFuture<TicketResult> future;
     final Ticket associated_ticket;
     final CaughtExceptions exceptionHandler;
@@ -19,7 +20,7 @@ public abstract class AbstractWorker {
         associated_ticket = ticket;
         exceptionHandler = new CaughtExceptions();
         future = new CompletableFuture<>();
-        status = Status.READY;
+        status = State.READY;
 
     }
     
@@ -30,7 +31,7 @@ public abstract class AbstractWorker {
     // start point of worker (run by ticketmanager)
     public final void start() {
         try {
-            setStatus(Status.PROCESSING);
+            setStatus(State.PROCESSING);
             main();
         } catch (Exception e) {
             recordException(new ExceptionRecord("Unhandled Exception", e.getMessage()));
@@ -42,13 +43,13 @@ public abstract class AbstractWorker {
 
     // exit point of worker
     protected void complete(Status result_status, Object data) {
-        status = Status.COMPLETED;
+        status = State.COMPLETED;
         TicketResult result = new TicketResult(exceptionHandler, associated_ticket, result_status, data);
         future.complete(result);
     }
 
     // getters
-    public Status getStatus() {
+    public State getStatus() {
         return status;
     }
 
@@ -61,7 +62,7 @@ public abstract class AbstractWorker {
     }
 
     // setters
-    public void setStatus(Status new_status) {
+    public void setStatus(State new_status) {
         status = new_status;
     }
 

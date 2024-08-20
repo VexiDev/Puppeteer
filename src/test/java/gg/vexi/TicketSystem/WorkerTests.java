@@ -66,7 +66,7 @@ class _Worker {
             assertNotNull(worker.getStatus(), "MockWorker status is null");
 
             // verify default status for worker is ready by default
-            assertEquals(Status.READY, worker.getStatus(), "MockWorker default status is not READY");
+            assertEquals(State.READY, worker.getStatus(), "MockWorker default status is not READY");
         }
 
     }
@@ -84,9 +84,9 @@ class _Worker {
         });
 
         latch.await(500, TimeUnit.MILLISECONDS);
-        assertEquals(Status.PROCESSING, worker.getStatus());
+        assertEquals(State.PROCESSING, worker.getStatus());
 
-        assertEquals(Status.PROCESSING, worker.getStatus(), "Void Worker status is not PROCESSING after start");
+        assertEquals(State.PROCESSING, worker.getStatus(), "Void Worker status is not PROCESSING after start");
     }
 
     // tests the complete() method which takes a result status and data to build the TicketResult and completes its future with it
@@ -110,7 +110,7 @@ class _Worker {
             Duration.ofSeconds(5),
             () -> {
                 workerFuture.join();
-                assertEquals(Status.COMPLETED, worker.getStatus(), "Worker Status is not COMPLETED after complete()");
+                assertEquals(State.COMPLETED, worker.getStatus(), "Worker Status is not COMPLETED after complete()");
             },
             "Worker future took too long to complete (>5 seconds)"
         );

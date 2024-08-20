@@ -72,7 +72,7 @@ class _Ticket {
         @Test
         public void test_init() {
 
-            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.CREATED, null);
+            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
 
             assertNotNull(TicketResult, "TicketResult is null");
             assertNotNull(TicketResult.getTicket(), "TicketResult associated ticket is null");
@@ -97,7 +97,7 @@ class _Ticket {
         // @Disabled("Test not implemented")
         public void test_hasExceptions() {
 
-            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.CREATED, null);
+            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.FAILED, null);
 
             boolean hasExceptions = TicketResult.hasExceptions();
 
