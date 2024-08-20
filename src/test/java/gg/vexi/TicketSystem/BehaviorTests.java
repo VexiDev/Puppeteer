@@ -72,7 +72,7 @@ class _Behavior {
                     TicketResult ticket_result = ticketFuture.join();
                     ticket_result_holder.set(ticket_result);
                 },
-                "ticket future took too long to execute (>5 seconds)"
+                "Ticket future took too long to complete (>5 seconds)"
         );
 
         TicketResult ticket_result = ticket_result_holder.get();
