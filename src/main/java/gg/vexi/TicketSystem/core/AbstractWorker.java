@@ -41,6 +41,7 @@ public abstract class AbstractWorker {
 
     // exit point of worker
     protected void complete(Status result_status, Object data) {
+        status = Status.COMPLETED;
         TicketResult result = new TicketResult(exceptionHandler, associated_ticket, result_status, data);
         future.complete(result);
     }

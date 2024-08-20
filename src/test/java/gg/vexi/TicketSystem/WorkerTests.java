@@ -23,10 +23,9 @@ import gg.vexi.TicketSystem.ExampleWorkers.Implementations.PrimitiveTypeResult_W
 import gg.vexi.TicketSystem.ExampleWorkers.Implementations.VoidResult_Worker;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
+import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 import gg.vexi.TicketSystem.Ticket.TicketResult;
-
-import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 
 class _Worker {
 
@@ -102,8 +101,9 @@ class _Worker {
             Duration.ofSeconds(5),
             () -> {
                 workerFuture.join();
+                assertEquals(Status.COMPLETED, worker.getStatus(), "Worker Status is not COMPLETED after complete()");
             },
-            "worker future took too long to execute (>5 seconds)"
+            "Worker future took too long to complete (>5 seconds)"
         );
     }
 
