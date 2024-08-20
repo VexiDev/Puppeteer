@@ -21,6 +21,10 @@ public class TicketResult {
         return status == Status.SUCCESS;
     }
 
+    public boolean hasExceptions() {
+        return exceptions.any();
+    }
+
     // getters
     public Ticket getTicket() {
         return target_ticket;
