@@ -1,14 +1,18 @@
-package gg.vexi.TicketSystem.Mocks.MockWorkers;
+package gg.vexi.TicketSystem.ExampleWorkers;
 
 import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
-@AssociatedActionType("CustomObjectResult_Worker")
-public class Worker_objectGeneric extends AbstractWorker {
+// THIS IS THE PLACEHOLDER WORKER FOR ALL GENERAL UNIT TESTS
 
-    public Worker_objectGeneric(Ticket ticket) {
+// IMPLEMENTATION TESTS USE OUR EXAMPLE WORKERS
+
+@AssociatedActionType("test_action")
+public class Worker_TestAction extends AbstractWorker {
+
+    public Worker_TestAction(Ticket ticket) {
         super(ticket);
     }
 

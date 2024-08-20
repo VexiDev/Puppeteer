@@ -1,14 +1,14 @@
-package gg.vexi.TicketSystem.Mocks.MockWorkers;
+package gg.vexi.TicketSystem.ExampleWorkers.Implementations;
 
 import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
-@AssociatedActionType("test_action")
-public class Worker_TestAction extends AbstractWorker {
+@AssociatedActionType("JsonObjectResult_Worker")
+public class Worker_jsonGeneric extends AbstractWorker {
 
-    public Worker_TestAction(Ticket ticket) {
+    public Worker_jsonGeneric(Ticket ticket) {
         super(ticket);
     }
 

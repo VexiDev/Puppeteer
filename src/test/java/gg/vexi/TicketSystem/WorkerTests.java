@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_jsonGeneric;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_noGeneric;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_objectGeneric;
+import gg.vexi.TicketSystem.ExampleWorkers.Implementations.Worker_primitiveGeneric;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
-import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_jsonGeneric;
-import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_noGeneric;
-import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_objectGeneric;
-import gg.vexi.TicketSystem.Mocks.MockWorkers.Worker_primitiveGeneric;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;

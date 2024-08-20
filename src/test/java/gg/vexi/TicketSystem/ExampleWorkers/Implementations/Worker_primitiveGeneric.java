@@ -1,14 +1,14 @@
-package gg.vexi.TicketSystem.Mocks.MockWorkers;
+package gg.vexi.TicketSystem.ExampleWorkers.Implementations;
 
 import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.core.AbstractWorker;
 import gg.vexi.TicketSystem.ticket.Ticket;
 
-@AssociatedActionType("VoidResult_Worker")
-public class Worker_noGeneric extends AbstractWorker {
+@AssociatedActionType("PrimitiveTypeResultWorker")
+public class Worker_primitiveGeneric extends AbstractWorker {
 
-    public Worker_noGeneric(Ticket ticket) {
+    public Worker_primitiveGeneric(Ticket ticket) {
         super(ticket);
     }
 
