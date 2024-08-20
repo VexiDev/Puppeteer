@@ -4,13 +4,13 @@ import gg.vexi.TicketSystem.Core.AbstractWorker;
 import gg.vexi.TicketSystem.Core.Ticket;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.Status;
-import gg.vexi.TicketSystem.annotations.AssociatedActionType;
+import gg.vexi.TicketSystem.annotations.RegisterWorker;
 
 // THIS IS THE PLACEHOLDER WORKER FOR ALL GENERAL UNIT TESTS
 
 // IMPLEMENTATION TESTS USE OUR EXAMPLE WORKERS
 
-@AssociatedActionType("test_action")
+@RegisterWorker("test_action")
 public class Worker_TestAction extends AbstractWorker {
 
     private String data;
@@ -21,7 +21,6 @@ public class Worker_TestAction extends AbstractWorker {
 
     @Override
     public void main() {
-        super.setStatus(Status.PROCESSING);
 
         try {
             Thread.sleep(200);

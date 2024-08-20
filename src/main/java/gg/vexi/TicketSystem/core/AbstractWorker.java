@@ -30,6 +30,7 @@ public abstract class AbstractWorker {
     // start point of worker (run by ticketmanager)
     public final void start() {
         try {
+            setStatus(Status.PROCESSING);
             main();
         } catch (Exception e) {
             recordException(new ExceptionRecord("Unhandled Exception", e.getMessage()));

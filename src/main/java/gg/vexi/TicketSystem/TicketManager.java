@@ -11,12 +11,12 @@ import java.util.concurrent.PriorityBlockingQueue;
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Core.AbstractWorker;
-import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
-import gg.vexi.TicketSystem.annotations.AssociatedActionType;
-import gg.vexi.TicketSystem.annotations.Scanner.AnnotationScanner;
 import gg.vexi.TicketSystem.Core.Ticket;
+import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Ticket.TicketPriority;
 import gg.vexi.TicketSystem.Ticket.TicketResult;
+import gg.vexi.TicketSystem.annotations.RegisterWorker;
+import gg.vexi.TicketSystem.annotations.Scanner.AnnotationScanner;
 
 public class TicketManager {
 
@@ -33,13 +33,18 @@ public class TicketManager {
     }
 
     private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
-        List<Class<?>> workerClasses = AnnotationScanner.findAnnotatedClasses(packageName, AssociatedActionType.class);
+
+        
+        List<Class<?>> workerClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterWorker.class);
         
         for (Class<?> workerClass : workerClasses) {
-            AssociatedActionType annotation = workerClass.getAnnotation(AssociatedActionType.class);
+            
+            RegisterWorker annotation = workerClass.getAnnotation(RegisterWorker.class);
             String actionType = annotation.value();
+            if (actionType.isEmpty()) { actionType = workerClass.getSimpleName(); }
+
+            // add worker to registry and create a queue for it
             registerWorker(workerClass, actionType);
-            // create a queue for this actiontype
             actionQueues.put(actionType, new PriorityBlockingQueue<>());
         }
     }

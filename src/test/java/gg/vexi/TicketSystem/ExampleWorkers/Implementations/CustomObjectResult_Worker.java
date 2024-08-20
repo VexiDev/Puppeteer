@@ -4,9 +4,9 @@ import gg.vexi.TicketSystem.Core.AbstractWorker;
 import gg.vexi.TicketSystem.Core.Ticket;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.Status;
-import gg.vexi.TicketSystem.annotations.AssociatedActionType;
+import gg.vexi.TicketSystem.annotations.RegisterWorker;
 
-@AssociatedActionType("CustomObjectResult_Worker")
+@RegisterWorker
 public class CustomObjectResult_Worker extends AbstractWorker {
 
     private ExceptionRecord data;
@@ -17,7 +17,6 @@ public class CustomObjectResult_Worker extends AbstractWorker {
 
     @Override
     public void main() {
-        super.setStatus(Status.PROCESSING);
 
         try {
             Thread.sleep(200);

@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -70,14 +72,21 @@ class _Worker {
     }
 
     @Test
-    public void test_start() {
+    public void test_start() throws InterruptedException {
 
         VoidResult_Worker worker = new VoidResult_Worker(ticket);
 
-        // run the worker
-        worker.main();
+        CountDownLatch latch = new CountDownLatch(1);
 
-        assertEquals(Status.PROCESSING, worker.getStatus(), "MockWorker status is not PROCESSING after start");
+        CompletableFuture.runAsync(() -> {
+            worker.start();
+            latch.countDown();
+        });
+
+        latch.await(500, TimeUnit.MILLISECONDS);
+        assertEquals(Status.PROCESSING, worker.getStatus());
+
+        assertEquals(Status.PROCESSING, worker.getStatus(), "Void Worker status is not PROCESSING after start");
     }
 
     // tests the complete() method which takes a result status and data to build the TicketResult and completes its future with it
