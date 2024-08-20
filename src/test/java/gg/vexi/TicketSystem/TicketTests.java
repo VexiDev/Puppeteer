@@ -14,9 +14,9 @@ import com.google.gson.JsonObject;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import static gg.vexi.TicketSystem.TestUtils.assertJsonObjectEquals;
 import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
-import gg.vexi.TicketSystem.ticket.Ticket;
-import gg.vexi.TicketSystem.ticket.TicketPriority;
-import gg.vexi.TicketSystem.ticket.TicketResult;
+import gg.vexi.TicketSystem.Core.Ticket;
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 class _Ticket {
 

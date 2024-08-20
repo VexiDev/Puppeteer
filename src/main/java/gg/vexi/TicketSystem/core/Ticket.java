@@ -1,9 +1,12 @@
-package gg.vexi.TicketSystem.ticket;
+package gg.vexi.TicketSystem.Core;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
+
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public class Ticket implements Comparable<Ticket> {
 

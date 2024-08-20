@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.TicketSystem.ticket.Ticket;
-import gg.vexi.TicketSystem.ticket.TicketPriority;
+import gg.vexi.TicketSystem.Core.Ticket;
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
 
 class _TicketManager {
 

@@ -1,5 +1,6 @@
-package gg.vexi.TicketSystem.ticket;
+package gg.vexi.TicketSystem.Ticket;
 
+import gg.vexi.TicketSystem.Core.Ticket;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Status;
 

@@ -14,9 +14,9 @@ import gg.vexi.TicketSystem.Core.AbstractWorker;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 import gg.vexi.TicketSystem.annotations.Scanner.AnnotationScanner;
-import gg.vexi.TicketSystem.ticket.Ticket;
-import gg.vexi.TicketSystem.ticket.TicketPriority;
-import gg.vexi.TicketSystem.ticket.TicketResult;
+import gg.vexi.TicketSystem.Core.Ticket;
+import gg.vexi.TicketSystem.Ticket.TicketPriority;
+import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public class TicketManager {
 
