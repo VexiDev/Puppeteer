@@ -1,4 +1,4 @@
-package gg.vexi.TicketSystem.annotations.scanner;
+package gg.vexi.TicketSystem.annotations.Scanner;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

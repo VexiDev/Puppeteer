@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.Core.AbstractWorker;
 import gg.vexi.TicketSystem.ExampleWorkers.Implementations.CustomObjectResult_Worker;
 import gg.vexi.TicketSystem.ExampleWorkers.Implementations.JsonObjectResult_Worker;
 import gg.vexi.TicketSystem.ExampleWorkers.Implementations.PrimitiveTypeResult_Worker;
@@ -22,7 +23,7 @@ import gg.vexi.TicketSystem.ExampleWorkers.Implementations.VoidResult_Worker;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
-import gg.vexi.TicketSystem.core.AbstractWorker;
+
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 import gg.vexi.TicketSystem.ticket.TicketResult;

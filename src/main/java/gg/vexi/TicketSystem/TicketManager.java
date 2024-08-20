@@ -10,10 +10,10 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.gson.JsonObject;
 
+import gg.vexi.TicketSystem.Core.AbstractWorker;
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.annotations.AssociatedActionType;
-import gg.vexi.TicketSystem.annotations.scanner.AnnotationScanner;
-import gg.vexi.TicketSystem.core.AbstractWorker;
+import gg.vexi.TicketSystem.annotations.Scanner.AnnotationScanner;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 import gg.vexi.TicketSystem.ticket.TicketResult;

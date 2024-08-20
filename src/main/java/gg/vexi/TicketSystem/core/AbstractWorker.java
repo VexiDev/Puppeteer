@@ -1,4 +1,4 @@
-package gg.vexi.TicketSystem.core;
+package gg.vexi.TicketSystem.Core;
 
 import java.util.concurrent.CompletableFuture;
 

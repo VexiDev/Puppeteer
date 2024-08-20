@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import gg.vexi.TicketSystem.core.AbstractWorker;
+import gg.vexi.TicketSystem.Core.AbstractWorker;
 
 public class WorkerRegistry {
     private final Map<String, Supplier<AbstractWorker>> registry = new ConcurrentHashMap<>();
