@@ -122,12 +122,12 @@ public class TicketManager {
     protected void executeTicket(Ticket ticket) {
 
         // get ticket type
-        String ticket_type = ticket.getType();
+        String ticket_action = ticket.getType();
 
         // make ticket active
-        activeTickets.putIfAbsent(ticket_type, ticket);
+        activeTickets.putIfAbsent(ticket_action, ticket);
 
-        // this is where we create and run our worker!
+        // this is where we create and run our worker! (AbstractWorker worker = workerRegistry.getWorker(ticket_action);)
         // • we then wait for the worker to be done 
         // • mark ticket as complete (+remove from active)
         // • then poll the next ticket.
