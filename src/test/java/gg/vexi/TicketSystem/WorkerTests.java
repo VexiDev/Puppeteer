@@ -119,7 +119,7 @@ class _Worker {
         worker.main();
 
         // this should not be possible because complete() should only be accessible from within the worker
-        worker.complete(Status.SUCCESS, expected_data);
+        // worker.complete(Status.SUCCESS, expected_data); // <-- errors with "protected access" (need to learn more about the __protected__ access level)
 
     }
 
