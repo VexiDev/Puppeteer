@@ -27,4 +27,6 @@ public class VoidResult_Worker extends AbstractWorker {
             super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
         }
     }
+
+    
 }
