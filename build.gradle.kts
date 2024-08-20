@@ -43,8 +43,8 @@ tasks.test {
     useJUnitPlatform()
     testLogging {
         // events("PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR")
-        // events("SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR")
-        events("FAILED", "STANDARD_OUT", "STANDARD_ERROR")
+        events("SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR")
+        // events("FAILED", "STANDARD_OUT", "STANDARD_ERROR")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showExceptions = true
         showCauses = true

@@ -8,12 +8,16 @@
 .vscode/
 python/
 
-# Exclude gradle kotlin directories
+# Exclude gradle directories and files
 .kotlin/
 .gradle/
 gradle/
 gradlew
 gradlew.bat
+
+# Our build config will need to be manually updated from now on
+build.gradle.kts
+settings.gradle.kts
 
 # Exclude build directory
 build/
