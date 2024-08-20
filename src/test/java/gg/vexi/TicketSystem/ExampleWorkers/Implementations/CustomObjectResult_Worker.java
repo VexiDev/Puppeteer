@@ -2,11 +2,14 @@ package gg.vexi.TicketSystem.ExampleWorkers.Implementations;
 
 import gg.vexi.TicketSystem.Core.AbstractWorker;
 import gg.vexi.TicketSystem.Core.Ticket;
+import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.Status;
 import gg.vexi.TicketSystem.annotations.AssociatedActionType;
 
 @AssociatedActionType("CustomObjectResult_Worker")
 public class CustomObjectResult_Worker extends AbstractWorker {
+
+    private ExceptionRecord data;
 
     public CustomObjectResult_Worker(Ticket Ticket) {
         super(Ticket);
@@ -15,5 +18,13 @@ public class CustomObjectResult_Worker extends AbstractWorker {
     @Override
     public void main() {
         super.setStatus(Status.PROCESSING);
+
+        try {
+            Thread.sleep(200);
+            data = new ExceptionRecord("CustomObjectResult", "This is an instance of ExceptionRecord to test worker's returning custom objects");
+            super.complete(Status.SUCCESS, data);
+        } catch (InterruptedException e) {
+            super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
+        }
     }
 }
