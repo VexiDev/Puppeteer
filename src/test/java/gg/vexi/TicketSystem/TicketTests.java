@@ -12,12 +12,11 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
+import static gg.vexi.TicketSystem.TestUtils.assertJsonObjectEquals;
+import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 import gg.vexi.TicketSystem.ticket.Ticket;
 import gg.vexi.TicketSystem.ticket.TicketPriority;
 import gg.vexi.TicketSystem.ticket.TicketResult;
-
-import static gg.vexi.TicketSystem.TestUtils.assertJsonObjectEquals;
-import static gg.vexi.TicketSystem.TestUtils.this_method_does_nothing;
 
 class _Ticket {
 
@@ -71,25 +70,33 @@ class _Ticket {
     class _TicketResult { 
         
         @Test
-        public void test_TicketResult() {
+        public void test_init() {
 
-            TicketResult ticketResult = new TicketResult(new CaughtExceptions(), ticket, Status.CREATED, null);
-            assertNotNull(ticketResult, "TicketResult is null");
+            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.CREATED, null);
 
-            assertNotNull(ticketResult.getTicket(), "TicketResult associated ticket is null");
-            assertNotNull(ticketResult.getStatus(), "TicketResult status enum (status code) is null");
-            assertNotNull(ticketResult.getExceptions(), "TicketResult CaughtExceptions is null");
+            assertNotNull(TicketResult, "TicketResult is null");
+            assertNotNull(TicketResult.getTicket(), "TicketResult associated ticket is null");
+            assertNotNull(TicketResult.getStatus(), "TicketResult status enum (status code) is null");
+            assertNotNull(TicketResult.getExceptions(), "TicketResult CaughtExceptions is null");
         }
 
-            // wrapper of if (status == SUCCESS)
-            @Test
-            @Disabled("Test not implemente")
-            public void test_isSuccessful() {}
+        @Test
+        // @Disabled("Test not implemented") 
+        public void test_isSuccessful() {
 
-            // technically direct wrapper of CaughtExceptions.any(); but i guess its actually a wrapper for TicketResult.getExceptions().any();
-            @Test
-            @Disabled("Test not implemented")
-            public void test_hasExceptions() {}
+            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
+
+            boolean isSuccessful = TicketResult.isSuccessful();
+
+            assertNotNull(isSuccessful, "TicketResult returned null when checking status");
+            assertTrue(isSuccessful, "TicketResult was not successful");
+
+        }
+
+        // technically direct wrapper of CaughtExceptions.any(); but i guess its actually a wrapper for TicketResult.getExceptions().any();
+        @Test
+        @Disabled("Test not implemented")
+        public void test_hasExceptions() {}
 
 
     }

@@ -17,7 +17,11 @@ public class TicketResult {
         data = Data;
     }
 
+    public boolean isSuccessful() {
+        return status == Status.SUCCESS;
+    }
 
+    // getters
     public Ticket getTicket() {
         return target_ticket;
     }
