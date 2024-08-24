@@ -2,6 +2,8 @@ package gg.vexi.TicketSystem.Core;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.google.gson.JsonObject;
+
 import gg.vexi.TicketSystem.Exceptions.CaughtExceptions;
 import gg.vexi.TicketSystem.Exceptions.ExceptionRecord;
 import gg.vexi.TicketSystem.State;
@@ -10,16 +12,18 @@ import gg.vexi.TicketSystem.Ticket.TicketResult;
 
 public abstract class AbstractWorker {
 
-    State status = State.CREATED;
-    final CompletableFuture<TicketResult> future;
-    final Ticket associated_ticket;
-    final CaughtExceptions exceptionHandler;
+    private State status = State.CREATED;
+    private final CompletableFuture<TicketResult> future;
+    private final Ticket associated_ticket;
+    private final CaughtExceptions exceptionHandler;
+    protected final JsonObject ticket_parameters;
 
     public AbstractWorker(Ticket ticket) {
 
         associated_ticket = ticket;
         exceptionHandler = new CaughtExceptions();
         future = new CompletableFuture<>();
+        ticket_parameters = ticket.getParameters();
         status = State.READY;
 
     }
@@ -40,8 +44,12 @@ public abstract class AbstractWorker {
     }
 
     public final void recordException(ExceptionRecord record) { exceptionHandler.add(record); }
+    public final void recordException(Exception e) {
+        exceptionHandler.add(new ExceptionRecord(e.getClass().getName(), e.getMessage()));
+    }
 
     // exit point of worker
+    protected void complete(Status result_status) { complete(result_status, null); }
     protected void complete(Status result_status, Object data) {
         status = State.COMPLETED;
         TicketResult result = new TicketResult(exceptionHandler, associated_ticket, result_status, data);
