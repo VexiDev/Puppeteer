@@ -1,17 +1,17 @@
-package gg.vexi.Puppeteer.ExampleWorkers.Implementations;
+package gg.vexi.Puppeteer.ExamplePuppets.Implementations;
 
 import gg.vexi.Puppeteer.Status;
-import gg.vexi.Puppeteer.Core.AbstractWorker;
+import gg.vexi.Puppeteer.Core.AbstractPuppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
-import gg.vexi.Puppeteer.annotations.RegisterWorker;
+import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
-@RegisterWorker
-public class VoidResult_Worker extends AbstractWorker {
+@RegisterPuppet
+public class VoidResult_Puppet extends AbstractPuppet {
 
     private Object data;
 
-    public VoidResult_Worker(Ticket ticket) {
+    public VoidResult_Puppet(Ticket ticket) {
         super(ticket);
     }
 

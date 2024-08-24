@@ -20,44 +20,44 @@ import com.google.gson.JsonObject;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
-class _TicketManager {
+class _Puppeteer {
 
-    private TicketManager TicketManager;
-    private WorkerRegistry workerRegistry;
+    private Puppeteer Puppeteer;
+    private PuppetRegistry puppetRegistry;
     private Map<String, PriorityBlockingQueue<Ticket>> actionQueues;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        TicketManager = new TicketManager();
+        Puppeteer = new Puppeteer();
 
         // get the registry using reflection
-        Field registry_field = TicketManager.getClass().getDeclaredField("workerRegistry");
+        Field registry_field = Puppeteer.getClass().getDeclaredField("puppetRegistry");
         registry_field.setAccessible(true);
-        workerRegistry = (WorkerRegistry) registry_field.get(TicketManager);
+        puppetRegistry = (PuppetRegistry) registry_field.get(Puppeteer);
 
         // get actions_queue using reflection
-        Field actions_queue_field = TicketManager.getClass().getDeclaredField("actionQueues");
+        Field actions_queue_field = Puppeteer.getClass().getDeclaredField("actionQueues");
         actions_queue_field.setAccessible(true);
-        actionQueues = (Map<String, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(TicketManager);
+        actionQueues = (Map<String, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(Puppeteer);
 
     }
 
     @Test
     public void test_init() {
-        // check if ticketmanager actually initialized correctly 
+        // check if puppeteer actually initialized correctly 
 
         // build expected objects
         Map<String, PriorityBlockingQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
-        for (String key : workerRegistry.getFullRegistry().keySet()) {
+        for (String key : puppetRegistry.getFullRegistry().keySet()) {
             expected_queues.put(key, new PriorityBlockingQueue<>());
         }
 
-        // verify ticketmanager exists
-        assertNotNull(TicketManager, "TicketManager is Null");
+        // verify puppeteer exists
+        assertNotNull(Puppeteer, "puppeteer is Null");
 
         // get actual active map 
-        Map<String, Ticket> actual_active_map = TicketManager.getAllActive();
+        Map<String, Ticket> actual_active_map = Puppeteer.getAllActive();
 
 
         // verify active tickets map exists
@@ -65,14 +65,14 @@ class _TicketManager {
         // verify it has no entries
         assertEquals(new ConcurrentHashMap<>().size(), actual_active_map.size());
         
-        // get actual ticketmanager queues
-        Map<String, PriorityBlockingQueue<Ticket>> actual_queues = TicketManager.getAllQueues();
+        // get actual puppeteer queues
+        Map<String, PriorityBlockingQueue<Ticket>> actual_queues = Puppeteer.getAllQueues();
 
         // verify we have all queues (we should have a queue for each action type)
-        assertEquals(expected_queues.size(), actual_queues.size(), "TicketManager does not have a concurrent queue for each actiontype");
-        // verify ticketmanager queue map contense against expected contense
+        assertEquals(expected_queues.size(), actual_queues.size(), "puppeteer does not have a concurrent queue for each actiontype");
+        // verify puppeteer queue map contense against expected contense
         for (Map.Entry<String, PriorityBlockingQueue<Ticket>> entry : expected_queues.entrySet()) {
-            // verify the ticketmanager queue map contains expected key
+            // verify the puppeteer queue map contains expected key
             assertTrue(actual_queues.containsKey(entry.getKey()), "Missing queue for action type: " + entry.getKey());
             // verify the queue is of the correct length (0)
             assertEquals(entry.getValue().size(), actual_queues.get(entry.getKey()).size(), "Queue size mismatch for action type: " + entry.getKey());
@@ -90,10 +90,10 @@ class _TicketManager {
         expected_q.offer(Ticket);
 
         // add ticket to that ticket's action queue
-        TicketManager.addTicketToQueue(Ticket);
+        Puppeteer.addTicketToQueue(Ticket);
 
         // get queue length
-        PriorityBlockingQueue<Ticket> actual_q = TicketManager.getQueue("test_action");
+        PriorityBlockingQueue<Ticket> actual_q = Puppeteer.getQueue("test_action");
 
         // check queue length
         assertEquals(expected_q.size(), actual_q.size(), "Queue sizes do not match");
@@ -109,31 +109,31 @@ class _TicketManager {
         Ticket ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
 
         // verify tickets exist
-        assertNotNull(ticket1, "TicketManager returned null value for queueTicket() [ticket1]");
-        assertNotNull(ticket2, "TicketManager returned null value for queueTicket() [ticket2]");
+        assertNotNull(ticket1, "puppeteer returned null value for queueTicket() [ticket1]");
+        assertNotNull(ticket2, "puppeteer returned null value for queueTicket() [ticket2]");
 
         // attempt to get next ticket before adding any tickets (will always null)
-        Ticket nextTicket = TicketManager.nextTicket("test_action");
+        Ticket nextTicket = Puppeteer.nextTicket("test_action");
         assertEquals(null, nextTicket, "nextTicket returned a not null value before we added any tickets to the queue: "+nextTicket);
 
-        // Simulate the queue if we had 2 tickets in in the queue (actionQueues reflected from TicketManager in setup() )
+        // Simulate the queue if we had 2 tickets in in the queue (actionQueues reflected from puppeteer in setup() )
         actionQueues.get("test_action").offer(ticket1);
         actionQueues.get("test_action").offer(ticket2);
 
         // Check that the nextTicket method returns the first scheduled ticket for that action type
-        nextTicket = TicketManager.nextTicket("test_action");
+        nextTicket = Puppeteer.nextTicket("test_action");
 
         assertNotNull(nextTicket, "Expected nextTicket to return a non-null ticket, but it returned null.");
         assertEquals(ticket1, nextTicket, "Expected the first scheduled ticket to be returned.");
 
         // Set the first ticket to active (aka simulate what executeTucket would do)
-        TicketManager.setActive(nextTicket);
+        Puppeteer.setActive(nextTicket);
 
         // verify the actions_queue for our ticket is not empty
         assertFalse(actionQueues.get("test_action").isEmpty(), "Queue for ticket2 is empty after polling first ticket");
 
         // Try and get the next ticket
-        nextTicket = TicketManager.nextTicket("test_action");
+        nextTicket = Puppeteer.nextTicket("test_action");
         assertEquals(null, nextTicket, "Expected nextTicket to return null when a ticket is active, but it returned a ticket.");
 
     }
@@ -147,10 +147,10 @@ class _TicketManager {
         assertNotNull(ticket1, "Ticket is null");
 
         // execute the ticket
-        TicketManager.executeTicket(ticket1);
+        Puppeteer.executeTicket(ticket1);
 
         // verify the ticket was set to active ticket
-        assertEquals(ticket1, TicketManager.getActive("test_action"), "activeTicket is not the ticket passed to executeTicket");
+        assertEquals(ticket1, Puppeteer.getActive("test_action"), "activeTicket is not the ticket passed to executeTicket");
 
     }
 

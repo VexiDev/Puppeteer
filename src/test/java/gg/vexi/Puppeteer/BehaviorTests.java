@@ -19,11 +19,11 @@ import gg.vexi.Puppeteer.Ticket.TicketResult;
 
 class _Behavior {
 
-    private TicketManager TicketManager;
+    private Puppeteer Puppeteer;
 
     @BeforeEach
     public void setup() {
-        TicketManager = new TicketManager();
+        Puppeteer = new Puppeteer();
     }
 
 
@@ -47,7 +47,7 @@ class _Behavior {
         parameters.addProperty("test_customer_parameter_3", "This is the third parameter for our ticket");
 
         // queue ticket
-        Ticket ticket = TicketManager.queueTicket(ticket_type, priority, parameters);
+        Ticket ticket = Puppeteer.queueTicket(ticket_type, priority, parameters);
 
         // wait for future
         CompletableFuture<TicketResult> ticketFuture = ticket.getFuture();

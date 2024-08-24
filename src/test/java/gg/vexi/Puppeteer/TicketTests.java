@@ -65,7 +65,7 @@ class _Ticket {
 
     }
 
-    // TicketResult is the object returned by a worker to TicketManager to finish processing the ticket
+    // TicketResult is the object returned by a puppet to Puppeteer to finish processing the ticket
     @Nested
     class _TicketResult { 
         

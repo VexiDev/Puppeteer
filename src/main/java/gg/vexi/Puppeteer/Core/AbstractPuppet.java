@@ -10,7 +10,7 @@ import gg.vexi.Puppeteer.State;
 import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
 
-public abstract class AbstractWorker {
+public abstract class AbstractPuppet {
 
     private State status = State.CREATED;
     private final CompletableFuture<TicketResult> future;
@@ -18,7 +18,7 @@ public abstract class AbstractWorker {
     private final CaughtExceptions exceptionHandler;
     protected final JsonObject ticket_parameters;
 
-    public AbstractWorker(Ticket ticket) {
+    public AbstractPuppet(Ticket ticket) {
 
         associated_ticket = ticket;
         exceptionHandler = new CaughtExceptions();
@@ -28,11 +28,11 @@ public abstract class AbstractWorker {
 
     }
     
-    // entry point to worker
+    // entry point to puppet
     public abstract void main();
 
 
-    // start point of worker (run by ticketmanager)
+    // start point of puppet (run by puppeteer)
     public final void start() {
         try {
             setStatus(State.PROCESSING);
@@ -48,7 +48,7 @@ public abstract class AbstractWorker {
         exceptionHandler.add(new ExceptionRecord(e.getClass().getName(), e.getMessage()));
     }
 
-    // exit point of worker
+    // exit point of puppet
     protected void complete(Status result_status) { complete(result_status, null); }
     protected void complete(Status result_status, Object data) {
         status = State.COMPLETED;

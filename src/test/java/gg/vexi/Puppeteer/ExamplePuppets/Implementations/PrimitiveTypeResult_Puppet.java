@@ -1,19 +1,17 @@
-package gg.vexi.Puppeteer.ExampleWorkers.Implementations;
-
-import com.google.gson.JsonObject;
+package gg.vexi.Puppeteer.ExamplePuppets.Implementations;
 
 import gg.vexi.Puppeteer.Status;
-import gg.vexi.Puppeteer.Core.AbstractWorker;
+import gg.vexi.Puppeteer.Core.AbstractPuppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
-import gg.vexi.Puppeteer.annotations.RegisterWorker;
+import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
-@RegisterWorker
-public class JsonObjectResult_Worker extends AbstractWorker {
+@RegisterPuppet
+public class PrimitiveTypeResult_Puppet extends AbstractPuppet {
 
-    private JsonObject data;
+    private int data;
 
-    public JsonObjectResult_Worker(Ticket ticket) {
+    public PrimitiveTypeResult_Puppet(Ticket ticket) {
         super(ticket);
     }
 
@@ -22,11 +20,11 @@ public class JsonObjectResult_Worker extends AbstractWorker {
 
         try {
             Thread.sleep(200);
-            data = new JsonObject();
-                data.addProperty("exampleProperty", 1987);
+            data = 3;
             super.complete(Status.SUCCESS, data);
         } catch (InterruptedException e) {
             super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
         }
     }
+
 }

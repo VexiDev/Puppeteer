@@ -18,18 +18,18 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.Core.AbstractWorker;
+import gg.vexi.Puppeteer.Core.AbstractPuppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ExampleWorkers.Implementations.CustomObjectResult_Worker;
-import gg.vexi.Puppeteer.ExampleWorkers.Implementations.JsonObjectResult_Worker;
-import gg.vexi.Puppeteer.ExampleWorkers.Implementations.PrimitiveTypeResult_Worker;
-import gg.vexi.Puppeteer.ExampleWorkers.Implementations.VoidResult_Worker;
+import gg.vexi.Puppeteer.ExamplePuppets.Implementations.CustomObjectResult_Puppet;
+import gg.vexi.Puppeteer.ExamplePuppets.Implementations.JsonObjectResult_Puppet;
+import gg.vexi.Puppeteer.ExamplePuppets.Implementations.PrimitiveTypeResult_Puppet;
+import gg.vexi.Puppeteer.ExamplePuppets.Implementations.VoidResult_Puppet;
 import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
 
-class _Worker {
+class _Puppet {
 
     Ticket ticket;
 
@@ -38,35 +38,35 @@ class _Worker {
         ticket = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
     }
 
-    // Since workers are just going to be implementations of an abstract worker class
+    // Since puppets are just going to be implementations of an abstract puppet class
     // As per my current understanding of testing abstract classes:
-    // we should just mock what a worker could be and ensure its has all expected attributes and methods
+    // we should just mock what a puppet could be and ensure its has all expected attributes and methods
     @Test
     public void test_init() {
 
-        // initialize mock workers
-        VoidResult_Worker worker_noGeneric = new VoidResult_Worker(ticket);
-        JsonObjectResult_Worker worker_jsonGeneric = new JsonObjectResult_Worker(ticket);
-        CustomObjectResult_Worker worker_objectGeneric = new CustomObjectResult_Worker(ticket);
-        PrimitiveTypeResult_Worker worker_primitiveGeneric = new PrimitiveTypeResult_Worker(ticket);
+        // initialize mock puppets
+        VoidResult_Puppet puppet_noGeneric = new VoidResult_Puppet(ticket);
+        JsonObjectResult_Puppet puppet_jsonGeneric = new JsonObjectResult_Puppet(ticket);
+        CustomObjectResult_Puppet puppet_objectGeneric = new CustomObjectResult_Puppet(ticket);
+        PrimitiveTypeResult_Puppet puppet_primitiveGeneric = new PrimitiveTypeResult_Puppet(ticket);
 
-        List<AbstractWorker> workers = List.<AbstractWorker>of(
-                worker_noGeneric,
-                worker_jsonGeneric,
-                worker_objectGeneric,
-                worker_primitiveGeneric
+        List<AbstractPuppet> puppets = List.<AbstractPuppet>of(
+                puppet_noGeneric,
+                puppet_jsonGeneric,
+                puppet_objectGeneric,
+                puppet_primitiveGeneric
         );
 
-        // the test loop for worker types
-        for (AbstractWorker worker : workers) {
+        // the test loop for puppet types
+        for (AbstractPuppet puppet : puppets) {
 
-            // verify default worker attributes of explicit type are not null
-            assertNotNull(worker.getTicket(), "MockWorker associated Ticket is null");
-            assertNotNull(worker.getFuture(), "MockWorker future is null");
-            assertNotNull(worker.getStatus(), "MockWorker status is null");
+            // verify default puppet attributes of explicit type are not null
+            assertNotNull(puppet.getTicket(), "MockPuppet associated Ticket is null");
+            assertNotNull(puppet.getFuture(), "MockPuppet future is null");
+            assertNotNull(puppet.getStatus(), "MockPuppet status is null");
 
-            // verify default status for worker is ready by default
-            assertEquals(State.READY, worker.getStatus(), "MockWorker default status is not READY");
+            // verify default status for puppet is ready by default
+            assertEquals(State.READY, puppet.getStatus(), "MockPuppet default status is not READY");
         }
 
     }
@@ -74,19 +74,19 @@ class _Worker {
     @Test
     public void test_start() throws InterruptedException {
 
-        VoidResult_Worker worker = new VoidResult_Worker(ticket);
+        VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
 
         CountDownLatch latch = new CountDownLatch(1);
 
         CompletableFuture.runAsync(() -> {
-            worker.start();
+            puppet.start();
             latch.countDown();
         });
 
         latch.await(500, TimeUnit.MILLISECONDS);
-        assertEquals(State.PROCESSING, worker.getStatus());
+        assertEquals(State.PROCESSING, puppet.getStatus());
 
-        assertEquals(State.PROCESSING, worker.getStatus(), "Void Worker status is not PROCESSING after start");
+        assertEquals(State.PROCESSING, puppet.getStatus(), "Void Puppet status is not PROCESSING after start");
     }
 
     // tests the complete() method which takes a result status and data to build the TicketResult and completes its future with it
@@ -94,25 +94,25 @@ class _Worker {
     // @Disabled("Test not implemented yet")
     public void test_complete() {
 
-        VoidResult_Worker worker = new VoidResult_Worker(ticket);
-        CompletableFuture<TicketResult> workerFuture = worker.getFuture();
+        VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
+        CompletableFuture<TicketResult> puppetFuture = puppet.getFuture();
 
-        workerFuture.thenAccept(actualResult -> {
+        puppetFuture.thenAccept(actualResult -> {
             // build expected result
             TicketResult expectedResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
             assertEquals(expectedResult, actualResult, "Result mismatch");
         });
 
-        // run the worker
-        worker.main();
+        // run the puppet
+        puppet.main();
         
         assertTimeoutPreemptively(
             Duration.ofSeconds(5),
             () -> {
-                workerFuture.join();
-                assertEquals(State.COMPLETED, worker.getStatus(), "Worker Status is not COMPLETED after complete()");
+                puppetFuture.join();
+                assertEquals(State.COMPLETED, puppet.getStatus(), "Puppet Status is not COMPLETED after complete()");
             },
-            "Worker future took too long to complete (>5 seconds)"
+            "Puppet future took too long to complete (>5 seconds)"
         );
     }
 
@@ -120,16 +120,16 @@ class _Worker {
     @Test
     public void test_recordException() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
         
-        VoidResult_Worker worker = new VoidResult_Worker(ticket);
+        VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
 
-        Field exception_object_field = worker.getClass().getSuperclass().getDeclaredField("exceptionHandler");
+        Field exception_object_field = puppet.getClass().getSuperclass().getDeclaredField("exceptionHandler");
         exception_object_field.setAccessible(true);
-        CaughtExceptions exceptions_holder = (CaughtExceptions) exception_object_field.get(worker);
+        CaughtExceptions exceptions_holder = (CaughtExceptions) exception_object_field.get(puppet);
 
         assertTrue(exceptions_holder.getAll().isEmpty(), "Exceptions list is not empty on init");
 
         ExceptionRecord record = new ExceptionRecord("ErrorTest_001", "This is a test record for the test_recordExceptions() method");
-        worker.recordException(record);
+        puppet.recordException(record);
 
         assertFalse(exceptions_holder.getAll().isEmpty(), "Exceptions list is empty after using recordException()");
         assertTrue(exceptions_holder.getAll().size() == 1, "Exceptions list has incorrect list size");
@@ -139,10 +139,10 @@ class _Worker {
     @Test
     public void test_resultGenericType() {
 
-        CustomObjectResult_Worker worker = new CustomObjectResult_Worker(ticket);
+        CustomObjectResult_Puppet puppet = new CustomObjectResult_Puppet(ticket);
         ExceptionRecord expected_data = new ExceptionRecord("ExampleRecord_06302005", "This is an example record for the test_completeSuccess() unit test");
 
-        worker.getFuture().thenAccept((ticketResult) -> {
+        puppet.getFuture().thenAccept((ticketResult) -> {
 
             assertTrue(ticketResult.getData() instanceof ExceptionRecord, "TicketResult data is not an instance of ExceptionRecord");
             ExceptionRecord ticket_result_data = (ExceptionRecord) ticketResult.getData();
@@ -150,11 +150,11 @@ class _Worker {
 
         });
 
-        worker.main();
+        puppet.main();
 
-        // this should not be possible because complete() should only be accessible from within the worker
+        // this should not be possible because complete() should only be accessible from within the puppet
         this_method_does_nothing(expected_data); // <-- temp
-        // worker.complete(Status.SUCCESS, expected_data); // <-- errors with "protected access" (need to learn more about the __protected__ access level)
+        // puppet.complete(Status.SUCCESS, expected_data); // <-- errors with "protected access" (need to learn more about the __protected__ access level)
 
     }
 

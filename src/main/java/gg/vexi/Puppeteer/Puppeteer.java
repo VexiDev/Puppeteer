@@ -10,23 +10,23 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.Core.AbstractWorker;
+import gg.vexi.Puppeteer.Core.AbstractPuppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
-import gg.vexi.Puppeteer.annotations.RegisterWorker;
+import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 import gg.vexi.Puppeteer.annotations.Scanner.AnnotationScanner;
 
-public class TicketManager {
+public class Puppeteer {
 
-    private final WorkerRegistry workerRegistry = new WorkerRegistry();
+    private final PuppetRegistry puppetRegistry = new PuppetRegistry();
     private final Map<String, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
     private final Map<String, Ticket> activeTickets = new ConcurrentHashMap<>();
 
 
     // Should we use the top parent package where the user initialized ticketmanager?
-    public TicketManager() {
+    public Puppeteer() {
         refreshRegistry();
     }
     
@@ -102,8 +102,8 @@ public class TicketManager {
         // make ticket active
         activeTickets.putIfAbsent(ticket_action, ticket);
 
-        // this is where we create and run our worker! (AbstractWorker worker = workerRegistry.getWorker(ticket_action);)
-        // • we then wait for the worker to be done 
+        // this is where we create and run our puppet! (AbstractPuppet puppet = puppetRegistry.getPuppet(ticket_action);)
+        // • we then wait for the puppet to be done 
         // • mark ticket as complete (+remove from active)
         // • then poll the next ticket.
         // for now simulate work being done
@@ -140,36 +140,36 @@ public class TicketManager {
     // UNSAFE!
     public final void refreshRegistry() {
         try {
-            autoRegisterWorkeres("gg.vexi.Puppeteer");
+            autoRegisterPuppetes("gg.vexi.Puppeteer");
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to refresh worker registry", e);
+            throw new RuntimeException("Failed to refresh puppet registry", e);
         }
     }
 
-    private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
+    private void autoRegisterPuppetes(String packageName) throws IOException, ClassNotFoundException {
 
         
-        List<Class<?>> workerClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterWorker.class);
+        List<Class<?>> puppetClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterPuppet.class);
         
-        for (Class<?> workerClass : workerClasses) {
+        for (Class<?> puppetClass : puppetClasses) {
             
-            RegisterWorker annotation = workerClass.getAnnotation(RegisterWorker.class);
+            RegisterPuppet annotation = puppetClass.getAnnotation(RegisterPuppet.class);
             String actionType = annotation.value().toLowerCase();
-            if (actionType.isEmpty()) { actionType = workerClass.getSimpleName().toLowerCase(); }
+            if (actionType.isEmpty()) { actionType = puppetClass.getSimpleName().toLowerCase(); }
 
-            // add worker to registry and create a queue for it
-            registerWorker(workerClass, actionType);
+            // add puppet to registry and create a queue for it
+            registerPuppet(puppetClass, actionType);
             actionQueues.put(actionType, new PriorityBlockingQueue<>());
         }
     }
 
-    private void registerWorker(Class<?> workerClass, String actionType) {
-        workerRegistry.registerWorker(actionType, () -> {
+    private void registerPuppet(Class<?> puppetClass, String actionType) {
+        puppetRegistry.registerPuppet(actionType, () -> {
             try {
                 actionQueues.put(actionType, new PriorityBlockingQueue<>());
-                return (AbstractWorker) workerClass.getDeclaredConstructor().newInstance();
+                return (AbstractPuppet) puppetClass.getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
-                throw new RuntimeException("Failed to instantiate worker class", e);
+                throw new RuntimeException("Failed to instantiate puppet class", e);
             }
         });
     }
