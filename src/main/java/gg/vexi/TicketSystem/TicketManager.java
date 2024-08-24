@@ -24,80 +24,51 @@ public class TicketManager {
     private final Map<String, PriorityBlockingQueue<Ticket>> actionQueues = new ConcurrentHashMap<>();
     private final Map<String, Ticket> activeTickets = new ConcurrentHashMap<>();
 
+
+    // Should we use the top parent package where the user initialized ticketmanager?
     public TicketManager() {
         try {
-            autoRegisterWorkeres("gg.vexi.TicketSystem");  // Replace with your package name
+            autoRegisterWorkeres("gg.vexi.TicketSystem");
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Failed to auto-register processes", e);
+            throw new RuntimeException("Failed to auto-register workers to registry", e);
         }
     }
-
-    private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
-
+    
+    
+    public Ticket createTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
         
-        List<Class<?>> workerClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterWorker.class);
+        CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
+        Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); // create our ticket
         
-        for (Class<?> workerClass : workerClasses) {
-            
-            RegisterWorker annotation = workerClass.getAnnotation(RegisterWorker.class);
-            String actionType = annotation.value();
-            if (actionType.isEmpty()) { actionType = workerClass.getSimpleName(); }
-
-            // add worker to registry and create a queue for it
-            registerWorker(workerClass, actionType);
-            actionQueues.put(actionType, new PriorityBlockingQueue<>());
-        }
+        return ticket;
     }
-
-    private void registerWorker(Class<?> workerClass, String actionType) {
-        workerRegistry.registerWorker(actionType, () -> {
-            try {
-                actionQueues.put(actionType, new PriorityBlockingQueue<>());
-                return (AbstractWorker) workerClass.getDeclaredConstructor().newInstance();
-            } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
-                throw new RuntimeException("Failed to instantiate worker class", e);
-            }
-        });
-    }
-
-
+    //overloads for create ticket (default priority NORMAL, default parameters empty JsonObject)
+    public Ticket createTicket(String action_type) { return createTicket(action_type, TicketPriority.NORMAL, new JsonObject()); }
+    public Ticket createTicket(String action_type, TicketPriority ticket_priority) { return createTicket(action_type, TicketPriority.NORMAL, new JsonObject()); }
+    public Ticket createTicket(String action_type, JsonObject ticket_parameters) { return createTicket(action_type, TicketPriority.NORMAL, ticket_parameters); }
+    
+    
     protected void addTicketToQueue(Ticket ticket) {
         actionQueues.get(ticket.getType()).offer(ticket);
     }
-
-    public Ticket createTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
-
-        CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
-        Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); // create our ticket
-
-        return ticket;
-    }
-
-
-
-
-    // overload if customer already created ticket themselves with createTicket()
-    public void queueTicket(Ticket ticket) {
-
-        addTicketToQueue(ticket);
-        tryExecuteNextTicket(ticket.getType());
     
-    }
-
-
-
-
+    
     public Ticket queueTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
-
+        
         Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
-
+        
         addTicketToQueue(ticket);
         tryExecuteNextTicket(action_type);
-
+        
         return ticket;
     }
-
-
+    // overload if customer already created ticket themselves with createTicket()
+    public void queueTicket(Ticket ticket) {
+        addTicketToQueue(ticket);
+        tryExecuteNextTicket(ticket.getType());   
+    }
+    
+    
 
 
     protected Ticket nextTicket(String type) {
@@ -166,6 +137,45 @@ public class TicketManager {
         }
 
         completeTicket(ticket);
+    }
+
+
+
+    // UNSAFE!
+    public void refreshRegistry() {
+        try {
+            autoRegisterWorkeres("gg.vexi.TicketSystem");
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to refresh worker registry", e);
+        }
+    }
+
+    private void autoRegisterWorkeres(String packageName) throws IOException, ClassNotFoundException {
+
+        
+        List<Class<?>> workerClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterWorker.class);
+        
+        for (Class<?> workerClass : workerClasses) {
+            
+            RegisterWorker annotation = workerClass.getAnnotation(RegisterWorker.class);
+            String actionType = annotation.value();
+            if (actionType.isEmpty()) { actionType = workerClass.getSimpleName(); }
+
+            // add worker to registry and create a queue for it
+            registerWorker(workerClass, actionType);
+            actionQueues.put(actionType, new PriorityBlockingQueue<>());
+        }
+    }
+
+    private void registerWorker(Class<?> workerClass, String actionType) {
+        workerRegistry.registerWorker(actionType, () -> {
+            try {
+                actionQueues.put(actionType, new PriorityBlockingQueue<>());
+                return (AbstractWorker) workerClass.getDeclaredConstructor().newInstance();
+            } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+                throw new RuntimeException("Failed to instantiate worker class", e);
+            }
+        });
     }
 
 
