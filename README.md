@@ -1,7 +1,7 @@
 <!-- Project Title -->
 # Puppeteer
 <!-- Description -->
-<span style="color: #00C2FF;">`TL;DR`</span> An asynchronous process manager for queue based task execution
+<span style="color: #00C2FF;">`TL;DR`</span> A process manager for queue based asynchronous task execution
 
 Real description: <span style="color: #00C2FF;">`TO BE WRITTEN`
 
@@ -28,7 +28,6 @@ public class MainClass {
         Puppeteer = new Puppeteer();
     }
 }
-
 ```
 - Puppeteer will attempt to register any workers annotated with `@RegisterWorker` when it is initialized.
 - <span style="color: #FFC525;">`CURRENTLY UNSAFE`</span> Refresh worker list with <span style="color: #FFFFFF;">`Puppeteer.refreshRegistry()`</span>
