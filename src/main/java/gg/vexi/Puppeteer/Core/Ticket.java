@@ -23,7 +23,7 @@ public class Ticket implements Comparable<Ticket> {
                 CompletableFuture<TicketResult> TicketFuture) 
     {
         Id = UUID.randomUUID();
-        type = ActionType;
+        type = ActionType.toLowerCase();
         priority = TicketPriority;
         parameters = Parameters;
         future = TicketFuture;

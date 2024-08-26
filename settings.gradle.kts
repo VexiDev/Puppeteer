@@ -1,1 +1,1 @@
-rootProject.name = "TicketSystem"
+rootProject.name = "Puppeteer"

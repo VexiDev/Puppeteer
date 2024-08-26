@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.AbstractPuppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
@@ -26,8 +25,8 @@ public class Puppeteer {
 
 
     // Should we use the top parent package where the user initialized ticketmanager?
-    public Puppeteer() {
-        refreshRegistry();
+    public Puppeteer(String puppetPackage) {
+        refreshRegistry(puppetPackage);
     }
     
     
@@ -54,7 +53,7 @@ public class Puppeteer {
         Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
         
         addTicketToQueue(ticket);
-        tryExecuteNextTicket(action_type);
+        tryExecuteNextTicket(ticket.getType());
         
         return ticket;
     }
@@ -96,26 +95,28 @@ public class Puppeteer {
 
     protected void executeTicket(Ticket ticket) {
 
-        // get ticket type
-        String ticket_action = ticket.getType();
-
         // make ticket active
-        activeTickets.putIfAbsent(ticket_action, ticket);
+        activeTickets.putIfAbsent(ticket.getType(), ticket);
+        
+        // initialise the relevant puppet and get the puppet future
+        AbstractPuppet puppet = puppetRegistry.getPuppet(ticket);
+        CompletableFuture<TicketResult> puppetFuture = puppet.getFuture();
 
-        // this is where we create and run our puppet! (AbstractPuppet puppet = puppetRegistry.getPuppet(ticket_action);)
-        // • we then wait for the puppet to be done 
-        // • mark ticket as complete (+remove from active)
-        // • then poll the next ticket.
-        // for now simulate work being done
-        CompletableFuture.runAsync(() -> waitThenCompleteFuture(ticket));
+        // begin performance
+        CompletableFuture.runAsync(() -> puppet.start());
+        
+        // pass result to ticket future when compelte (we will do more stuff here later)
+        puppetFuture.thenAccept(result -> {
+        
+            completeTicket(ticket, result);
+        
+        });
+
     }
 
-
-
-
-    protected void completeTicket(Ticket ticket) {
-
-        ticket.getFuture().complete(new TicketResult(new CaughtExceptions(), ticket, Status.FAILED, null));
+    protected void completeTicket(Ticket ticket, TicketResult result) {
+        
+        ticket.getFuture().complete(result);
 
         activeTickets.remove(ticket.getType());
     
@@ -124,23 +125,10 @@ public class Puppeteer {
 
 
 
-
-    protected void waitThenCompleteFuture(Ticket ticket) {
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            System.out.println("waitThenCompleteFuture interrupted!");
-        }
-
-        completeTicket(ticket);
-    }
-
-
-
     // UNSAFE!
-    public final void refreshRegistry() {
+    public final void refreshRegistry(String packageName) {
         try {
-            autoRegisterPuppetes("gg.vexi.Puppeteer");
+            autoRegisterPuppetes(packageName);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to refresh puppet registry", e);
         }
@@ -148,9 +136,8 @@ public class Puppeteer {
 
     private void autoRegisterPuppetes(String packageName) throws IOException, ClassNotFoundException {
 
-        
         List<Class<?>> puppetClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterPuppet.class);
-        
+
         for (Class<?> puppetClass : puppetClasses) {
             
             RegisterPuppet annotation = puppetClass.getAnnotation(RegisterPuppet.class);
@@ -163,18 +150,16 @@ public class Puppeteer {
         }
     }
 
-    private void registerPuppet(Class<?> puppetClass, String actionType) {
-        puppetRegistry.registerPuppet(actionType, () -> {
+    private void registerPuppet(Class<?> puppetClass, String type) {
+        puppetRegistry.registerPuppet(type, (ticket) -> {
             try {
-                actionQueues.put(actionType, new PriorityBlockingQueue<>());
-                return (AbstractPuppet) puppetClass.getDeclaredConstructor().newInstance();
-            } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
-                throw new RuntimeException("Failed to instantiate puppet class", e);
+                actionQueues.put(type, new PriorityBlockingQueue<>());
+                return (AbstractPuppet) puppetClass.getDeclaredConstructor(Ticket.class).newInstance(ticket);
+            } catch (IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException("Failed to instantiate class", e);
             }
         });
     }
-
-
 
 
     // getters

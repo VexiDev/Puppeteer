@@ -29,7 +29,7 @@ class _Puppeteer {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        Puppeteer = new Puppeteer();
+        Puppeteer = new Puppeteer("gg.vexi");
 
         // get the registry using reflection
         Field registry_field = Puppeteer.getClass().getDeclaredField("puppetRegistry");

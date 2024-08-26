@@ -23,7 +23,7 @@ class _Behavior {
 
     @BeforeEach
     public void setup() {
-        Puppeteer = new Puppeteer();
+        Puppeteer = new Puppeteer("gg.vexi");
     }
 
 
