@@ -1,10 +1,12 @@
 group = "gg.vexi"
-version = "1.0"
+version = "0.1.0"
 val targetJavaVersion = 21
 
 plugins {
-    id("java")
+    `java-library`
     kotlin("jvm") version "2.0.0"
+    `maven-publish`
+
 }
 
 java {
@@ -22,8 +24,8 @@ repositories {
 }
 
 dependencies {
+    api("com.google.code.gson:gson:2.8.9")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("com.google.code.gson:gson:2.8.9")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.3")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
@@ -43,8 +45,8 @@ tasks.test {
     useJUnitPlatform()
     testLogging {
         // events("PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR")
-        events("SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR")
-        // events("FAILED", "STANDARD_OUT", "STANDARD_ERROR")
+        // events("SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR")
+        events("FAILED", "STANDARD_OUT", "STANDARD_ERROR")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showExceptions = true
         showCauses = true
@@ -59,5 +61,34 @@ tasks.processResources {
     filteringCharset = "UTF-8"
     filesMatching("application.properties") {
         expand(props)
+    }
+}
+
+tasks.jar {
+    archiveBaseName.set("Puppeteer")
+    archiveVersion.set(version.toString())
+    archiveClassifier.set("alpha")
+    from(sourceSets.main.get().output)
+
+    manifest {
+        attributes(
+            "Implementation-Title" to project.name,
+            "Implementation-Version" to project.version.toString(),
+            "Implementation-Vendor" to "VexiDev"
+        )
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+        }
+    }
+    repositories {
+        mavenLocal()
     }
 }
