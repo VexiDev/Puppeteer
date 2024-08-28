@@ -24,9 +24,9 @@ public class Puppeteer {
     private final Map<String, Ticket> activeTickets = new ConcurrentHashMap<>();
 
 
-    // Should we use the top parent package where the user initialized ticketmanager?
+    // auto registration should be optional and the registerPuppet() method should be public
     public Puppeteer(String puppetPackage) {
-        refreshRegistry(puppetPackage);
+        autoRegisterPuppets(puppetPackage);
     }
     
     
@@ -43,49 +43,44 @@ public class Puppeteer {
     public Ticket createTicket(String action_type, JsonObject ticket_parameters) { return createTicket(action_type, TicketPriority.NORMAL, ticket_parameters); }
     
     
-    protected void addTicketToQueue(Ticket ticket) {
-        actionQueues.get(ticket.getType()).offer(ticket);
-    }
     
-    
+    // overload if customer has not already created the ticket themselves with createTicket()
     public Ticket queueTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
-        
-        Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters); // create ticket
-        
-        addTicketToQueue(ticket);
-        tryExecuteNextTicket(ticket.getType());
-        
+        Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters);
+        queueTicket(ticket);
         return ticket;
     }
-    // overload if customer already created ticket themselves with createTicket()
     public void queueTicket(Ticket ticket) {
         addTicketToQueue(ticket);
         tryExecuteNextTicket(ticket.getType());   
     }
     
+    protected final void addTicketToQueue(Ticket ticket) {
+        // this should handle key not found exceptions and return an error to the ticket future!
+        actionQueues.get(ticket.getType()).offer(ticket);
+    }
     
 
 
-    protected Ticket nextTicket(String type) {
+
+
+
+
+    protected final Ticket nextTicket(String type) {
 
         if (getActive(type) == null) {
-            
             return actionQueues.get(type).poll();
 
-        } else {
-
-            return null;
-        }
+        } else { return null; }
     }
 
 
-
-
-    protected void tryExecuteNextTicket(String action_type) {
+    protected final void tryExecuteNextTicket(String action_type) {
 
         Ticket next_ticket = nextTicket(action_type);
 
-        if (next_ticket == null) { return; }
+        //this should be handled and return an error to the ticket future!
+        if (next_ticket == null) { return; } 
 
         executeTicket(next_ticket);
     }
@@ -93,7 +88,7 @@ public class Puppeteer {
 
 
 
-    protected void executeTicket(Ticket ticket) {
+    protected final void executeTicket(Ticket ticket) {
 
         // make ticket active
         activeTickets.putIfAbsent(ticket.getType(), ticket);
@@ -111,10 +106,9 @@ public class Puppeteer {
             completeTicket(ticket, result);
         
         });
-
     }
 
-    protected void completeTicket(Ticket ticket, TicketResult result) {
+    protected final void completeTicket(Ticket ticket, TicketResult result) {
         
         ticket.getFuture().complete(result);
 
@@ -125,16 +119,17 @@ public class Puppeteer {
 
 
 
-    // UNSAFE!
-    public final void refreshRegistry(String packageName) {
+
+
+    private void autoRegisterPuppets(String packageName) {
         try {
-            autoRegisterPuppetes(packageName);
+            runAnnotationScan(packageName);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to refresh puppet registry", e);
         }
     }
 
-    private void autoRegisterPuppetes(String packageName) throws IOException, ClassNotFoundException {
+    private void runAnnotationScan(String packageName) throws IOException, ClassNotFoundException {
 
         List<Class<?>> puppetClasses = AnnotationScanner.findAnnotatedClasses(packageName, RegisterPuppet.class);
 
