@@ -158,24 +158,24 @@ public class Puppeteer {
 
 
     // getters
-    public PriorityBlockingQueue<Ticket> getQueue(String type) {
+    protected final PriorityBlockingQueue<Ticket> getQueue(String type) {
         return actionQueues.get(type);
     }
 
-    public Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
+    protected final Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
         return actionQueues;
     }
 
-    public Ticket getActive(String type) {
+    protected final Ticket getActive(String type) {
         return activeTickets.get(type);
     }
 
-    public Map<String, Ticket> getAllActive() {
+    protected final Map<String, Ticket> getAllActive() {
         return activeTickets;
     }
 
     // setters
-    public void setActive(Ticket ticket) {
+    protected final void setActive(Ticket ticket) {
         activeTickets.put(ticket.getType(), ticket);
     }
 
