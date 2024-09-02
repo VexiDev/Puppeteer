@@ -4,10 +4,10 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
-import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.State;
 import gg.vexi.Puppeteer.Status;
+import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
+import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
 
 public abstract class AbstractPuppet {
@@ -19,7 +19,6 @@ public abstract class AbstractPuppet {
     protected final JsonObject ticket_parameters;
 
     public AbstractPuppet(Ticket ticket) {
-
         associated_ticket = ticket;
         exceptionHandler = new CaughtExceptions();
         future = new CompletableFuture<>();
@@ -38,13 +37,19 @@ public abstract class AbstractPuppet {
             setStatus(State.PROCESSING);
             main();
         } catch (Exception e) {
-            recordException(new ExceptionRecord("Unhandled Exception", e.getMessage()));
+            StringBuilder stackString = new StringBuilder();
+            for (StackTraceElement element : e.getStackTrace()) { stackString.append(element.toString()).append("\n"); } 
+            recordException(new ExceptionRecord(String.format("\033[1;31mUNHANDLED\033[0m (%s)", e.getClass().getSimpleName()), String.format("%s\n%s", e.getMessage(), stackString.toString())));
+            status = State.ERROR;
             complete(Status.FAILED, null);
         }
     }
 
     public final void recordException(ExceptionRecord record) { exceptionHandler.add(record); }
     public final void recordException(Exception e) {
+        StringBuilder stackString = new StringBuilder();
+        for (StackTraceElement element : e.getStackTrace()) { stackString.append(element.toString()).append("\n"); } 
+        recordException(new ExceptionRecord(e.getClass().getSimpleName(), String.format("%s\n%s", e.getMessage(), stackString.toString())));
         exceptionHandler.add(new ExceptionRecord(e.getClass().getName(), e.getMessage()));
     }
 
