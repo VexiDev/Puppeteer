@@ -20,11 +20,11 @@ public class PuppetRegistry {
 
     public AbstractPuppet getPuppet(Ticket ticket) {
         String type = ticket.getType();
-        Function<Ticket, AbstractPuppet> factory = registry.get(type.toLowerCase(Locale.ROOT));
-        if (factory == null) {
+        Function<Ticket, AbstractPuppet> constructor = registry.get(type.toLowerCase(Locale.ROOT));
+        if (constructor == null) {
             throw new IllegalArgumentException("No puppet registered for type: " + type);
         }
-        return factory.apply(ticket);
+        return constructor.apply(ticket);
     }
 
     public Map<String, Function<Ticket, AbstractPuppet>> getFullRegistry() {
