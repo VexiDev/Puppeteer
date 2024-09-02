@@ -1,9 +1,13 @@
 package gg.vexi.Puppeteer;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,7 +27,7 @@ class _Behavior {
 
     @BeforeEach
     public void setup() {
-        Puppeteer = new Puppeteer("gg.vexi");
+        Puppeteer = new Puppeteer("gg.vexi", false);
     }
 
 
@@ -72,7 +76,7 @@ class _Behavior {
                     TicketResult ticket_result = ticketFuture.join();
                     ticket_result_holder.set(ticket_result);
                 },
-                "Ticket future took too long to complete (>5 seconds)"
+                "Ticket future took too long to complete\n"
         );
 
         TicketResult ticket_result = ticket_result_holder.get();
@@ -84,6 +88,55 @@ class _Behavior {
         assertNotNull(ticket_result, "Ticket result does not exist");
         assertEquals(true, ticket_result instanceof TicketResult, "Ticket future result is not a TicketResult object");
 
+    }
+
+    @Test
+    public void ensureQueueIntegrity() {
+        
+        // This test is to ensure that queues correctly poll correctly and maintain queue sizing
+        
+        // create ticket arguments
+        String ticket_type = "test_action";
+        TicketPriority priority = TicketPriority.NORMAL;
+        JsonObject parameters = new JsonObject();
+        parameters.addProperty("test_customer_parameter_1", true);
+        parameters.addProperty("test_customer_parameter_2", 0);
+        parameters.addProperty("test_customer_parameter_3", "This is the third parameter for our ticket");
+
+        int num_test_tickets = 5;
+
+        List<Ticket> tickets = new ArrayList<>();
+        List<CompletableFuture<TicketResult>> futures = new ArrayList<>();
+        AtomicInteger completedCount = new AtomicInteger(0);
+
+        // the following loop queues 5 puppets and ensures the queue size increases accordingly
+        for (int i=0; i<=num_test_tickets-1;i++) {
+            Ticket ticket = Puppeteer.createTicket(ticket_type, priority, parameters);
+            tickets.add(ticket);
+            futures.add(ticket.getFuture());
+            Puppeteer.queueTicket(ticket);   
+            int expected = Puppeteer.getQueue(ticket_type).size();
+            assertEquals(expected, i);
+        }
+        
+        AtomicBoolean flag = new AtomicBoolean(false); 
+        for (int i=0; i<=tickets.size()-1;i++) {
+            // wait for tickets to complete and ensure the queue is what we expect
+            futures.get(i).thenRun(() -> {
+                int actual = Puppeteer.getQueue(ticket_type).size();
+                int totalCompleted = completedCount.incrementAndGet();
+                int expected = futures.size()-totalCompleted;
+                if (expected!=actual) { flag.set(true); }
+            });
+        }
+        assertTimeoutPreemptively(
+            Duration.ofMillis(futures.size()*202),
+            () -> {
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+            },
+            "Queued tickets took to long to execute (likely means that we failed to execute all tickets tickets!)\nEnsure that ticket queues are not being cleared and all ticket futures complete eventually!\n"
+        );
+        assertEquals(false, flag.get(), "Queue count mismatch during processing!");
     }
 
 }
