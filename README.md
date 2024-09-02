@@ -36,7 +36,7 @@ import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 @RegisterPuppet("ReverseText") 
-// @RegisterPuppet will use classname if none provided (eg: "ExamplePuppet")
+// @RegisterPuppet will use classname if none provided (eg: "ReverseTextPuppet")
 public class ReverseTextPuppet extends AbstractPuppet {
 
     private String data;
@@ -334,7 +334,7 @@ public class PrimesBetweenPuppet extends AbstractPuppet {
         List<Long> primes = new ArrayList<>();
 
         // Generate small primes up to sqrt(end)
-        long sqrtEnd = (long) Math.sqrt(end);
+        long sqrtEnd = Math.min((long) Math.sqrt(end), Integer.MAX_VALUE - 1);
         BitSet smallPrimes = new BitSet((int) sqrtEnd + 1);
         smallPrimes.set(2, (int) sqrtEnd + 1);
         for (long i = 2; i * i <= sqrtEnd; i++) {
