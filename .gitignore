@@ -7,6 +7,9 @@
 #Exclude certain directories
 .vscode/
 python/
+.settings/
+.classpath
+.project
 
 # Exclude gradle directories and files
 .kotlin/
