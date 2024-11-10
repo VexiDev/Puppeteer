@@ -223,23 +223,6 @@ public class MainClass {
 </details>
 </li>
 
-
-<li style="margin-bottom: 10px;">
-<details>
-    <summary style="cursor: pointer; font-weight: bold;">Manual registration of Puppets (without class scanning)</summary>
-    <ul style="list-style-type: disc; padding-left: 20px;">
-    <li>Currently a Puppet can only be registered using the @RegisterPuppet annotation
-        <ul style="list-style-type: circle; padding-left: 20px;">
-        <br>
-        <li><i>Make the registerPuppet() method  public</i></li>
-        <li><i>Make the annotation scanning optional</i></li>
-        <br>
-        </ul>
-    </li>
-    </ul>
-</details>
-</li>
-
 </ul>
 
 
@@ -289,10 +272,8 @@ public class TemplatePuppet extends AbstractPuppet {
 
 
 <!-- Advanced example -->
-## More Examples
-> These are implementations I made while testing Puppeteer and figuring what a good example would be!<br>My primary implementation for Puppeteer is for queued asynchronous execution of I/O tasks to avoid I/O corruption during concurrent operation or extreme I/O load.
-### Get primes between any 2 whole numbers using a segemented implementation of the Seive of Eratosthenes
-- Could support parsing values above MAX_LONG because we sieve using segments however since method arguments use long we are limited at method call. This can probably be circumvented by using a string?
+## Examples
+### Get numbers between two primes using segmented Sieve of Eratosthenes
 ```java
 package org.example;
 
@@ -384,9 +365,4 @@ public class PrimesBetweenPuppet extends AbstractPuppet {
 }
 ```
 
-## Example...
-## Example...
-## Example...
-## Example...
-## Example...
-## Example...
+### [other examples here]
