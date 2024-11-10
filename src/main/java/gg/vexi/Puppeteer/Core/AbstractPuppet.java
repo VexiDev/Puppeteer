@@ -4,10 +4,10 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.State;
-import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
+import gg.vexi.Puppeteer.State;
+import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
 
 public abstract class AbstractPuppet {
@@ -38,7 +38,11 @@ public abstract class AbstractPuppet {
             main();
         } catch (Exception e) {
             StringBuilder stackString = new StringBuilder();
-            for (StackTraceElement element : e.getStackTrace()) { stackString.append(element.toString()).append("\n"); } 
+            for (StackTraceElement element : e.getStackTrace()) { 
+                // only appends stack traces the puppet generated (this should be a toggle like showFullPuppetTrace or something)
+                if (!element.toString().contains("gg.vexi.Puppeteer")) { 
+                    stackString.append(element.toString()).append("\n"); 
+                } else break; }
             recordException(new ExceptionRecord(String.format("\033[1;31mUNHANDLED\033[0m (%s)", e.getClass().getSimpleName()), String.format("%s\n%s", e.getMessage(), stackString.toString())));
             status = State.ERROR;
             complete(Status.FAILED, null);

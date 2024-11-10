@@ -2,10 +2,13 @@ package gg.vexi.Puppeteer.annotations.Scanner;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class ClasspathScanner {
 
@@ -13,18 +16,34 @@ public class ClasspathScanner {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<>();
-        
+        List<Class<?>> classes = new ArrayList<>();
+
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
-            dirs.add(new File(resource.getFile()));
+            if (resource.getProtocol().equals("jar")) {
+                JarURLConnection jarConn = (JarURLConnection) resource.openConnection();
+                classes.addAll(findClassesInJar(jarConn.getJarFile(), path));
+            } else {
+                classes.addAll(findClasses(new File(resource.getFile()), packageName));
+            }
         }
-        
+
+        return classes;
+    }
+
+    private static List<Class<?>> findClassesInJar(JarFile jarFile, String path) throws ClassNotFoundException {
         List<Class<?>> classes = new ArrayList<>();
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName));
+        Enumeration<JarEntry> entries = jarFile.entries();
+
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            String entryName = entry.getName();
+            if (entryName.startsWith(path) && entryName.endsWith(".class")) {
+                String className = entryName.replace('/', '.').substring(0, entryName.length() - 6);
+                classes.add(Class.forName(className));
+            }
         }
-        
+
         return classes;
     }
 

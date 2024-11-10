@@ -11,9 +11,11 @@ public class AnnotationScanner {
         List<Class<?>> allClasses = ClasspathScanner.getClasses(packageName);
         List<Class<?>> annotatedClasses = new ArrayList<>();
         
-        for (Class<?> clazz : allClasses) {
-            if (clazz.isAnnotationPresent(annotation)) {
-                annotatedClasses.add(clazz);
+        for (Class<?> singleClass : allClasses) {
+            // System.out.println("Scanning class "+singleClass.getSimpleName());
+            if (singleClass.isAnnotationPresent(annotation)) {
+                // System.out.println("Found annotation in class "+singleClass.getSimpleName());
+                annotatedClasses.add(singleClass);
             }
         }
         

@@ -12,8 +12,6 @@ public class CaughtExceptions {
 
     private final ArrayList<ExceptionRecord> Exceptions = new ArrayList<>();
 
-
-
     public void add(ExceptionRecord error) {
         Exceptions.add(error);
     }
