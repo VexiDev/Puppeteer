@@ -2,9 +2,9 @@
 # Puppeteer
 <!-- Description -->
 
-> [!WARNING]
+> [!Note]
 > Puppeteer is a learning project for exploring concurrency in java!
-> In almost all cases it is recommended to just use `java.util.concurrent.ExecutorService`
+> <br>In almost all cases it is recommended to just use `java.util.concurrent.ExecutorService`
 
 <span style="color: #00C2FF;">`TL;DR`</span> A process manager for sequential or concurrent execution of repeating asynchronous tasks
 
