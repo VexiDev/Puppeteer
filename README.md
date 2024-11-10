@@ -1,7 +1,12 @@
 <!-- Project Title -->
 # Puppeteer
 <!-- Description -->
-<span style="color: #00C2FF;">`TL;DR`</span> A process manager for queue based asynchronous task execution
+
+> [!WARNING]
+> Puppeteer is a learning project for exploring concurrency in java!
+> In almost all cases it is recommended to just use `java.util.concurrent.ExecutorService`
+
+<span style="color: #00C2FF;">`TL;DR`</span> A process manager for sequential or concurrent execution of repeating asynchronous tasks
 
 Real description: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
 
@@ -23,8 +28,6 @@ Using Maven: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
  - `Puppet` : The class where you define a puppet's task
     - `Performance` : A name for the task a puppet "performes"
  - `Ticket` : The format of a request to Puppeteer 
-
-
 
 ### Define a `Puppet` by extending `AbstractPuppet` :
 ```java
@@ -276,7 +279,7 @@ public class TemplatePuppet extends AbstractPuppet {
 
 
     @Override
-    public vod main() {
+    public void main() {
         data = "Template";
         super.complete(Status.SUCCESS, data);
     }
