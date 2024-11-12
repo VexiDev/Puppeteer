@@ -29,8 +29,6 @@ public class Ticket implements Comparable<Ticket> {
         future = TicketFuture;
     }
 
-
-    // compare method for automatic sorting when in queues
     @Override
     public int compareTo(Ticket other) {
         return Integer.compare(other.priority.ordinal(), this.priority.ordinal());

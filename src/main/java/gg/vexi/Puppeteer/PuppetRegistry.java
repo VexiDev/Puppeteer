@@ -6,28 +6,28 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 
 public class PuppetRegistry {
-    private final Map<String, Function<Ticket, AbstractPuppet>> registry = new ConcurrentHashMap<>();
+    private final Map<String, Function<Ticket, Puppet>> registry = new ConcurrentHashMap<>();
 
-    public void registerPuppet(String type, Function<Ticket, AbstractPuppet> factory) {
+    public void registerPuppet(String type, Function<Ticket, Puppet> factory) {
         registry.put(type.toLowerCase(Locale.ROOT), factory);
         // debug output
         // System.out.println(String.format("Registered puppet %s%s%s with associated type %s%s%s", "\033[0;32m", type.toLowerCase(), "\033[0m", "\033[0;92m", factory.getClass().getSimpleName(), "\033[0m"));
     }
 
-    public AbstractPuppet getPuppet(Ticket ticket) {
+    public Puppet getPuppet(Ticket ticket) {
         String type = ticket.getType();
-        Function<Ticket, AbstractPuppet> constructor = registry.get(type.toLowerCase(Locale.ROOT));
+        Function<Ticket, Puppet> constructor = registry.get(type.toLowerCase(Locale.ROOT));
         if (constructor == null) {
             throw new IllegalArgumentException("No puppet registered for type: " + type);
         }
         return constructor.apply(ticket);
     }
 
-    public Map<String, Function<Ticket, AbstractPuppet>> getFullRegistry() {
+    public Map<String, Function<Ticket, Puppet>> getFullRegistry() {
         return registry;
     }
 

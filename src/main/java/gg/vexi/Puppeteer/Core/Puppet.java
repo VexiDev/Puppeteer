@@ -10,7 +10,7 @@ import gg.vexi.Puppeteer.State;
 import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
 
-public abstract class AbstractPuppet {
+public abstract class Puppet {
 
     private State status = State.CREATED;
     private final CompletableFuture<TicketResult> future;
@@ -18,7 +18,7 @@ public abstract class AbstractPuppet {
     private final CaughtExceptions exceptionHandler;
     protected final JsonObject ticket_parameters;
 
-    public AbstractPuppet(Ticket ticket) {
+    public Puppet(Ticket ticket) {
         associated_ticket = ticket;
         exceptionHandler = new CaughtExceptions();
         future = new CompletableFuture<>();

@@ -10,7 +10,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.TicketResult;
@@ -128,7 +128,7 @@ public class Puppeteer {
         activeTickets.putIfAbsent(ticket.getType(), ticket);
 
         // initialise the relevant puppet and get the puppet future
-        AbstractPuppet puppet = puppetRegistry.getPuppet(ticket);
+        Puppet puppet = puppetRegistry.getPuppet(ticket);
 
         CompletableFuture<TicketResult> puppetFuture = puppet.getFuture();
 
@@ -182,7 +182,7 @@ public class Puppeteer {
     public synchronized final void registerPuppet(Class<?> puppetClass, String type) {
         puppetRegistry.registerPuppet(type, (ticket) -> {
             try {
-                return (AbstractPuppet) puppetClass.getDeclaredConstructor(Ticket.class).newInstance(ticket);
+                return (Puppet) puppetClass.getDeclaredConstructor(Ticket.class).newInstance(ticket);
             } catch (IllegalArgumentException   | InstantiationException 
                     | NoSuchMethodException     | SecurityException
                     | InvocationTargetException | IllegalAccessException e) {
