@@ -3,10 +3,10 @@
 <!-- Description -->
 
 > [!Note]
-> **Puppeteer is a learning project for exploring concurrency in java!**
-> <br>It is not advised to use this in a production environment!
+> Puppeteer is a learning project for exploring concurrency in java!
+> <br>It is not advised to use this in a production environment
 
-<span style="color: #00C2FF;">`TL;DR`</span> A process manager for sequential or concurrent execution of repeating asynchronous tasks
+<span style="color: #00C2FF;">`TL;DR`</span> A process manager for queued execution of repeating asynchronous tasks
 
 Real description: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
 
@@ -24,23 +24,23 @@ Using Maven: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
 ## How to use Puppeteer
 
 #### Definitions:
- - `Puppeteer` : The master class of Puppeteer
- - `Puppet` : The class where you define a puppet's task
-    - `Performance` : A name for the task a puppet "performes"
- - `Ticket` : The format of a request to Puppeteer 
+ - `Puppet` : The worker class where you define a task 
+ - `Ticket` : The object used to request a Puppet's execution
+ - `TicketResult` : The returned object when a Puppet is done executing
+    - Puppeteer will always return a TicketResult even if the puppet fails
 
-### Define a `Puppet` by extending `AbstractPuppet` :
+### Define a `Puppet` by extending `Puppet` :
 ```java
 package org.example;
 
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 @RegisterPuppet("ReverseText") 
 // @RegisterPuppet will use classname if none provided (eg: "ReverseTextPuppet")
-public class ReverseTextPuppet extends AbstractPuppet {
+public class ReverseTextPuppet extends Puppet {
 
     private String data;
 
@@ -51,7 +51,7 @@ public class ReverseTextPuppet extends AbstractPuppet {
     // main() is the entry point to a puppet
     @Override
     public void main() {
-        // ticket_parameters is defined in AbstractPuppet!
+        // ticket_parameters is defined in Puppet!
         String text = ticket_parameters.get("text").getAsString();
         
         data = new StringBuilder(text).reverse().toString();
@@ -247,12 +247,12 @@ public class MainClass {
 ### Puppet Template
 ```java
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Status;
 
 @RegisterPuppet("TemplateName") 
-public class TemplatePuppet extends AbstractPuppet {
+public class TemplatePuppet extends Puppet {
 
     private String data;
 
@@ -283,13 +283,13 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 @RegisterPuppet("getPrimesBetween") 
-public class PrimesBetweenPuppet extends AbstractPuppet {
+public class PrimesBetweenPuppet extends Puppet {
 
     private long[] data;
 
