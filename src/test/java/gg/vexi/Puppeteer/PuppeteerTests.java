@@ -23,7 +23,7 @@ import gg.vexi.Puppeteer.Ticket.TicketPriority;
 class _Puppeteer {
 
     private Puppeteer Puppeteer;
-    private PuppetRegistry puppetRegistry;
+    private Registry puppetRegistry;
     private Map<String, PriorityBlockingQueue<Ticket>> actionQueues;
 
     @BeforeEach
@@ -34,7 +34,7 @@ class _Puppeteer {
         // get the registry using reflection
         Field registry_field = Puppeteer.getClass().getDeclaredField("puppetRegistry");
         registry_field.setAccessible(true);
-        puppetRegistry = (PuppetRegistry) registry_field.get(Puppeteer);
+        puppetRegistry = (Registry) registry_field.get(Puppeteer);
 
         // get actions_queue using reflection
         Field actions_queue_field = Puppeteer.getClass().getDeclaredField("actionQueues");

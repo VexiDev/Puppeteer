@@ -19,7 +19,7 @@ import gg.vexi.Puppeteer.annotations.Scanner.AnnotationScanner;
 
 public class Puppeteer {
 
-    private final PuppetRegistry puppetRegistry = new PuppetRegistry();
+    private final Registry puppetRegistry = new Registry();
     private final Map<String, PriorityBlockingQueue<Ticket>> actionQueues;
     private final Map<String, Ticket> activeTickets;
 
@@ -48,6 +48,7 @@ public class Puppeteer {
     }
 
     public Ticket createTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+    // compare method for automatic sorting when in queues
         CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
         Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); 
         return ticket;

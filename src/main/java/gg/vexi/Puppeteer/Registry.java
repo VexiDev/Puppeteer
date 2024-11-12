@@ -9,7 +9,7 @@ import java.util.function.Function;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 
-public class PuppetRegistry {
+public class Registry {
     private final Map<String, Function<Ticket, Puppet>> registry = new ConcurrentHashMap<>();
 
     public void registerPuppet(String type, Function<Ticket, Puppet> factory) {
