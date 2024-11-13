@@ -1,6 +1,6 @@
 package gg.vexi.Puppeteer;
 
-public enum Status {
+public enum ResultStatus {
     SUCCESS,
     FAILED,
     ERROR_FAILED

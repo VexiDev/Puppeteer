@@ -6,13 +6,13 @@ import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
-import gg.vexi.Puppeteer.State;
-import gg.vexi.Puppeteer.Status;
+import gg.vexi.Puppeteer.PuppetStatus;
+import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
 
 public abstract class Puppet {
 
-    private State status = State.CREATED;
+    private PuppetStatus status = PuppetStatus.CREATED;
     private final CompletableFuture<Result> future;
     private final Ticket associated_ticket;
     private final CaughtExceptions exceptionHandler;
@@ -23,7 +23,7 @@ public abstract class Puppet {
         exceptionHandler = new CaughtExceptions();
         future = new CompletableFuture<>();
         ticket_parameters = ticket.getParameters();
-        status = State.READY;
+        status = PuppetStatus.READY;
 
     }
     
@@ -34,7 +34,7 @@ public abstract class Puppet {
     // start point of puppet (run by puppeteer)
     public final void start() {
         try {
-            setStatus(State.PROCESSING);
+            setStatus(PuppetStatus.PROCESSING);
             main();
         } catch (Exception e) {
             StringBuilder stackString = new StringBuilder();
@@ -44,8 +44,8 @@ public abstract class Puppet {
                     stackString.append(element.toString()).append("\n"); 
                 } else break; }
             recordException(new ExceptionRecord(String.format("\033[1;31mUNHANDLED\033[0m (%s)", e.getClass().getSimpleName()), String.format("%s\n%s", e.getMessage(), stackString.toString())));
-            status = State.ERROR;
-            complete(Status.FAILED, null);
+            status = PuppetStatus.ERROR;
+            complete(ResultStatus.FAILED, null);
         }
     }
 
@@ -58,15 +58,15 @@ public abstract class Puppet {
     }
 
     // exit point of puppet
-    protected void complete(Status result_status) { complete(result_status, null); }
-    protected void complete(Status result_status, Object data) {
-        status = State.COMPLETED;
+    protected void complete(ResultStatus result_status) { complete(result_status, null); }
+    protected void complete(ResultStatus result_status, Object data) {
+        status = PuppetStatus.COMPLETED;
         Result result = new Result(exceptionHandler, associated_ticket, result_status, data);
         future.complete(result);
     }
 
     // getters
-    public State getStatus() {
+    public PuppetStatus getStatus() {
         return status;
     }
 
@@ -79,7 +79,7 @@ public abstract class Puppet {
     }
 
     // setters
-    public void setStatus(State new_status) {
+    public void setStatus(PuppetStatus new_status) {
         status = new_status;
     }
 

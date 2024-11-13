@@ -1,6 +1,6 @@
 package gg.vexi.Puppeteer.Ticket;
 
-import gg.vexi.Puppeteer.Status;
+import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 
@@ -8,10 +8,10 @@ public class Result {
 
     private final CaughtExceptions exceptions;
     private final Ticket target_ticket;
-    private final Status status;
+    private final ResultStatus status;
     private final Object data;
 
-    public Result(CaughtExceptions caughtExceptions, Ticket ticket, Status result_status, Object Data) {
+    public Result(CaughtExceptions caughtExceptions, Ticket ticket, ResultStatus result_status, Object Data) {
         exceptions = caughtExceptions;
         target_ticket = ticket;
         status = result_status;
@@ -19,7 +19,7 @@ public class Result {
     }
 
     public boolean isSuccessful() {
-        return status == Status.SUCCESS;
+        return status == ResultStatus.SUCCESS;
     }
 
     public boolean hasExceptions() {
@@ -35,7 +35,7 @@ public class Result {
         return data;
     }
 
-    public Status getStatus() {
+    public ResultStatus getStatus() {
         return status;
     }
 

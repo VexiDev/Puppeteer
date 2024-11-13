@@ -1,6 +1,6 @@
 package gg.vexi.Puppeteer;
 
-public enum State {
+public enum PuppetStatus {
     CREATED,
     READY,
     PROCESSING,
