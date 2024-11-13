@@ -18,7 +18,7 @@ import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.Ticket.TicketResult;
+import gg.vexi.Puppeteer.Ticket.Result;
 
 class _Behavior {
 
@@ -53,7 +53,7 @@ class _Behavior {
         Ticket ticket = Puppeteer.queueTicket(ticket_type, priority, parameters);
 
         // wait for future
-        CompletableFuture<TicketResult> ticketFuture = ticket.getFuture();
+        CompletableFuture<Result> ticketFuture = ticket.getFuture();
 
         // set check value to ensure execution order
         AtomicInteger check = new AtomicInteger(0);
@@ -68,24 +68,24 @@ class _Behavior {
         });
 
         // wait for ticket result
-        AtomicReference<TicketResult> ticket_result_holder = new AtomicReference<>();
+        AtomicReference<Result> ticket_result_holder = new AtomicReference<>();
         assertTimeoutPreemptively(
                 Duration.ofSeconds(5),
                 () -> {
-                    TicketResult ticket_result = ticketFuture.join();
+                    Result ticket_result = ticketFuture.join();
                     ticket_result_holder.set(ticket_result);
                 },
                 "Ticket future took too long to complete\n"
         );
 
-        TicketResult ticket_result = ticket_result_holder.get();
+        Result ticket_result = ticket_result_holder.get();
 
         // <<<< EXECUTES AFTER thenAccept >>>>>>>
         assertEquals(expected_check.get(), check.get(), "ticketFuture.thenAccept did not run first");
 
         // verify ticket_result
         assertNotNull(ticket_result, "Ticket result does not exist");
-        assertEquals(true, ticket_result instanceof TicketResult, "Ticket future result is not a TicketResult object");
+        assertEquals(true, ticket_result instanceof Result, "Ticket future result is not a TicketResult object");
 
     }
 
@@ -108,7 +108,7 @@ class _Behavior {
         int num_test_tickets = 5;
 
         List<Ticket> tickets = new ArrayList<>();
-        List<CompletableFuture<TicketResult>> futures = new ArrayList<>();
+        List<CompletableFuture<Result>> futures = new ArrayList<>();
         AtomicInteger completedCount = new AtomicInteger(0);
 
         // this loop queues puppets and ensures the queue size increases accordingly

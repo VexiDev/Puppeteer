@@ -18,16 +18,16 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.CustomObjectResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.JsonObjectResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.PrimitiveTypeResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.VoidResult_Puppet;
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
+import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.Ticket.TicketResult;
+import gg.vexi.Puppeteer.Ticket.Result;
 
 class _Puppet {
 
@@ -50,7 +50,7 @@ class _Puppet {
         CustomObjectResult_Puppet puppet_objectGeneric = new CustomObjectResult_Puppet(ticket);
         PrimitiveTypeResult_Puppet puppet_primitiveGeneric = new PrimitiveTypeResult_Puppet(ticket);
 
-        List<AbstractPuppet> puppets = List.<AbstractPuppet>of(
+        List<Puppet> puppets = List.<Puppet>of(
                 puppet_noGeneric,
                 puppet_jsonGeneric,
                 puppet_objectGeneric,
@@ -58,7 +58,7 @@ class _Puppet {
         );
 
         // the test loop for puppet types
-        for (AbstractPuppet puppet : puppets) {
+        for (Puppet puppet : puppets) {
 
             // verify default puppet attributes of explicit type are not null
             assertNotNull(puppet.getTicket(), "MockPuppet associated Ticket is null");
@@ -66,7 +66,7 @@ class _Puppet {
             assertNotNull(puppet.getStatus(), "MockPuppet status is null");
 
             // verify default status for puppet is ready by default
-            assertEquals(State.READY, puppet.getStatus(), "MockPuppet default status is not READY");
+            assertEquals(PuppetStatus.READY, puppet.getStatus(), "MockPuppet default status is not READY");
         }
 
     }
@@ -84,9 +84,9 @@ class _Puppet {
         });
 
         latch.await(500, TimeUnit.MILLISECONDS);
-        assertEquals(State.PROCESSING, puppet.getStatus());
+        assertEquals(PuppetStatus.PROCESSING, puppet.getStatus());
 
-        assertEquals(State.PROCESSING, puppet.getStatus(), "Void Puppet status is not PROCESSING after start");
+        assertEquals(PuppetStatus.PROCESSING, puppet.getStatus(), "Void Puppet status is not PROCESSING after start");
     }
 
     // tests the complete() method which takes a result status and data to build the TicketResult and completes its future with it
@@ -95,11 +95,11 @@ class _Puppet {
     public void test_complete() {
 
         VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
-        CompletableFuture<TicketResult> puppetFuture = puppet.getFuture();
+        CompletableFuture<Result> puppetFuture = puppet.getFuture();
 
         puppetFuture.thenAccept(actualResult -> {
             // build expected result
-            TicketResult expectedResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
+            Result expectedResult = new Result(new ExceptionHandler(), ticket, ResultStatus.SUCCESS, null);
             assertEquals(expectedResult, actualResult, "Result mismatch");
         });
 
@@ -110,7 +110,7 @@ class _Puppet {
             Duration.ofSeconds(5),
             () -> {
                 puppetFuture.join();
-                assertEquals(State.COMPLETED, puppet.getStatus(), "Puppet Status is not COMPLETED after complete()");
+                assertEquals(PuppetStatus.COMPLETED, puppet.getStatus(), "Puppet Status is not COMPLETED after complete()");
             },
             "Puppet future took too long to complete (>5 seconds)"
         );
@@ -124,7 +124,7 @@ class _Puppet {
 
         Field exception_object_field = puppet.getClass().getSuperclass().getDeclaredField("exceptionHandler");
         exception_object_field.setAccessible(true);
-        CaughtExceptions exceptions_holder = (CaughtExceptions) exception_object_field.get(puppet);
+        ExceptionHandler exceptions_holder = (ExceptionHandler) exception_object_field.get(puppet);
 
         assertTrue(exceptions_holder.getAll().isEmpty(), "Exceptions list is not empty on init");
 

@@ -1,7 +1,7 @@
 package gg.vexi.Puppeteer.ExamplePuppets;
 
-import gg.vexi.Puppeteer.Status;
-import gg.vexi.Puppeteer.Core.AbstractPuppet;
+import gg.vexi.Puppeteer.ResultStatus;
+import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
@@ -11,7 +11,7 @@ import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 // IMPLEMENTATION TESTS USE OUR EXAMPLE WORKERS
 
 @RegisterPuppet("test_action")
-public class Puppet_TestAction extends AbstractPuppet {
+public class Puppet_TestAction extends Puppet {
 
     private String data;
 
@@ -25,7 +25,7 @@ public class Puppet_TestAction extends AbstractPuppet {
         try {
             Thread.sleep(200);
             data = "Test_Action Worker Data";
-            super.complete(Status.SUCCESS, data);
+            super.complete(ResultStatus.SUCCESS, data);
         } catch (InterruptedException e) {
             super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
         }

@@ -16,19 +16,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.TestUtils;
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
+import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 
 class _CaughtExceptions {
 
-    CaughtExceptions CaughtExceptions;
+    ExceptionHandler CaughtExceptions;
     ArrayList<ExceptionRecord> errors_list;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
 
-        CaughtExceptions = new CaughtExceptions();
+        CaughtExceptions = new ExceptionHandler();
 
         Field CaughtExceptions_field = CaughtExceptions.getClass().getDeclaredField("Exceptions");
         CaughtExceptions_field.setAccessible(true);

@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
+import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.Ticket.TicketResult;
+import gg.vexi.Puppeteer.Ticket.Result;
 
 class _Ticket {
 
@@ -57,7 +57,7 @@ class _Ticket {
 
         // verify future
         assertNotNull(ticket.getFuture(), "Ticket has no future");
-        assertTrue(ticket.getFuture() instanceof CompletableFuture<TicketResult>);
+        assertTrue(ticket.getFuture() instanceof CompletableFuture<Result>);
 
         //vscode is highlighting _TicketResult as unused and its annoying me
         // until i find out how to make vscode notice it i will be `using` it here -__-
@@ -72,7 +72,7 @@ class _Ticket {
         @Test
         public void test_init() {
 
-            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
+            Result TicketResult = new Result(new ExceptionHandler(), ticket, ResultStatus.SUCCESS, null);
 
             assertNotNull(TicketResult, "TicketResult is null");
             assertNotNull(TicketResult.getTicket(), "TicketResult associated ticket is null");
@@ -84,7 +84,7 @@ class _Ticket {
         // @Disabled("Test not implemented") 
         public void test_isSuccessful() {
 
-            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.SUCCESS, null);
+            Result TicketResult = new Result(new ExceptionHandler(), ticket, ResultStatus.SUCCESS, null);
 
             boolean isSuccessful = TicketResult.isSuccessful();
 
@@ -97,7 +97,7 @@ class _Ticket {
         // @Disabled("Test not implemented")
         public void test_hasExceptions() {
 
-            TicketResult TicketResult = new TicketResult(new CaughtExceptions(), ticket, Status.FAILED, null);
+            Result TicketResult = new Result(new ExceptionHandler(), ticket, ResultStatus.FAILED, null);
 
             boolean hasExceptions = TicketResult.hasExceptions();
 
