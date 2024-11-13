@@ -2,16 +2,16 @@ package gg.vexi.Puppeteer.Ticket;
 
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
+import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
 
 public class Result {
 
-    private final CaughtExceptions exceptions;
+    private final ExceptionHandler exceptions;
     private final Ticket target_ticket;
     private final ResultStatus status;
     private final Object data;
 
-    public Result(CaughtExceptions caughtExceptions, Ticket ticket, ResultStatus result_status, Object Data) {
+    public Result(ExceptionHandler caughtExceptions, Ticket ticket, ResultStatus result_status, Object Data) {
         exceptions = caughtExceptions;
         target_ticket = ticket;
         status = result_status;
@@ -39,7 +39,7 @@ public class Result {
         return status;
     }
 
-    public CaughtExceptions getExceptions() {
+    public ExceptionHandler getExceptions() {
         return exceptions;
     }
 }

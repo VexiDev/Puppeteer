@@ -8,7 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class CaughtExceptions {
+public class ExceptionHandler {
 
     private final ArrayList<ExceptionRecord> Exceptions = new ArrayList<>();
 

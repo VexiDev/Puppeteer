@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
 
-import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
+import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.PuppetStatus;
 import gg.vexi.Puppeteer.ResultStatus;
@@ -15,12 +15,12 @@ public abstract class Puppet {
     private PuppetStatus status = PuppetStatus.CREATED;
     private final CompletableFuture<Result> future;
     private final Ticket associated_ticket;
-    private final CaughtExceptions exceptionHandler;
+    private final ExceptionHandler exceptionHandler;
     protected final JsonObject ticket_parameters;
 
     public Puppet(Ticket ticket) {
         associated_ticket = ticket;
-        exceptionHandler = new CaughtExceptions();
+        exceptionHandler = new ExceptionHandler();
         future = new CompletableFuture<>();
         ticket_parameters = ticket.getParameters();
         status = PuppetStatus.READY;
