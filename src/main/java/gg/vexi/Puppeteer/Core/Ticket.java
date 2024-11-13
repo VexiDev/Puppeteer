@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.Ticket.TicketResult;
+import gg.vexi.Puppeteer.Ticket.Result;
 
 public class Ticket implements Comparable<Ticket> {
 
@@ -14,13 +14,13 @@ public class Ticket implements Comparable<Ticket> {
     private final String type;
     private final TicketPriority priority;
     private final JsonObject parameters;
-    private final CompletableFuture<TicketResult> future;
+    private final CompletableFuture<Result> future;
 
     public Ticket(
                 String ActionType,
                 TicketPriority TicketPriority, 
                 JsonObject Parameters, 
-                CompletableFuture<TicketResult> TicketFuture) 
+                CompletableFuture<Result> TicketFuture) 
     {
         Id = UUID.randomUUID();
         type = ActionType.toLowerCase();
@@ -50,7 +50,7 @@ public class Ticket implements Comparable<Ticket> {
         return Id;
     }
 
-    public CompletableFuture<TicketResult> getFuture() {
+    public CompletableFuture<Result> getFuture() {
         return future;
     }
 

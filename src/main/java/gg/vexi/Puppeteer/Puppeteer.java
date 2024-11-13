@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.Ticket.TicketResult;
+import gg.vexi.Puppeteer.Ticket.Result;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 import gg.vexi.Puppeteer.annotations.Scanner.AnnotationScanner;
 
@@ -49,7 +49,7 @@ public class Puppeteer {
 
     public Ticket createTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
     // compare method for automatic sorting when in queues
-        CompletableFuture<TicketResult> ticket_future = new CompletableFuture<>();
+        CompletableFuture<Result> ticket_future = new CompletableFuture<>();
         Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future); 
         return ticket;
     }
@@ -131,7 +131,7 @@ public class Puppeteer {
         // initialise the relevant puppet and get the puppet future
         Puppet puppet = puppetRegistry.getPuppet(ticket);
 
-        CompletableFuture<TicketResult> puppetFuture = puppet.getFuture();
+        CompletableFuture<Result> puppetFuture = puppet.getFuture();
 
         // begin performance
         // printDebug("Queue size before starting ticket ("+ticket.getType()+"):
@@ -150,7 +150,7 @@ public class Puppeteer {
         });
     }
 
-    protected final void completeTicket(Ticket ticket, TicketResult result) {
+    protected final void completeTicket(Ticket ticket, Result result) {
         ticket.getFuture().complete(result);
         activeTickets.remove(ticket.getType());
         printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.getType()

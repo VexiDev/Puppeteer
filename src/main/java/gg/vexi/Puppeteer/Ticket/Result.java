@@ -4,14 +4,14 @@ import gg.vexi.Puppeteer.Status;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 
-public class TicketResult {
+public class Result {
 
     private final CaughtExceptions exceptions;
     private final Ticket target_ticket;
     private final Status status;
     private final Object data;
 
-    public TicketResult(CaughtExceptions caughtExceptions, Ticket ticket, Status result_status, Object Data) {
+    public Result(CaughtExceptions caughtExceptions, Ticket ticket, Status result_status, Object Data) {
         exceptions = caughtExceptions;
         target_ticket = ticket;
         status = result_status;

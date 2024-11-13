@@ -8,12 +8,12 @@ import gg.vexi.Puppeteer.Exceptions.CaughtExceptions;
 import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.State;
 import gg.vexi.Puppeteer.Status;
-import gg.vexi.Puppeteer.Ticket.TicketResult;
+import gg.vexi.Puppeteer.Ticket.Result;
 
 public abstract class Puppet {
 
     private State status = State.CREATED;
-    private final CompletableFuture<TicketResult> future;
+    private final CompletableFuture<Result> future;
     private final Ticket associated_ticket;
     private final CaughtExceptions exceptionHandler;
     protected final JsonObject ticket_parameters;
@@ -61,7 +61,7 @@ public abstract class Puppet {
     protected void complete(Status result_status) { complete(result_status, null); }
     protected void complete(Status result_status, Object data) {
         status = State.COMPLETED;
-        TicketResult result = new TicketResult(exceptionHandler, associated_ticket, result_status, data);
+        Result result = new Result(exceptionHandler, associated_ticket, result_status, data);
         future.complete(result);
     }
 
@@ -70,7 +70,7 @@ public abstract class Puppet {
         return status;
     }
 
-    public CompletableFuture<TicketResult> getFuture() {
+    public CompletableFuture<Result> getFuture() {
         return future;
     }
 
