@@ -221,7 +221,7 @@ public class MainClass {
 </details>
 </li>
 
-p/ul>
+</ul>
 
 
 <span style="color: #00C2FF;">`MORE TO BE WRITTEN`</span>
