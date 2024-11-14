@@ -3,7 +3,7 @@
 <!-- Description -->
 
 > [!Note]
-> Puppeteer is an exploration with concurrency and thread management in java!
+> Puppeteer is an __exploratory__ project into concurrency and thread management in Java!
 
 <span style="color: #00C2FF;">`TL;DR`</span> A process manager for queued execution of repeating asynchronous tasks
 
@@ -182,7 +182,7 @@ public class MainClass {
 
 <li style="margin-bottom: 10px;">
 <details>
-    <summary style="cursor: pointer; font-weight: bold;">Multiple concurrent instances of a single puppet type</summary>
+    <summary style="cursor: pointer; font-weight: bold;">Multiple of the same puppet type running in parallel</summary>
         <ul style="list-style-type: disc; padding-left: 20px;">
     <li>Currently only 1 puppet of each type can perform at a time
     <ul style="list-style-type: circle; padding-left: 20px;">
@@ -206,13 +206,14 @@ public class MainClass {
 
 <li style="margin-bottom: 10px;">
 <details>
-    <summary style="cursor: pointer; font-weight: bold;">Allow for multi-puppet tickets that return a bundle of multiple performance results</summary>
+    <summary style="cursor: pointer; font-weight: bold;">Execution of different Puppet types with one in depth ticket</summary>
     <ul style="list-style-type: disc; padding-left: 20px;">
     <li>Currently a ticket can only run one puppet of a given type
         <ul style="list-style-type: circle; padding-left: 20px;">
         <br>
         <li><i>Maybe it could run multiple puppets?</i></li>
         <li><i>Maybe multiple different types of puppets?</i></li>
+        <li><i>Supporting both sequential and parallel execution of Puppets to create a performance where Puppets can pass results down the chain</i></li>
         <br>
         </ul>
     </li>
@@ -220,7 +221,7 @@ public class MainClass {
 </details>
 </li>
 
-</ul>
+p/ul>
 
 
 <span style="color: #00C2FF;">`MORE TO BE WRITTEN`</span>
