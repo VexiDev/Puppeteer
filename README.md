@@ -190,13 +190,6 @@ public class MainClass {
                     <ul style="list-style-type: square; padding-left: 20px;">
         <li>We would then poll for the next Puppet (if any) in the queue when a slot opens</li>
         <br></ul>
-        <li><i>Specified in the @RegisterPuppet annotation?</i>
-        <ul style="list-style-type: square; padding-left: 20px;">
-        <li>eg: @RegisterPuppet("Example", 3) --> 3 instances of Example can run concurrently</li>
-        </ul>
-        <br>
-        </li>
-        </ul>
     </li>
     </ul>
 </details>
