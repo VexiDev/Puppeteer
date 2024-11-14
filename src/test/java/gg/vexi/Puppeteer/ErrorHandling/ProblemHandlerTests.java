@@ -126,7 +126,20 @@ class _ProblemHandler {
     @Test
     public void testAttempt() {
         ProblemHandler ph = new ProblemHandler();
-        Optional<String> result = ph.attempt(() -> { throw new RuntimeException("rt_exception"); });
+
+        String result = ph.attempt(
+                () -> { throw new RuntimeException("rt_exception"); },
+                record -> {
+                    return "error-value";
+                });
+
+        assertEquals("error-value", result, "Value mismatch");
+    }
+
+    @Test
+    public void testAttemptOptional() {
+        ProblemHandler ph = new ProblemHandler();
+        Optional<String> result = ph.attemptOptional(() -> { throw new RuntimeException("rt_exception"); });
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -143,19 +156,6 @@ class _ProblemHandler {
         assertEquals(1, ph.size(), "Record list size mismatch");
 
         assertEquals("default", result, "Value mismatch");
-    }
-
-    @Test
-    public void testAttemptWithCustomHandler() {
-        ProblemHandler ph = new ProblemHandler();
-
-        String result = ph.attemptWith(
-                () -> { throw new RuntimeException("rt_exception"); },
-                record -> {
-                    return "error-value";
-                });
-
-        assertEquals("error-value", result, "Value mismatch");
     }
 
     @Test

@@ -68,7 +68,7 @@ public class ProblemHandler {
     }
 
     // Handles and returns Optional for handling throwables functionally
-    public <T> Optional<T> attempt(ThrowableSupplier<T> supplier) {
+    public <T> Optional<T> attemptOptional(ThrowableSupplier<T> supplier) {
         try {
             return Optional.ofNullable(supplier.get());
         } catch (Throwable t) {
@@ -88,7 +88,7 @@ public class ProblemHandler {
     }
 
     // Handles with custom error handling logic
-    public <T> T attemptWith(ThrowableSupplier<T> supplier,
+    public <T> T attempt(ThrowableSupplier<T> supplier,
             ErrorHandler<T> errorHandler) {
         try {
             return supplier.get();
