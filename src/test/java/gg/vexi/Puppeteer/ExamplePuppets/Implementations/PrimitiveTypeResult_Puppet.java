@@ -3,7 +3,6 @@ package gg.vexi.Puppeteer.ExamplePuppets.Implementations;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 @RegisterPuppet
@@ -23,7 +22,7 @@ public class PrimitiveTypeResult_Puppet extends Puppet {
             data = 3;
             super.complete(ResultStatus.SUCCESS, data);
         } catch (InterruptedException e) {
-            super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
+            super.complete(ResultStatus.ERROR_FAILED, null); 
         }
     }
 

@@ -18,7 +18,7 @@ public class ProblemHandler {
     }
 
     public ProblemHandler() {
-        this(1000); // Default size of 1000
+        this(1000); // Default maxSize of 1000
     }
 
 
@@ -38,7 +38,7 @@ public class ProblemHandler {
         // Note: moving this to its own method could make it a good place to
         //       hook into and have it do different things when maxSize is reached
         // If we're at capacity, remove oldest entry
-        if (problems.size() >= maxSize) {
+        if (problems.size() >= this.maxSize) {
             Optional<String> oldest = problems.entrySet().stream()
                     .min((e1, e2) -> e1.getValue().getTimestamp()
                             .compareTo(e2.getValue().getTimestamp()))
@@ -110,41 +110,41 @@ public class ProblemHandler {
 
     // Getters
 
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return problems.isEmpty();
     }
 
-    public List<Problem> getAll() {
+    public final List<Problem> getAll() {
         return new ArrayList<>(problems.values());
     }
 
-    public List<Problem> getRecent(int count) {
+    public final List<Problem> getRecent(int count) {
         return problems.values().stream()
                 .sorted((r1, r2) -> r2.getTimestamp().compareTo(r1.getTimestamp()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
-    public List<Problem> getByType(Class<? extends Throwable> type) {
+    public final List<Problem> getByType(Class<? extends Throwable> type) {
         return problems.values().stream()
                 .filter(r -> type.isInstance(r.getThrowable()))
                 .collect(Collectors.toList());
     }
 
-    public Optional<Problem> get(String id) {
+    public final Optional<Problem> get(String id) {
         return Optional.ofNullable(problems.get(id));
     }
 
-    public void clear() {
+    public final void clear() {
         problems.clear();
     }
 
-    public int size() {
+    public final int size() {
         return problems.size();
     }
 
-    public int maxSize() {
-        return maxSize();
+    public final int maxSize() {
+        return this.maxSize;
     }
     
     public static class Problem {
@@ -160,14 +160,24 @@ public class ProblemHandler {
             this.timestamp = Instant.now();
             this.threadName = Thread.currentThread().getName();
 
-            // Get the first non-framework stack trace element for location
+            // Get the first non-framework stack trace element
+            // This will be the throwable location
             this.location = Optional.ofNullable(throwable.getStackTrace())
-                    .filter(stack -> stack.length > 0)
-                    .map(stack -> stack[0])
-                    .map(element -> element.getClassName() + "." +
-                            element.getMethodName() + ":" +
-                            element.getLineNumber())
-                    .orElse("Unknown location");
+                .filter(stack -> stack.length > 0)
+                .map(stack -> {
+                    String className = "."+this.getClass().getSimpleName();
+                    return java.util.Arrays.stream(stack)
+                        .filter(element -> !element.getClassName()
+                                            .contains(className))
+                        .findFirst()
+                        .orElse(null); // null forces Unknown location but 
+                                       // this will never happen 
+                                       // (said every dev ever)
+                })
+                .map(element -> element.getClassName() + "." +
+                    element.getMethodName() + ":" +
+                    element.getLineNumber())
+                .orElse("Unknown location");
         }
 
         public String getId() {

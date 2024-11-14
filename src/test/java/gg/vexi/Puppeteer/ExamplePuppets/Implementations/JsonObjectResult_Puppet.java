@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 @RegisterPuppet
@@ -26,7 +25,7 @@ public class JsonObjectResult_Puppet extends Puppet {
                 data.addProperty("exampleProperty", 1987);
             super.complete(ResultStatus.SUCCESS, data);
         } catch (InterruptedException e) {
-            super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
+            super.complete(ResultStatus.ERROR_FAILED, null); 
         }
     }
 }

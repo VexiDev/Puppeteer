@@ -9,22 +9,62 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import gg.vexi.Puppeteer.TestUtils;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler.Problem;
 
 //TODO: Make tests have good/bad path to better cover edge case handling
 
 class _ProblemHandler {
+    
+    @Nested
+    class _ProblemTests {
 
+        @Test
+        // NOTE: THIS TEST IS LOCATIONAL! 
+        // - Moving the throwable definition line WILL break the location assertion
+        //   since the line is hardcoded
+        public void testInit() { 
+            Throwable t = new Throwable("Testing ThrowableRecord");
+            Problem problem = new Problem(t, "test_problem");
+            
+            // id
+            assertNotNull(problem.getId(), "ID is null");
+            assertEquals("test_problem", problem.getId(), "Value mismatch");
+            
+            // throwable
+            assertNotNull(problem.getThrowable(), "Throwable is null"); 
+            assertEquals(problem.getThrowable(), t, "Value mismatch");
+
+            // timestamp
+            assertNotNull(problem.getTimestamp(), "Timestamp cannot be null");
+            // the exact timestamp is hard to validate so we just check if the
+            // time difference is within 50ms and if it is its probably correct
+            long now = Instant.now().toEpochMilli();
+            long actual = problem.getTimestamp().toEpochMilli();
+            assertTrue(now - actual < 50, "Epoch milli range too large");
+            
+            // threadname                                                       ,???
+            // idk how to test this one tbh idk what the threadname would be T-T
+            // gotta do some research
+            assertNotNull(problem.getThreadName(), "Threadname is null");
+
+            // location - where the throwable was created
+            assertNotNull(problem.getLocation(), "Location is null");
+            assertEquals(problem.getLocation(), 
+                "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit:27", 
+                "Location mismatch");
+        }
+
+    }
+    
     @Test
     public void testInit() {
         ProblemHandler ph = new ProblemHandler();
         assertEquals(1000, ph.maxSize(), "Size mismatch, default max size is not 1000");
+
         ph = new ProblemHandler(1);
         assertEquals(1, ph.maxSize(), "Size mismatch, maxSize does not match passed value");
     }
@@ -46,7 +86,6 @@ class _ProblemHandler {
         }
 
         assertEquals(1, ph.size(), "Record list size mismatch");
-
         problem = ph.getAll().get(0);
 
         actual = problem.getId().split("-")[1];
@@ -67,11 +106,11 @@ class _ProblemHandler {
         String actual;
 
         try {
-            String result = ph.execute(() -> "test");
+            ph.execute(() -> { throw new RuntimeException("rt_exception"); });
         } catch (Exception e) {
             exception = e;
         }
-
+        
         assertEquals(1, ph.size(), "Record list size mismatch");
         problem = ph.getAll().get(0);
 
@@ -87,7 +126,7 @@ class _ProblemHandler {
     @Test
     public void testAttempt() {
         ProblemHandler ph = new ProblemHandler();
-        Optional<String> result = ph.attempt(() -> "test");
+        Optional<String> result = ph.attempt(() -> { throw new RuntimeException("rt_exception"); });
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -99,7 +138,7 @@ class _ProblemHandler {
     @Test
     public void testAttemptWithDefault() {
         ProblemHandler ph = new ProblemHandler();
-        String result = ph.attemptOrElse(() -> "test", "default");
+        String result = ph.attemptOrElse(() -> { throw new RuntimeException("rt_exception"); }, "default");
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -111,7 +150,7 @@ class _ProblemHandler {
         ProblemHandler ph = new ProblemHandler();
 
         String result = ph.attemptWith(
-                () -> "test",
+                () -> { throw new RuntimeException("rt_exception"); },
                 record -> {
                     return "error-value";
                 });
@@ -133,10 +172,10 @@ class _ProblemHandler {
 
         assertEquals(count - 1, recents.size(), "Size mismatch");
 
-        for (int i = 1; i <= count - 1; i++) {
+        for (int i = 1; i < count-1; i++) {
             Instant previous_time = recents.get(i - 1).getTimestamp();
             Instant current_time = recents.get(i).getTimestamp();
-            assertTrue(0 >= previous_time.compareTo(current_time));
+            assertTrue(0 <= previous_time.compareTo(current_time), "Timing mismatch");
         }
 
     }
@@ -145,68 +184,23 @@ class _ProblemHandler {
     public void testGetByType() {
         ProblemHandler ph = new ProblemHandler();
 
-        // count must be greater than 3 & divisible by 3
-        int count = 9;
-
-        assertFalse(count <= 3, "count is <= 3");
-        assertTrue(count % 3 == 0, "count is not divisible by 3");
-
-        for (int i = 1; i <= count / 3; i++) {
-            ph.handle(new RuntimeException("rt_exception_" + i));
+        for (int i = 1; i <= 3 ; i++) {
+            ph.handle(new IndexOutOfBoundsException("iob_exception_" + i));
             ph.handle(new NullPointerException("np_exception_" + i));
             ph.handle(new StackOverflowError("so_error_" + i));
             if (i % 3 == 0)
                 ph.handle(new IllegalAccessException("ia_exception_" + i));
         }
 
-        assertEquals(count / 3 + ((count / 3) / 3), ph.size(), "Size mismatch");
+        assertEquals(10, ph.size(), "Size mismatch");
 
-        List<Problem> typeList = ph.getByType(RuntimeException.class);
+        List<Problem> typeList = ph.getByType(IndexOutOfBoundsException.class);
 
-        assertEquals(count / 3, typeList.size(), "Size mismatch");
+        assertEquals(3, typeList.size(), "Size mismatch");
 
         typeList = ph.getByType(IllegalAccessException.class);
 
-        assertEquals((count / 3 / 3), typeList.size(), "Size mismatch");
-
-    }
-
-    @Nested
-    class _ProblemTests {
-
-        @Test
-        public void testInit() {
-            Throwable t = new Throwable("Testing ThrowableRecord");
-            Problem problem = new Problem(t, "test-throwable");
-            
-            // id
-            assertNotNull(problem.getId(), "ID is null");
-            assertEquals(problem.hashCode(), problem.getId(), "Value mismatch");
-            
-            // throwable
-            assertNotNull(problem.getThrowable(), "Throwable is null"); 
-            assertEquals(problem.getThrowable(), t, "Value mismatch");
-
-            // timestamp
-            assertNotNull(problem.getTimestamp(), "Timestamp cannot be null");
-            // the exact timestamp is hard to validate so 
-            // we do a Epoch day check on the two intervals
-            // EPOCH_DAY is based on the Java epoch of 1970-01-01 (ISO)
-            Instant now = Instant.now();
-            Instant actual = problem.getTimestamp();
-            assertEquals(now.get(ChronoField.EPOCH_DAY), actual.get(ChronoField.EPOCH_DAY),
-                        "Epoch day mistmatch (try running the build again just in case!)");
-            
-            // threadname
-            assertNotNull(problem.getThreadName(), "Threadname is null");//     ,???
-            // idk how to test this one tbh idk what the threadname would be ;-;
-            // gotta do some research
-
-            // location
-            assertNotNull(problem.getLocation(), "Location is null");
-            assertEquals(problem.getLocation(), "_ProblemTests.testInit.205");
-
-        }
+        assertEquals(1, typeList.size(), "Size mismatch");
 
     }
 

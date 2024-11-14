@@ -3,7 +3,6 @@ package gg.vexi.Puppeteer.ExamplePuppets;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
 import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 // THIS IS THE PLACEHOLDER WORKER FOR ALL GENERAL UNIT TESTS
@@ -27,7 +26,7 @@ public class Puppet_TestAction extends Puppet {
             data = "Test_Action Worker Data";
             super.complete(ResultStatus.SUCCESS, data);
         } catch (InterruptedException e) {
-            super.recordException(new ExceptionRecord("InterruptedException", e.getMessage()));
+            super.complete(ResultStatus.ERROR_FAILED, null); 
         }
     }
 }

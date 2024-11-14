@@ -2,44 +2,44 @@ package gg.vexi.Puppeteer.Ticket;
 
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 
 public class Result {
 
-    private final ExceptionHandler exceptions;
-    private final Ticket target_ticket;
-    private final ResultStatus status;
+    private final ProblemHandler problemsHandler;
+    private final Ticket ticket;
+    private final ResultStatus resultStatus;
     private final Object data;
 
-    public Result(ExceptionHandler caughtExceptions, Ticket ticket, ResultStatus result_status, Object Data) {
-        exceptions = caughtExceptions;
-        target_ticket = ticket;
-        status = result_status;
-        data = Data;
+    public Result(ProblemHandler problemHandler, Ticket ticket, ResultStatus resultStatus, Object data) {
+        this.problemsHandler = problemHandler;
+        this.ticket = ticket;
+        this.resultStatus = resultStatus;
+        this.data = data;
     }
 
     public boolean isSuccessful() {
-        return status == ResultStatus.SUCCESS;
+        return resultStatus == ResultStatus.SUCCESS;
     }
 
     public boolean hasExceptions() {
-        return exceptions.any();
+        return !problemsHandler.isEmpty();
     }
 
     // getters
     public Ticket getTicket() {
-        return target_ticket;
+        return ticket;
     }
 
     public Object getData() {
         return data;
     }
 
-    public ResultStatus getStatus() {
-        return status;
+    public ResultStatus getResultStatus() {
+        return resultStatus;
     }
 
-    public ExceptionHandler getExceptions() {
-        return exceptions;
+    public ProblemHandler getProblemsHandler() {
+        return problemsHandler;
     }
 }

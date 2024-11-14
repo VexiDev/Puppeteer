@@ -20,12 +20,12 @@ import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
+import gg.vexi.Puppeteer.ExamplePuppets.ExampleObject;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.CustomObjectResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.JsonObjectResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.PrimitiveTypeResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.VoidResult_Puppet;
-import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
-import gg.vexi.Puppeteer.Exceptions.ExceptionRecord;
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
@@ -99,7 +99,7 @@ class _Puppet {
 
         puppetFuture.thenAccept(actualResult -> {
             // build expected result
-            Result expectedResult = new Result(new ExceptionHandler(), ticket, ResultStatus.SUCCESS, null);
+            Result expectedResult = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
             assertEquals(expectedResult, actualResult, "Result mismatch");
         });
 
@@ -115,46 +115,23 @@ class _Puppet {
             "Puppet future took too long to complete (>5 seconds)"
         );
     }
-
-    // tests the recordException() method which is just a wrapper of CaughtExceptions.add()
-    @Test
-    public void test_recordException() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
-        
-        VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
-
-        Field exception_object_field = puppet.getClass().getSuperclass().getDeclaredField("exceptionHandler");
-        exception_object_field.setAccessible(true);
-        ExceptionHandler exceptions_holder = (ExceptionHandler) exception_object_field.get(puppet);
-
-        assertTrue(exceptions_holder.getAll().isEmpty(), "Exceptions list is not empty on init");
-
-        ExceptionRecord record = new ExceptionRecord("ErrorTest_001", "This is a test record for the test_recordExceptions() method");
-        puppet.recordException(record);
-
-        assertFalse(exceptions_holder.getAll().isEmpty(), "Exceptions list is empty after using recordException()");
-        assertTrue(exceptions_holder.getAll().size() == 1, "Exceptions list has incorrect list size");
-        assertEquals("ErrorTest_001", exceptions_holder.getAll().get(0).getType(), "Mismatched type value in record at index 0");
-    }
+    
 
     @Test
     public void test_resultGenericType() {
-
+        
+        
         CustomObjectResult_Puppet puppet = new CustomObjectResult_Puppet(ticket);
-        ExceptionRecord expected_data = new ExceptionRecord("ExampleRecord_06302005", "This is an example record for the test_completeSuccess() unit test");
+        ExampleObject example = new ExampleObject("Showcase"); 
 
         puppet.getFuture().thenAccept((ticketResult) -> {
 
-            assertTrue(ticketResult.getData() instanceof ExceptionRecord, "TicketResult data is not an instance of ExceptionRecord");
-            ExceptionRecord ticket_result_data = (ExceptionRecord) ticketResult.getData();
-            assertTrue(ticket_result_data.getType().equals("ExampleRecord_06302005"), "TicketResult ExceptionRecord Object does not have the correct exception type");
-
+            assertTrue(ticketResult.getData() instanceof ExampleObject, "TicketResult data is not an instance of ExampleObject");
+            ExampleObject ticket_result_data = (ExampleObject) ticketResult.getData();
+            assertEquals("Showcase", ticket_result_data.data, "Value mismatch");
         });
 
         puppet.main();
-
-        // this should not be possible because complete() should only be accessible from within the puppet
-        this_method_does_nothing(expected_data); // <-- temp
-        // puppet.complete(Status.SUCCESS, expected_data); // <-- errors with "protected access" (need to learn more about the __protected__ access level)
 
     }
 

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.ExceptionHandler;
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
@@ -59,37 +59,37 @@ class _Ticket {
         assertNotNull(ticket.getFuture(), "Ticket has no future");
         assertTrue(ticket.getFuture() instanceof CompletableFuture<Result>);
 
-        //vscode is highlighting _TicketResult as unused and its annoying me
+        //vscode is highlighting _Result as unused and its annoying me
         // until i find out how to make vscode notice it i will be `using` it here -__-
-        this_method_does_nothing(new _TicketResult());
+        this_method_does_nothing(new _Result());
 
     }
 
-    // TicketResult is the object returned by a puppet to Puppeteer to finish processing the ticket
+    // Result is the object returned by a puppet to Puppeteer to finish processing the ticket
     @Nested
-    class _TicketResult { 
+    class _Result { 
         
         @Test
         public void test_init() {
 
-            Result TicketResult = new Result(new ExceptionHandler(), ticket, ResultStatus.SUCCESS, null);
+            Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
 
-            assertNotNull(TicketResult, "TicketResult is null");
-            assertNotNull(TicketResult.getTicket(), "TicketResult associated ticket is null");
-            assertNotNull(TicketResult.getStatus(), "TicketResult status enum (status code) is null");
-            assertNotNull(TicketResult.getExceptions(), "TicketResult CaughtExceptions is null");
+            assertNotNull(Result, "Result is null");
+            assertNotNull(Result.getTicket(), "Result associated ticket is null");
+            assertNotNull(Result.getResultStatus(), "Result status enum (status code) is null");
+            assertNotNull(Result.getProblemsHandler(), "Result ProblemHandler is null");
         }
 
         @Test
         // @Disabled("Test not implemented") 
         public void test_isSuccessful() {
 
-            Result TicketResult = new Result(new ExceptionHandler(), ticket, ResultStatus.SUCCESS, null);
+            Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
 
-            boolean isSuccessful = TicketResult.isSuccessful();
+            boolean isSuccessful = Result.isSuccessful();
 
-            assertNotNull(isSuccessful, "TicketResult returned null when checking status");
-            assertTrue(isSuccessful, "TicketResult was not successful");
+            assertNotNull(isSuccessful, "Result returned null when checking status");
+            assertTrue(isSuccessful, "Result was not successful");
 
         }
 
@@ -97,12 +97,12 @@ class _Ticket {
         // @Disabled("Test not implemented")
         public void test_hasExceptions() {
 
-            Result TicketResult = new Result(new ExceptionHandler(), ticket, ResultStatus.FAILED, null);
+            Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.FAILED, null);
 
-            boolean hasExceptions = TicketResult.hasExceptions();
+            boolean hasExceptions = Result.hasExceptions();
 
-            assertNotNull(hasExceptions, "TicketResult returned null when checking exceptions");
-            assertFalse(hasExceptions, "TicketResult has exceptions");
+            assertNotNull(hasExceptions, "Result returned null when checking exceptions");
+            assertFalse(hasExceptions, "Result has exceptions");
         }
     }
 }
