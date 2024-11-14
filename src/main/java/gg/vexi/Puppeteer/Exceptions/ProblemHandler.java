@@ -66,6 +66,20 @@ public class ProblemHandler {
             throw new RuntimeException(t);
         }
     }
+    // Overload for handling void operations 
+    public void execute(ThrowableRunnable runnable) throws Exception {
+        try {
+            runnable.run();
+        } catch (Throwable t) {
+            handle(t);
+            if (t instanceof Exception) {
+                throw (Exception) t;
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            }
+            throw new RuntimeException(t);
+        }
+    }
 
     // Handles and returns Optional for handling throwables functionally
     public <T> Optional<T> attemptOptional(ThrowableSupplier<T> supplier) {
@@ -97,15 +111,34 @@ public class ProblemHandler {
             return errorHandler.handleError(problem);
         }
     }
-
+    // Overload for handling void operations
+    public void attempt(ThrowableRunnable runnable, VoidErrorHandler errorHandler) {
+        try {
+            runnable.run();
+        } catch (Throwable t) {
+            Problem problem = handle(t);
+            errorHandler.handleError(problem);
+        }
+    }
+    
+    // For operations with return values
     @FunctionalInterface
     public interface ErrorHandler<T> {
         T handleError(Problem problem);
     }
-
     @FunctionalInterface
     public interface ThrowableSupplier<T> {
         T get() throws Throwable;
+    }
+    
+    // For operations without void return values
+    @FunctionalInterface
+    public interface ThrowableRunnable {
+        void run() throws Throwable;
+    }
+    @FunctionalInterface
+    public interface VoidErrorHandler {
+        void handleError(Problem problem);
     }
 
     // Getters

@@ -14,7 +14,7 @@ public abstract class Puppet {
     private PuppetStatus status = PuppetStatus.CREATED;
     private final CompletableFuture<Result> future;
     private final Ticket ticket;
-    private final ProblemHandler problemHandler;
+    protected final ProblemHandler problemHandler;
     protected final JsonObject parameters;
 
     public Puppet(Ticket ticket) {
@@ -25,25 +25,26 @@ public abstract class Puppet {
         status = PuppetStatus.READY;
 
     }
-    
+
     // entry point to puppet
     public abstract void main();
 
-
     // start point of puppet (run by puppeteer)
-    //TODO: Reimplement exception handling using new ProblemHandler
     public final void start() {
-        try {
+        problemHandler.attempt(() -> {
             setStatus(PuppetStatus.PROCESSING);
             main();
-        } catch (Exception e) {
+        }, problem -> {
             status = PuppetStatus.ERROR;
             complete(ResultStatus.FAILED, null);
-        }
+        }); 
     }
 
     // exit point of puppet
-    protected void complete(ResultStatus result_status) { complete(result_status, null); }
+    protected void complete(ResultStatus result_status) {
+        complete(result_status, null);
+    }
+
     protected void complete(ResultStatus result_status, Object data) {
         status = PuppetStatus.COMPLETED;
         Result result = new Result(problemHandler, ticket, result_status, data);

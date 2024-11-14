@@ -16,14 +16,14 @@ public class VoidResult_Puppet extends Puppet {
 
     @Override
     public void main() {
-
-        try {
+        super.problemHandler.attempt(() -> {
             Thread.sleep(1000);
             data = null;
+            if (data == null) throw new RuntimeException("test");
             super.complete(ResultStatus.SUCCESS, data);
-        } catch (InterruptedException e) {
-            super.complete(ResultStatus.ERROR_FAILED, null); 
-        }
+        }, problem -> {
+            super.complete(ResultStatus.ERROR_FAILED, null);
+        });
     }
 
 

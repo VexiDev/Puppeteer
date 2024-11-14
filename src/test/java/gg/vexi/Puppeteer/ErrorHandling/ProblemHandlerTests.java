@@ -1,12 +1,10 @@
 package gg.vexi.Puppeteer.ErrorHandling;
 
 import java.time.Instant;
-import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
@@ -54,7 +52,8 @@ class _ProblemHandler {
             // location - where the throwable was created
             assertNotNull(problem.getLocation(), "Location is null");
             assertEquals(problem.getLocation(), 
-                "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit:27", 
+                // The last value of this string must be the line number of `Throwable t`
+                "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit:28", 
                 "Location mismatch");
         }
 
