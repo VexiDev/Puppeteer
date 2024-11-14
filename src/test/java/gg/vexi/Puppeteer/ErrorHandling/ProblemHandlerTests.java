@@ -52,7 +52,7 @@ class _ProblemHandler {
             // location - where the throwable was created
             assertNotNull(problem.getLocation(), "Location is null");
             assertEquals(problem.getLocation(), 
-                // The last value of this string must be the line number of `Throwable t`
+                // The last numbers must be the line number of the `Throwable t` definition
                 "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit:28", 
                 "Location mismatch");
         }

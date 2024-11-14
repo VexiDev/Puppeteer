@@ -5,9 +5,7 @@ import com.google.gson.JsonObject;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
-@RegisterPuppet
 public class JsonObjectResult_Puppet extends Puppet {
 
     private JsonObject data;

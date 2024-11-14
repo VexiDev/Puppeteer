@@ -3,9 +3,7 @@ package gg.vexi.Puppeteer.ExamplePuppets.Implementations;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
-@RegisterPuppet
 public class PrimitiveTypeResult_Puppet extends Puppet {
 
     private int data;

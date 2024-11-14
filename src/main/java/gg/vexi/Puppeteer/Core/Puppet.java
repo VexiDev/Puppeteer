@@ -30,6 +30,8 @@ public abstract class Puppet {
     public abstract void main();
 
     // start point of puppet (run by puppeteer)
+    // This allows for automatic unhandled exception handling
+    // using the ProblemHandler in case one is missed
     public final void start() {
         problemHandler.attempt(() -> {
             setStatus(PuppetStatus.PROCESSING);

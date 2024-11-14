@@ -3,13 +3,11 @@ package gg.vexi.Puppeteer.ExamplePuppets;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
 // THIS IS THE PLACEHOLDER WORKER FOR ALL GENERAL UNIT TESTS
 
 // IMPLEMENTATION TESTS USE OUR EXAMPLE WORKERS
 
-@RegisterPuppet("test_action")
 public class Puppet_TestAction extends Puppet {
 
     private String data;

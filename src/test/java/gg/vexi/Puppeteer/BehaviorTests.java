@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
+import gg.vexi.Puppeteer.ExamplePuppets.Puppet_TestAction;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
@@ -26,7 +27,9 @@ class _Behavior {
 
     @BeforeEach
     public void setup() {
-        Puppeteer = new Puppeteer("gg.vexi", false);
+        Puppeteer = new Puppeteer(false);
+        Puppeteer.registerPuppet(Puppet_TestAction.class, "test_action"); 
+
     }
 
 

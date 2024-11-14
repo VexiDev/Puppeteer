@@ -4,9 +4,7 @@ import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.ExampleObject;
-import gg.vexi.Puppeteer.annotations.RegisterPuppet;
 
-@RegisterPuppet
 public class CustomObjectResult_Puppet extends Puppet {
 
     private ExampleObject data;

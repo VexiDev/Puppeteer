@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
+import gg.vexi.Puppeteer.ExamplePuppets.Puppet_TestAction;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
 class _Puppeteer {
@@ -29,7 +30,9 @@ class _Puppeteer {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        Puppeteer = new Puppeteer("gg.vexi");
+        Puppeteer = new Puppeteer();
+
+        Puppeteer.registerPuppet(Puppet_TestAction.class, "test_action"); 
 
         // get the registry using reflection
         Field registry_field = Puppeteer.getClass().getDeclaredField("puppetRegistry");
