@@ -1,28 +1,24 @@
 package gg.vexi.Puppeteer;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static gg.vexi.Puppeteer.TestUtils.this_method_does_nothing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.gson.JsonObject;
-
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.ExampleObject;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.CustomObjectResult_Puppet;
-import gg.vexi.Puppeteer.ExamplePuppets.Implementations.JsonObjectResult_Puppet;
+import gg.vexi.Puppeteer.ExamplePuppets.Implementations.MapResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.PrimitiveTypeResult_Puppet;
 import gg.vexi.Puppeteer.ExamplePuppets.Implementations.VoidResult_Puppet;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
@@ -35,7 +31,7 @@ class _Puppet {
 
     @BeforeEach
     public void setup() {
-        ticket = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        ticket = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
     }
 
     // Since puppets are just going to be implementations of an abstract puppet class
@@ -46,7 +42,7 @@ class _Puppet {
 
         // initialize mock puppets
         VoidResult_Puppet puppet_noGeneric = new VoidResult_Puppet(ticket);
-        JsonObjectResult_Puppet puppet_jsonGeneric = new JsonObjectResult_Puppet(ticket);
+        MapResult_Puppet puppet_jsonGeneric = new MapResult_Puppet(ticket);
         CustomObjectResult_Puppet puppet_objectGeneric = new CustomObjectResult_Puppet(ticket);
         PrimitiveTypeResult_Puppet puppet_primitiveGeneric = new PrimitiveTypeResult_Puppet(ticket);
 
@@ -119,14 +115,13 @@ class _Puppet {
 
     @Test
     public void test_resultGenericType() {
-        
-        
+         
         CustomObjectResult_Puppet puppet = new CustomObjectResult_Puppet(ticket);
-        ExampleObject example = new ExampleObject("Showcase"); 
 
         puppet.getFuture().thenAccept((ticketResult) -> {
 
             assertTrue(ticketResult.getData() instanceof ExampleObject, "TicketResult data is not an instance of ExampleObject");
+            // TODO: Implement generics typesafety and remove need to cast result data
             ExampleObject ticket_result_data = (ExampleObject) ticketResult.getData();
             assertEquals("Showcase", ticket_result_data.data, "Value mismatch");
         });

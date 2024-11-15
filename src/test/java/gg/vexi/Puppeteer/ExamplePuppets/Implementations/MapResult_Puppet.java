@@ -1,16 +1,17 @@
 package gg.vexi.Puppeteer.ExamplePuppets.Implementations;
 
-import com.google.gson.JsonObject;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 
-public class JsonObjectResult_Puppet extends Puppet {
+public class MapResult_Puppet extends Puppet {
 
-    private JsonObject data;
+    private Map<String, Integer> data;
 
-    public JsonObjectResult_Puppet(Ticket ticket) {
+    public MapResult_Puppet(Ticket ticket) {
         super(ticket);
     }
 
@@ -19,8 +20,8 @@ public class JsonObjectResult_Puppet extends Puppet {
 
         try {
             Thread.sleep(200);
-            data = new JsonObject();
-                data.addProperty("exampleProperty", 1987);
+            data = new ConcurrentHashMap<>();
+                data.put("exampleProperty", 1987);
             super.complete(ResultStatus.SUCCESS, data);
         } catch (InterruptedException e) {
             super.complete(ResultStatus.ERROR_FAILED, null); 

@@ -3,7 +3,9 @@ package gg.vexi.Puppeteer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -13,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.Puppet_TestAction;
@@ -47,10 +47,10 @@ class _Behavior {
         // create ticket objects
         String ticket_type = "test_action";
         TicketPriority priority = TicketPriority.NORMAL;
-        JsonObject parameters = new JsonObject();
-        parameters.addProperty("test_customer_parameter_1", true);
-        parameters.addProperty("test_customer_parameter_2", 0);
-        parameters.addProperty("test_customer_parameter_3", "This is the third parameter for our ticket");
+        Map<String, Object> parameters = new ConcurrentHashMap<>();
+        parameters.put("test_customer_parameter_1", true);
+        parameters.put("test_customer_parameter_2", 0);
+        parameters.put("test_customer_parameter_3", "This is the third parameter for our ticket");
 
         // queue ticket
         Ticket ticket = Puppeteer.queueTicket(ticket_type, priority, parameters);
@@ -103,10 +103,10 @@ class _Behavior {
         // create ticket arguments
         String ticket_type = "test_action";
         TicketPriority priority = TicketPriority.NORMAL;
-        JsonObject parameters = new JsonObject();
-        parameters.addProperty("test_customer_parameter_1", true);
-        parameters.addProperty("test_customer_parameter_2", 0);
-        parameters.addProperty("test_customer_parameter_3", "This is the third parameter for our ticket");
+        Map<String, Object> parameters = new ConcurrentHashMap<>();
+        parameters.put("test_customer_parameter_1", true);
+        parameters.put("test_customer_parameter_2", 0);
+        parameters.put("test_customer_parameter_3", "This is the third parameter for our ticket");
 
         int num_test_tickets = 5;
 

@@ -15,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.gson.JsonObject;
-
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.Puppet_TestAction;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
@@ -86,7 +84,7 @@ class _Puppeteer {
     @Test
     public void test_addTicketToQueue() {
 
-        Ticket Ticket = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        Ticket Ticket = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // build expected queue object
         PriorityBlockingQueue<Ticket> expected_q = new PriorityBlockingQueue<>();
@@ -108,8 +106,8 @@ class _Puppeteer {
     @Test
     public void test_NextTicket() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
         // create necessary objects
-        Ticket ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        Ticket ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        Ticket ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // verify tickets exist
         assertNotNull(ticket1, "puppeteer returned null value for queueTicket() [ticket1]");
@@ -144,7 +142,7 @@ class _Puppeteer {
     @Test
     public void test_executeTicket() {
         // create ticket object
-        Ticket ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
+        Ticket ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // verify ticket isn't null
         assertNotNull(ticket1, "Ticket is null");
@@ -161,13 +159,13 @@ class _Puppeteer {
     public void test_TicketPriorityOrdering() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
 
         // created test tickets
-        Ticket normal_ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        Ticket normal_ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new JsonObject(), new CompletableFuture<>());
-        Ticket elevated_ticket1 = new Ticket("test_action", TicketPriority.ELEVATED, new JsonObject(), new CompletableFuture<>());
-        Ticket high_ticket1 = new Ticket("test_action", TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
-        Ticket high_ticket2 = new Ticket("test_action", TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
-        Ticket high_ticket3 = new Ticket("test_action", TicketPriority.HIGH, new JsonObject(), new CompletableFuture<>());
-        Ticket highest_ticket1 = new Ticket("test_action", TicketPriority.HIGHEST, new JsonObject(), new CompletableFuture<>());
+        Ticket normal_ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket normal_ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket elevated_ticket1 = new Ticket("test_action", TicketPriority.ELEVATED, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket high_ticket1 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket high_ticket2 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket high_ticket3 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket highest_ticket1 = new Ticket("test_action", TicketPriority.HIGHEST, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // bundle tickets into a list (out of order)
         List<Ticket> ticket_list = List.of(

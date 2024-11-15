@@ -1,17 +1,16 @@
 package gg.vexi.Puppeteer;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static gg.vexi.Puppeteer.TestUtils.assertJsonObjectEquals;
-import static gg.vexi.Puppeteer.TestUtils.this_method_does_nothing;
+import static gg.vexi.Puppeteer.TestUtils.assertMapEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
@@ -24,8 +23,8 @@ class _Ticket {
 
     @BeforeEach
     public void setup() {
-        JsonObject parameters = new JsonObject();
-        parameters.addProperty("setting_example", true);
+        Map<String, Object> parameters = new ConcurrentHashMap<>();
+        parameters.put("setting_example", true);
         ticket = new Ticket("test_action", TicketPriority.NORMAL, parameters, new CompletableFuture<>());
     }
 
@@ -34,8 +33,8 @@ class _Ticket {
         // check if ticket is initialized correctly
         
         // create expected objects
-        JsonObject expected_parameters = new JsonObject();
-        expected_parameters.addProperty("setting_example", true);
+        Map<String, Object>  expected_parameters = new ConcurrentHashMap<>();
+        expected_parameters.put("setting_example", true);
 
         // verify ticket exists
         assertNotNull(ticket, "Ticket is Null");
@@ -53,15 +52,11 @@ class _Ticket {
 
         // verify parameters
         assertNotNull(ticket.getParameters(), "Ticket has no action type");
-        assertJsonObjectEquals(expected_parameters, ticket.getParameters());
+        assertMapEquals(expected_parameters, ticket.getParameters());
 
         // verify future
         assertNotNull(ticket.getFuture(), "Ticket has no future");
         assertTrue(ticket.getFuture() instanceof CompletableFuture<Result>);
-
-        //vscode is highlighting _Result as unused and its annoying me
-        // until i find out how to make vscode notice it i will be `using` it here -__-
-        this_method_does_nothing(new _Result());
 
     }
 
