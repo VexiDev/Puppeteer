@@ -6,8 +6,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import com.google.gson.JsonObject;
-
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
@@ -40,24 +38,24 @@ public class Puppeteer {
         }
     }
 
-    public Ticket createTicket(String action_type, TicketPriority ticket_priority, JsonObject ticket_parameters) {
+    public Ticket createTicket(String action_type, TicketPriority ticket_priority,
+            Map<String, Object> ticket_parameters) {
         // compare method for automatic sorting when in queues
         CompletableFuture<Result> ticket_future = new CompletableFuture<>();
         Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future);
         return ticket;
     }
 
-    // overloads for create ticket (default priority NORMAL, default parameters
-    // empty JsonObject)
+    // overloads for create ticket (default priority NORMAL, default parameters Empty Map
     public Ticket createTicket(String action_type) {
-        return createTicket(action_type, TicketPriority.NORMAL, new JsonObject());
+        return createTicket(action_type, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
     public Ticket createTicket(String action_type, TicketPriority ticket_priority) {
-        return createTicket(action_type, TicketPriority.NORMAL, new JsonObject());
+        return createTicket(action_type, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public Ticket createTicket(String action_type, JsonObject ticket_parameters) {
+    public Ticket createTicket(String action_type, Map<String, Object> ticket_parameters) {
         return createTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
     }
 
@@ -69,21 +67,21 @@ public class Puppeteer {
     // overloads if customer has not already created the ticket themselves with
     // createTicket()
     public synchronized Ticket queueTicket(String action_type, TicketPriority ticket_priority,
-            JsonObject ticket_parameters) {
+            Map<String, Object> ticket_parameters) {
         Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters);
         queueTicket(ticket);
         return ticket;
     }
 
     public synchronized Ticket queueTicket(String action_type) {
-        return queueTicket(action_type, new JsonObject());
+        return queueTicket(action_type, new ConcurrentHashMap<>());
     }
 
     public synchronized Ticket queueTicket(String action_type, TicketPriority priority) {
-        return queueTicket(action_type, priority, new JsonObject());
+        return queueTicket(action_type, priority, new ConcurrentHashMap<>());
     }
 
-    public synchronized Ticket queueTicket(String action_type, JsonObject ticket_parameters) {
+    public synchronized Ticket queueTicket(String action_type, Map<String, Object> ticket_parameters) {
         return queueTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
     }
 

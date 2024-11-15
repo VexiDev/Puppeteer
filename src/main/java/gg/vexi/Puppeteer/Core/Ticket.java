@@ -1,9 +1,8 @@
 package gg.vexi.Puppeteer.Core;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
@@ -13,13 +12,13 @@ public class Ticket implements Comparable<Ticket> {
     private final UUID Id;
     private final String type;
     private final TicketPriority priority;
-    private final JsonObject parameters;
+    private final Map<String, Object> parameters;
     private final CompletableFuture<Result> future;
 
     public Ticket(
                 String ActionType,
                 TicketPriority TicketPriority, 
-                JsonObject Parameters, 
+                Map<String, Object> Parameters, 
                 CompletableFuture<Result> TicketFuture) 
     {
         Id = UUID.randomUUID();
@@ -42,7 +41,7 @@ public class Ticket implements Comparable<Ticket> {
         return priority;
     }
 
-    public JsonObject getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 

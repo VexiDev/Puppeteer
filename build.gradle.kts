@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-    api("com.google.code.gson:gson:2.8.9")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.3")
@@ -51,7 +50,7 @@ tasks.test {
         showExceptions = true
         showCauses = true
         showStackTraces = true
-        showStandardStreams = false
+        showStandardStreams = true
     }
 }
 

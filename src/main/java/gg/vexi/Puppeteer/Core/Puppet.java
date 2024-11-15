@@ -1,8 +1,7 @@
 package gg.vexi.Puppeteer.Core;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import com.google.gson.JsonObject;
 
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.PuppetStatus;
@@ -15,7 +14,8 @@ public abstract class Puppet {
     private final CompletableFuture<Result> future;
     private final Ticket ticket;
     protected final ProblemHandler problemHandler;
-    protected final JsonObject parameters;
+    // TODO: Consider making parameter map read only?
+    protected final Map<String, Object> parameters;
 
     public Puppet(Ticket ticket) {
         this.ticket = ticket;
