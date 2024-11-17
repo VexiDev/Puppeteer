@@ -41,7 +41,7 @@ public class Ticket implements Comparable<Ticket> {
         return priority;
     }
 
-    public Map<String, Object> getParameters() {
+    public synchronized Map<String, Object> getParameters() {
         return parameters;
     }
 

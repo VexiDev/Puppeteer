@@ -19,16 +19,15 @@ public class Puppeteer {
 
     private final boolean debug;
 
-    // annotation based registration should be optional
-    public Puppeteer() {
-        this(false);
-    }
-
     public Puppeteer(boolean send_debug) {
         debug = send_debug;
         printDebug("Initializing puppeteer!");
         actionQueues = new ConcurrentHashMap<>();
         activeTickets = new ConcurrentHashMap<>();
+    }
+
+    public Puppeteer() {
+        this(false);
     }
 
     public final void printDebug(String msg) {
@@ -38,9 +37,10 @@ public class Puppeteer {
         }
     }
 
-    public Ticket createTicket(String action_type, TicketPriority ticket_priority,
-            Map<String, Object> ticket_parameters) {
-        // compare method for automatic sorting when in queues
+    public Ticket createTicket(
+        String action_type,
+        TicketPriority ticket_priority,
+        Map<String, Object> ticket_parameters) {
         CompletableFuture<Result> ticket_future = new CompletableFuture<>();
         Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future);
         return ticket;
@@ -59,35 +59,36 @@ public class Puppeteer {
         return createTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
     }
 
-    public synchronized void queueTicket(Ticket ticket) {
+    public void queueTicket(Ticket ticket) {
         addTicketToQueue(ticket);
         tryExecuteNextTicket(ticket.getType());
     }
 
     // overloads if customer has not already created the ticket themselves with
     // createTicket()
-    public synchronized Ticket queueTicket(String action_type, TicketPriority ticket_priority,
-            Map<String, Object> ticket_parameters) {
+    public Ticket queueTicket(String action_type, TicketPriority ticket_priority,
+        Map<String, Object> ticket_parameters) {
         Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters);
         queueTicket(ticket);
         return ticket;
     }
 
-    public synchronized Ticket queueTicket(String action_type) {
+    public Ticket queueTicket(String action_type) {
         return queueTicket(action_type, new ConcurrentHashMap<>());
     }
 
-    public synchronized Ticket queueTicket(String action_type, TicketPriority priority) {
+    public Ticket queueTicket(String action_type, TicketPriority priority) {
         return queueTicket(action_type, priority, new ConcurrentHashMap<>());
     }
 
-    public synchronized Ticket queueTicket(String action_type, Map<String, Object> ticket_parameters) {
+    public Ticket queueTicket(String action_type,
+        Map<String, Object> ticket_parameters) {
         return queueTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
     }
 
-    protected final void addTicketToQueue(Ticket ticket) {
+    protected synchronized void addTicketToQueue(Ticket ticket) {
         printDebug("Adding a ticket to queue " + ticket.getType() + " [Queue length is currently "
-                + actionQueues.get(ticket.getType()).size() + "]");
+            + actionQueues.get(ticket.getType()).size() + "]");
         // this should handle key not found exceptions and return an error to the ticket
         // future!
         // - this is caused when a user attempts to queue a ticket for a non existent
@@ -119,13 +120,13 @@ public class Puppeteer {
         if (next_ticket == null) {
             // we should check to see if isEmpty() returns true
             printDebug("nextTicket for type " + action_type
-                    + " returned null! (a ticket might be active or the queue is empty)");
+                + " returned null! (a ticket might be active or the queue is empty)");
             return;
         }
         executeTicket(next_ticket);
     }
 
-    protected final void executeTicket(Ticket ticket) {
+    protected final void executeTicket(final Ticket ticket) {
         // make ticket active
         activeTickets.putIfAbsent(ticket.getType(), ticket);
 
@@ -134,9 +135,8 @@ public class Puppeteer {
 
         CompletableFuture<Result> puppetFuture = puppet.getFuture();
 
-        // begin performance
-        // printDebug("Queue size before starting ticket ("+ticket.getType()+"):
-        // "+actionQueues.get(ticket.getType()).size());
+        // run puppet 
+        // - (eventually using a custom thread executor instead of CmplFutr)
         CompletableFuture.runAsync(() -> puppet.start());
         // printDebug("Processing a ticket for type "+ticket.getType()+" | args:
         // "+ticket.getParameters().toString());
@@ -155,50 +155,50 @@ public class Puppeteer {
         ticket.getFuture().complete(result);
         activeTickets.remove(ticket.getType());
         printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.getType()
-                + " has completed! Attempting to execute next ticket!");
+            + " has completed! Attempting to execute next ticket!");
         tryExecuteNextTicket(ticket.getType());
     }
 
     public synchronized final void registerPuppet(Class<?> puppetClass, String type) {
         puppetRegistry.registerPuppet(type, (ticket) -> {
             try {
-                return (Puppet) puppetClass.getDeclaredConstructor(Ticket.class).newInstance(ticket);
-            } catch (IllegalArgumentException | InstantiationException
-                    | NoSuchMethodException | SecurityException
-                    | InvocationTargetException | IllegalAccessException e) {
+                return (Puppet) puppetClass.getDeclaredConstructor(Ticket.class)
+                    .newInstance(ticket);
+            } catch (IllegalArgumentException | InstantiationException | NoSuchMethodException
+                | SecurityException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException("Failed to instantiate puppet class", e);
             }
         });
         printDebug("Registered puppet with type " + type + " [RegistrySize: "
-                + puppetRegistry.getAllActionTypes().size() + "]");
+            + puppetRegistry.getAllActionTypes().size() + "]");
         printDebug("Creating new queue for puppets with type -> " + type);
         actionQueues.put(type, new PriorityBlockingQueue<>());
     }
 
+    // getters:
     protected synchronized final boolean isActive(String type) {
         return activeTickets.containsKey(type);
     }
 
-    // getters:
-    // - protected grants access for our tests which are in the same package.
-    // - should non essentials be removed/private for prod release?)
-    protected synchronized final PriorityBlockingQueue<Ticket> getQueue(String type) {
+    public synchronized final PriorityBlockingQueue<Ticket> getQueue(String type) {
         return actionQueues.get(type);
     }
 
-    protected synchronized final Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
+    public synchronized final Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
         return actionQueues;
     }
 
-    protected synchronized final Ticket getActive(String type) {
+    public synchronized final Ticket getActive(String type) {
         return activeTickets.get(type);
     }
 
-    protected synchronized final Map<String, Ticket> getAllActive() {
+    public synchronized final Map<String, Ticket> getAllActive() {
         return activeTickets;
     }
 
     // setters
+    // TODO: Make private and make tests use reflection to access
+    // Protected for simplicity
     protected synchronized final void setActive(Ticket ticket) {
         activeTickets.put(ticket.getType(), ticket);
     }
