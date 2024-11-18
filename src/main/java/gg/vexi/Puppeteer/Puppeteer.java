@@ -43,33 +43,33 @@ public class Puppeteer {
     }
 
     public Ticket createTicket(
-        String action_type,
+        String puppet,
         TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
 
-        if (!registry.contains(action_type))
+        if (!registry.contains(puppet))
             throw new PuppetNotFound(
-                String.format("\"%s\" is not registered", action_type));
+                String.format("\"%s\" is not registered", puppet));
 
         return pHandler.attemptOrElse(() -> {
             CompletableFuture<Result> ticket_future = new CompletableFuture<>();
             Ticket ticket =
-                new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future);
+                new Ticket(puppet, ticket_priority, ticket_parameters, ticket_future);
             return ticket;
         }, null);
     }
 
     // overloads for create ticket (default priority NORMAL, default parameters Empty Map
-    public Ticket createTicket(String action_type) {
-        return createTicket(action_type, TicketPriority.NORMAL, new ConcurrentHashMap<>());
+    public Ticket createTicket(String puppet) {
+        return createTicket(puppet, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public Ticket createTicket(String action_type, TicketPriority ticket_priority) {
-        return createTicket(action_type, TicketPriority.NORMAL, new ConcurrentHashMap<>());
+    public Ticket createTicket(String puppet, TicketPriority ticket_priority) {
+        return createTicket(puppet, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public Ticket createTicket(String action_type, Map<String, Object> ticket_parameters) {
-        return createTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
+    public Ticket createTicket(String puppet, Map<String, Object> ticket_parameters) {
+        return createTicket(puppet, TicketPriority.NORMAL, ticket_parameters);
     }
 
     public void queueTicket(Ticket ticket) {
@@ -94,23 +94,23 @@ public class Puppeteer {
 
     // overloads if customer has not already created the ticket themselves with
     // createTicket()
-    public Ticket queueTicket(String action_type, TicketPriority ticket_priority,
+    public Ticket queueTicket(String puppet, TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
-        Ticket ticket = createTicket(action_type, ticket_priority, ticket_parameters);
+        Ticket ticket = createTicket(puppet, ticket_priority, ticket_parameters);
         queueTicket(ticket);
         return ticket;
     }
 
-    public Ticket queueTicket(String action_type) {
-        return queueTicket(action_type, new ConcurrentHashMap<>());
+    public Ticket queueTicket(String puppet) {
+        return queueTicket(puppet, new ConcurrentHashMap<>());
     }
 
-    public Ticket queueTicket(String action_type, TicketPriority priority) {
-        return queueTicket(action_type, priority, new ConcurrentHashMap<>());
+    public Ticket queueTicket(String puppet, TicketPriority priority) {
+        return queueTicket(puppet, priority, new ConcurrentHashMap<>());
     }
 
-    public Ticket queueTicket(String action_type, Map<String, Object> ticket_parameters) {
-        return queueTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
+    public Ticket queueTicket(String puppet, Map<String, Object> ticket_parameters) {
+        return queueTicket(puppet, TicketPriority.NORMAL, ticket_parameters);
     }
 
     protected synchronized void addTicketToQueue(Ticket ticket) {
@@ -120,29 +120,29 @@ public class Puppeteer {
         printDebug("Queue size is now " + puppetQueues.get(ticket.puppet()).size());
     }
 
-    private synchronized Ticket pollForTicket(String type) {
+    private synchronized Ticket pollForTicket(String puppet) {
         // printDebug("Polling for ticket of type "+type);
-        return puppetQueues.get(type).poll();
+        return puppetQueues.get(puppet).poll();
     }
 
-    protected final Ticket nextTicket(String type) {
-        if (!isActive(type)) {
+    protected final Ticket nextTicket(String puppet) {
+        if (!isActive(puppet)) {
             // printDebug("Queue size when polling for type "+type+":
             // "+actionQueues.get(type).size());
-            Ticket next_ticket = pollForTicket(type);
-            printDebug("Polling... [Queue size is now " + puppetQueues.get(type).size() + "]");
+            Ticket next_ticket = pollForTicket(puppet);
+            printDebug("Polling... [Queue size is now " + puppetQueues.get(puppet).size() + "]");
             return next_ticket;
         } else {
-            printDebug("A ticket is already being processed for type " + type);
+            printDebug("A ticket is already being processed for type " + puppet);
             return null;
         }
     }
 
-    protected final void tryExecuteNextTicket(String action_type) {
-        Ticket next_ticket = nextTicket(action_type);
+    protected final void tryExecuteNextTicket(String puppet) {
+        Ticket next_ticket = nextTicket(puppet);
         if (next_ticket == null) {
             // we should check to see if isEmpty() returns true
-            printDebug("nextTicket for type " + action_type
+            printDebug("nextTicket for type " + puppet
                 + " returned null! (a ticket might be active or the queue is empty)");
             return;
         }
@@ -182,8 +182,8 @@ public class Puppeteer {
         tryExecuteNextTicket(ticket.puppet());
     }
 
-    public synchronized final void registerPuppet(Class<?> puppetClass, String type) {
-        registry.registerPuppet(type, (ticket) -> {
+    public synchronized final void registerPuppet(Class<?> puppetClass, String name) {
+        registry.registerPuppet(name, (ticket) -> {
             try {
                 return (Puppet) puppetClass.getDeclaredConstructor(Ticket.class)
                     .newInstance(ticket);
@@ -192,10 +192,10 @@ public class Puppeteer {
                 throw new RuntimeException("Failed to instantiate puppet class", e);
             }
         });
-        printDebug("Registered puppet with type " + type + " [RegistrySize: "
+        printDebug("Registered puppet with type " + name + " [RegistrySize: "
             + registry.all().keySet().size() + "]");
-        printDebug("Creating new queue for puppets with type -> " + type);
-        puppetQueues.put(type, new PriorityBlockingQueue<>());
+        printDebug("Creating new queue for puppets with type -> " + name);
+        puppetQueues.put(name, new PriorityBlockingQueue<>());
     }
 
     // getters:
