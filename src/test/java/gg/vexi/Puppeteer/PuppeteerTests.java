@@ -70,7 +70,7 @@ class _Puppeteer {
         Map<String, PriorityBlockingQueue<Ticket>> actual_queues = puppeteer.getAllQueues();
 
         // verify we have all queues (we should have a queue for each action type)
-        assertEquals(expected_queues.size(), actual_queues.size(), "puppeteer does not have a concurrent queue for each actiontype");
+        assertEquals(expected_queues.size(), actual_queues.size(), "puppeteer does not have a concurrent queue for each puppet");
         // verify puppeteer queue map contense against expected contense
         for (Map.Entry<String, PriorityBlockingQueue<Ticket>> entry : expected_queues.entrySet()) {
             // verify the puppeteer queue map contains expected key
