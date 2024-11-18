@@ -8,12 +8,15 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
+import gg.vexi.Puppeteer.Exceptions.Problem;
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
 public class Puppeteer {
 
-    private final Registry puppetRegistry = new Registry();
+    private final Registry registry = new Registry();
+    private final ProblemHandler pHandler = new ProblemHandler();
     private final Map<String, PriorityBlockingQueue<Ticket>> actionQueues;
     private final Map<String, Ticket> activeTickets;
 
@@ -41,9 +44,15 @@ public class Puppeteer {
         String action_type,
         TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
-        CompletableFuture<Result> ticket_future = new CompletableFuture<>();
-        Ticket ticket = new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future);
-        return ticket;
+        return pHandler.attemptOrElse(() -> {
+            if (!registry.has(action_type))
+                throw new NullPointerException(
+                    String.format("Puppet type %s does not exist", action_type));
+            CompletableFuture<Result> ticket_future = new CompletableFuture<>();
+            Ticket ticket =
+                new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future);
+            return ticket;
+        }, null);
     }
 
     // overloads for create ticket (default priority NORMAL, default parameters Empty Map
@@ -60,8 +69,22 @@ public class Puppeteer {
     }
 
     public void queueTicket(Ticket ticket) {
-        addTicketToQueue(ticket);
-        tryExecuteNextTicket(ticket.getType());
+        pHandler.attempt(() -> {
+            if (!registry.has(ticket.getType()))
+                throw new NullPointerException(
+                    String.format("Puppet type %s does not exist", ticket.getType()));
+            addTicketToQueue(ticket);
+            tryExecuteNextTicket(ticket.getType());
+        }, problem -> {
+            ProblemHandler ph = new ProblemHandler();
+            ph.handle(new Exception(problem.get()));
+            Result failedResult = new Result(
+                ph,
+                ticket,
+                ResultStatus.ERROR_FAILED,
+                null);
+            ticket.getFuture().complete(failedResult);
+        });
     }
 
     // overloads if customer has not already created the ticket themselves with
@@ -81,18 +104,13 @@ public class Puppeteer {
         return queueTicket(action_type, priority, new ConcurrentHashMap<>());
     }
 
-    public Ticket queueTicket(String action_type,
-        Map<String, Object> ticket_parameters) {
+    public Ticket queueTicket(String action_type, Map<String, Object> ticket_parameters) {
         return queueTicket(action_type, TicketPriority.NORMAL, ticket_parameters);
     }
 
     protected synchronized void addTicketToQueue(Ticket ticket) {
-        printDebug("Adding a ticket to queue " + ticket.getType() + " [Queue length is currently "
-            + actionQueues.get(ticket.getType()).size() + "]");
-        // this should handle key not found exceptions and return an error to the ticket
-        // future!
-        // - this is caused when a user attempts to queue a ticket for a non existent
-        // puppet
+        printDebug("Adding a ticket to queue " + ticket.getType() +
+            " [Queue length is currently " + actionQueues.get(ticket.getType()).size() + "]");
         actionQueues.get(ticket.getType()).offer(ticket);
         printDebug("Queue size is now " + actionQueues.get(ticket.getType()).size());
     }
@@ -131,11 +149,11 @@ public class Puppeteer {
         activeTickets.putIfAbsent(ticket.getType(), ticket);
 
         // initialise the relevant puppet and get the puppet future
-        Puppet puppet = puppetRegistry.getPuppet(ticket);
+        Puppet puppet = registry.getPuppet(ticket);
 
         CompletableFuture<Result> puppetFuture = puppet.getFuture();
 
-        // run puppet 
+        // run puppet
         // - (eventually using a custom thread executor instead of CmplFutr)
         CompletableFuture.runAsync(() -> puppet.start());
         // printDebug("Processing a ticket for type "+ticket.getType()+" | args:
@@ -160,7 +178,7 @@ public class Puppeteer {
     }
 
     public synchronized final void registerPuppet(Class<?> puppetClass, String type) {
-        puppetRegistry.registerPuppet(type, (ticket) -> {
+        registry.registerPuppet(type, (ticket) -> {
             try {
                 return (Puppet) puppetClass.getDeclaredConstructor(Ticket.class)
                     .newInstance(ticket);
@@ -170,7 +188,7 @@ public class Puppeteer {
             }
         });
         printDebug("Registered puppet with type " + type + " [RegistrySize: "
-            + puppetRegistry.getAllActionTypes().size() + "]");
+            + registry.getAllActionTypes().size() + "]");
         printDebug("Creating new queue for puppets with type -> " + type);
         actionQueues.put(type, new PriorityBlockingQueue<>());
     }
@@ -178,6 +196,10 @@ public class Puppeteer {
     // getters:
     protected synchronized final boolean isActive(String type) {
         return activeTickets.containsKey(type);
+    }
+
+    public synchronized final ProblemHandler getProblemHandler() {
+        return pHandler;
     }
 
     public synchronized final PriorityBlockingQueue<Ticket> getQueue(String type) {

@@ -27,6 +27,10 @@ public class Registry {
         return constructor.apply(ticket);
     }
 
+    public boolean has(String type) {
+        return registry.containsKey(type);
+    }
+    
     public Map<String, Function<Ticket, Puppet>> getFullRegistry() {
         return registry;
     }

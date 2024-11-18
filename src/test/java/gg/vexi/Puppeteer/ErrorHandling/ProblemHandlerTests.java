@@ -11,29 +11,26 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
-import gg.vexi.Puppeteer.Exceptions.ProblemHandler.Problem;
+import gg.vexi.Puppeteer.Exceptions.Problem;
 
 //TODO: Make tests have good/bad path to better cover edge case handling
 
 class _ProblemHandler {
-    
+
     @Nested
     class _ProblemTests {
 
         @Test
-        // NOTE: THIS TEST IS LOCATIONAL! 
-        // - Moving the throwable definition line WILL break the location assertion
-        //   since the line is hardcoded
-        public void testInit() { 
+        public void testInit() {
             Throwable t = new Throwable("Testing ThrowableRecord");
             Problem problem = new Problem(t, "test_problem");
-            
+
             // id
             assertNotNull(problem.getId(), "ID is null");
             assertEquals("test_problem", problem.getId(), "Value mismatch");
-            
+
             // throwable
-            assertNotNull(problem.getThrowable(), "Throwable is null"); 
+            assertNotNull(problem.getThrowable(), "Throwable is null");
             assertEquals(problem.getThrowable(), t, "Value mismatch");
 
             // timestamp
@@ -43,22 +40,23 @@ class _ProblemHandler {
             long now = Instant.now().toEpochMilli();
             long actual = problem.getTimestamp().toEpochMilli();
             assertTrue(now - actual < 50, "Epoch milli range too large");
-            
-            // threadname                                                       ,???
+
+            // threadname ,???
             // idk how to test this one tbh idk what the threadname would be T-T
             // gotta do some research
             assertNotNull(problem.getThreadName(), "Threadname is null");
 
             // location - where the throwable was created
             assertNotNull(problem.getLocation(), "Location is null");
-            assertEquals(problem.getLocation(), 
-                // The last numbers must be the line number of the `Throwable t` definition
-                "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit:28", 
+            // only check that its the correct method to avoid code locational tests
+            // normally includes line numbers
+            assertEquals(problem.getLocation().substring(0, problem.getLocation().indexOf(":")),
+                "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit",
                 "Location mismatch");
         }
 
     }
-    
+
     @Test
     public void testInit() {
         ProblemHandler ph = new ProblemHandler();
@@ -105,11 +103,13 @@ class _ProblemHandler {
         String actual;
 
         try {
-            ph.execute(() -> { throw new RuntimeException("rt_exception"); });
+            ph.execute(() -> {
+                throw new RuntimeException("rt_exception");
+            });
         } catch (Exception e) {
             exception = e;
         }
-        
+
         assertEquals(1, ph.size(), "Record list size mismatch");
         problem = ph.getAll().get(0);
 
@@ -127,10 +127,12 @@ class _ProblemHandler {
         ProblemHandler ph = new ProblemHandler();
 
         String result = ph.attempt(
-                () -> { throw new RuntimeException("rt_exception"); },
-                record -> {
-                    return "error-value";
-                });
+            () -> {
+                throw new RuntimeException("rt_exception");
+            },
+            record -> {
+                return "error-value";
+            });
 
         assertEquals("error-value", result, "Value mismatch");
     }
@@ -138,7 +140,9 @@ class _ProblemHandler {
     @Test
     public void testAttemptOptional() {
         ProblemHandler ph = new ProblemHandler();
-        Optional<String> result = ph.attemptOptional(() -> { throw new RuntimeException("rt_exception"); });
+        Optional<String> result = ph.attemptOptional(() -> {
+            throw new RuntimeException("rt_exception");
+        });
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -150,7 +154,9 @@ class _ProblemHandler {
     @Test
     public void testAttemptWithDefault() {
         ProblemHandler ph = new ProblemHandler();
-        String result = ph.attemptOrElse(() -> { throw new RuntimeException("rt_exception"); }, "default");
+        String result = ph.attemptOrElse(() -> {
+            throw new RuntimeException("rt_exception");
+        }, "default");
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -171,7 +177,7 @@ class _ProblemHandler {
 
         assertEquals(count - 1, recents.size(), "Size mismatch");
 
-        for (int i = 1; i < count-1; i++) {
+        for (int i = 1; i < count - 1; i++) {
             Instant previous_time = recents.get(i - 1).getTimestamp();
             Instant current_time = recents.get(i).getTimestamp();
             assertTrue(0 <= previous_time.compareTo(current_time), "Timing mismatch");
@@ -183,7 +189,7 @@ class _ProblemHandler {
     public void testGetByType() {
         ProblemHandler ph = new ProblemHandler();
 
-        for (int i = 1; i <= 3 ; i++) {
+        for (int i = 1; i <= 3; i++) {
             ph.handle(new IndexOutOfBoundsException("iob_exception_" + i));
             ph.handle(new NullPointerException("np_exception_" + i));
             ph.handle(new StackOverflowError("so_error_" + i));
