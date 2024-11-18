@@ -1,6 +1,7 @@
 package gg.vexi.Puppeteer.Core;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -9,23 +10,23 @@ import gg.vexi.Puppeteer.Ticket.Result;
 
 public class Ticket implements Comparable<Ticket> {
 
-    private final UUID Id;
-    private final String type;
+    private final UUID id;
+    private final String puppet;
     private final TicketPriority priority;
     private final Map<String, Object> parameters;
     private final CompletableFuture<Result> future;
 
     public Ticket(
-                String ActionType,
-                TicketPriority TicketPriority, 
-                Map<String, Object> Parameters, 
-                CompletableFuture<Result> TicketFuture) 
-    {
-        Id = UUID.randomUUID();
-        type = ActionType.toLowerCase();
-        priority = TicketPriority;
-        parameters = Parameters;
-        future = TicketFuture;
+                String puppet,
+                TicketPriority priority, 
+                Map<String, Object> parameters, 
+                CompletableFuture<Result> future) 
+    {   
+        id = UUID.randomUUID();
+        this.puppet = puppet.toLowerCase();
+        this.priority = priority;
+        this.parameters = parameters;
+        this.future = future;
     }
 
     @Override
@@ -33,8 +34,8 @@ public class Ticket implements Comparable<Ticket> {
         return Integer.compare(other.priority.ordinal(), this.priority.ordinal());
     }
 
-    public String getType() {
-        return type;
+    public String getPuppet() {
+        return puppet;
     }
 
     public TicketPriority getPriority() {
@@ -46,7 +47,7 @@ public class Ticket implements Comparable<Ticket> {
     }
 
     public UUID getId() {
-        return Id;
+        return id;
     }
 
     public CompletableFuture<Result> getFuture() {
