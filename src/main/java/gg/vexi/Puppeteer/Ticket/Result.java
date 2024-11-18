@@ -11,7 +11,11 @@ public class Result {
     private final ResultStatus resultStatus;
     private final Object data;
 
-    public Result(ProblemHandler problemHandler, Ticket ticket, ResultStatus resultStatus, Object data) {
+    public Result(
+        ProblemHandler problemHandler,
+        Ticket ticket,
+        ResultStatus resultStatus,
+        Object data) {
         this.problemsHandler = problemHandler;
         this.ticket = ticket;
         this.resultStatus = resultStatus;
@@ -27,19 +31,19 @@ public class Result {
     }
 
     // getters
-    public Ticket getTicket() {
+    public Ticket ticket() {
         return ticket;
     }
 
-    public Object getData() {
+    public Object data() {
         return data;
     }
 
-    public ResultStatus getResultStatus() {
+    public ResultStatus status() {
         return resultStatus;
     }
 
-    public ProblemHandler getProblemsHandler() {
+    public ProblemHandler problemHandler() {
         return problemsHandler;
     }
 }

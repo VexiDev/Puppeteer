@@ -40,23 +40,23 @@ public class Ticket implements Comparable<Ticket> {
         return Integer.compare(other.priority.ordinal(), this.priority.ordinal());
     }
 
-    public String getPuppet() {
+    public String puppet() {
         return puppet;
     }
 
-    public TicketPriority getPriority() {
+    public TicketPriority priority() {
         return priority;
     }
 
-    public synchronized Map<String, Object> getParameters() {
+    public synchronized Map<String, Object> parameters() {
         return parameters;
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 
-    public CompletableFuture<Result> getFuture() {
+    public CompletableFuture<Result> future() {
         return future;
     }
 

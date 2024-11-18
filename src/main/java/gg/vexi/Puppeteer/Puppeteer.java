@@ -75,11 +75,11 @@ public class Puppeteer {
     public void queueTicket(Ticket ticket) {
         if (ticket == null) throw new NullPointerException("Ticket cannot be null");
         pHandler.attempt(() -> {
-            if (!registry.has(ticket.getPuppet()))
+            if (!registry.has(ticket.puppet()))
                 throw new PuppetNotFound(
-                    String.format("\"%s\" is not registered", ticket.getPuppet()));
+                    String.format("\"%s\" is not registered", ticket.puppet()));
             addTicketToQueue(ticket);
-            tryExecuteNextTicket(ticket.getPuppet());
+            tryExecuteNextTicket(ticket.puppet());
         }, problem -> {
             ProblemHandler ph = new ProblemHandler();
             ph.handle(new Exception(problem.get()));
@@ -88,7 +88,7 @@ public class Puppeteer {
                 ticket,
                 ResultStatus.ERROR_FAILED,
                 null);
-            ticket.getFuture().complete(failedResult);
+            ticket.future().complete(failedResult);
         });
     }
 
@@ -114,10 +114,10 @@ public class Puppeteer {
     }
 
     protected synchronized void addTicketToQueue(Ticket ticket) {
-        printDebug("Adding a ticket to queue " + ticket.getPuppet() +
-            " [Queue length is currently " + puppetQueues.get(ticket.getPuppet()).size() + "]");
-        puppetQueues.get(ticket.getPuppet()).offer(ticket);
-        printDebug("Queue size is now " + puppetQueues.get(ticket.getPuppet()).size());
+        printDebug("Adding a ticket to queue " + ticket.puppet() +
+            " [Queue length is currently " + puppetQueues.get(ticket.puppet()).size() + "]");
+        puppetQueues.get(ticket.puppet()).offer(ticket);
+        printDebug("Queue size is now " + puppetQueues.get(ticket.puppet()).size());
     }
 
     private synchronized Ticket pollForTicket(String type) {
@@ -151,7 +151,7 @@ public class Puppeteer {
 
     protected final void executeTicket(final Ticket ticket) {
         // make ticket active
-        activeTickets.putIfAbsent(ticket.getPuppet(), ticket);
+        activeTickets.putIfAbsent(ticket.puppet(), ticket);
 
         // initialise the relevant puppet and get the puppet future
         Puppet puppet = registry.getPuppet(ticket);
@@ -175,11 +175,11 @@ public class Puppeteer {
     }
 
     protected final void completeTicket(Ticket ticket, Result result) {
-        ticket.getFuture().complete(result);
-        activeTickets.remove(ticket.getPuppet());
-        printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.getPuppet()
+        ticket.future().complete(result);
+        activeTickets.remove(ticket.puppet());
+        printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.puppet()
             + " has completed! Attempting to execute next ticket!");
-        tryExecuteNextTicket(ticket.getPuppet());
+        tryExecuteNextTicket(ticket.puppet());
     }
 
     public synchronized final void registerPuppet(Class<?> puppetClass, String type) {
@@ -237,7 +237,7 @@ public class Puppeteer {
     // TODO: Make private and make tests use reflection to access
     // Protected for simplicity
     protected synchronized final void setActive(Ticket ticket) {
-        activeTickets.put(ticket.getPuppet(), ticket);
+        activeTickets.put(ticket.puppet(), ticket);
     }
 
 }

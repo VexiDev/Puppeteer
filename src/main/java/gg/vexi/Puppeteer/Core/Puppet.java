@@ -21,7 +21,7 @@ public abstract class Puppet {
         this.ticket = ticket;
         problemHandler = new ProblemHandler();
         future = new CompletableFuture<>();
-        parameters = ticket.getParameters();
+        parameters = ticket.parameters();
         status = PuppetStatus.READY;
 
     }

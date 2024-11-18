@@ -19,7 +19,7 @@ public class Registry {
     }
 
     public Puppet getPuppet(Ticket ticket) {
-        String type = ticket.getType();
+        String type = ticket.puppet();
         Function<Ticket, Puppet> constructor = registry.get(type.toLowerCase(Locale.ROOT));
         if (constructor == null) {
             throw new IllegalArgumentException("No puppet registered for type: " + type);
