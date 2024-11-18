@@ -8,24 +8,26 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Exceptions.Problem;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
+import gg.vexi.Puppeteer.Exceptions.PuppetNotFound;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
 public class Puppeteer {
 
     private final Registry registry = new Registry();
-    private final ProblemHandler pHandler = new ProblemHandler();
-    private final Map<String, PriorityBlockingQueue<Ticket>> actionQueues;
+    private final ProblemHandler pHandler;
+    private final Map<String, PriorityBlockingQueue<Ticket>> puppetQueues;
     private final Map<String, Ticket> activeTickets;
 
-    private final boolean debug;
+    private final boolean verbose;
 
-    public Puppeteer(boolean send_debug) {
-        debug = send_debug;
+    public Puppeteer(boolean verbose) {
+        this.verbose = verbose;
         printDebug("Initializing puppeteer!");
-        actionQueues = new ConcurrentHashMap<>();
+        if (verbose) pHandler = new ProblemHandler(verbose);
+        else pHandler = new ProblemHandler();
+        puppetQueues = new ConcurrentHashMap<>();
         activeTickets = new ConcurrentHashMap<>();
     }
 
@@ -34,7 +36,7 @@ public class Puppeteer {
     }
 
     public final void printDebug(String msg) {
-        if (debug) {
+        if (verbose) {
             System.out.println(msg);
             System.out.flush();
         }
@@ -44,10 +46,12 @@ public class Puppeteer {
         String action_type,
         TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
+
+        if (!registry.has(action_type))
+            throw new PuppetNotFound(
+                String.format("\"%s\" is not registered", action_type));
+
         return pHandler.attemptOrElse(() -> {
-            if (!registry.has(action_type))
-                throw new NullPointerException(
-                    String.format("Puppet type %s does not exist", action_type));
             CompletableFuture<Result> ticket_future = new CompletableFuture<>();
             Ticket ticket =
                 new Ticket(action_type, ticket_priority, ticket_parameters, ticket_future);
@@ -69,12 +73,13 @@ public class Puppeteer {
     }
 
     public void queueTicket(Ticket ticket) {
+        if (ticket == null) throw new NullPointerException("Ticket cannot be null");
         pHandler.attempt(() -> {
-            if (!registry.has(ticket.getType()))
-                throw new NullPointerException(
-                    String.format("Puppet type %s does not exist", ticket.getType()));
+            if (!registry.has(ticket.getPuppet()))
+                throw new PuppetNotFound(
+                    String.format("\"%s\" is not registered", ticket.getPuppet()));
             addTicketToQueue(ticket);
-            tryExecuteNextTicket(ticket.getType());
+            tryExecuteNextTicket(ticket.getPuppet());
         }, problem -> {
             ProblemHandler ph = new ProblemHandler();
             ph.handle(new Exception(problem.get()));
@@ -109,15 +114,15 @@ public class Puppeteer {
     }
 
     protected synchronized void addTicketToQueue(Ticket ticket) {
-        printDebug("Adding a ticket to queue " + ticket.getType() +
-            " [Queue length is currently " + actionQueues.get(ticket.getType()).size() + "]");
-        actionQueues.get(ticket.getType()).offer(ticket);
-        printDebug("Queue size is now " + actionQueues.get(ticket.getType()).size());
+        printDebug("Adding a ticket to queue " + ticket.getPuppet() +
+            " [Queue length is currently " + puppetQueues.get(ticket.getPuppet()).size() + "]");
+        puppetQueues.get(ticket.getPuppet()).offer(ticket);
+        printDebug("Queue size is now " + puppetQueues.get(ticket.getPuppet()).size());
     }
 
     private synchronized Ticket pollForTicket(String type) {
         // printDebug("Polling for ticket of type "+type);
-        return actionQueues.get(type).poll();
+        return puppetQueues.get(type).poll();
     }
 
     protected final Ticket nextTicket(String type) {
@@ -125,7 +130,7 @@ public class Puppeteer {
             // printDebug("Queue size when polling for type "+type+":
             // "+actionQueues.get(type).size());
             Ticket next_ticket = pollForTicket(type);
-            printDebug("Polling... [Queue size is now " + actionQueues.get(type).size() + "]");
+            printDebug("Polling... [Queue size is now " + puppetQueues.get(type).size() + "]");
             return next_ticket;
         } else {
             printDebug("A ticket is already being processed for type " + type);
@@ -146,7 +151,7 @@ public class Puppeteer {
 
     protected final void executeTicket(final Ticket ticket) {
         // make ticket active
-        activeTickets.putIfAbsent(ticket.getType(), ticket);
+        activeTickets.putIfAbsent(ticket.getPuppet(), ticket);
 
         // initialise the relevant puppet and get the puppet future
         Puppet puppet = registry.getPuppet(ticket);
@@ -171,10 +176,10 @@ public class Puppeteer {
 
     protected final void completeTicket(Ticket ticket, Result result) {
         ticket.getFuture().complete(result);
-        activeTickets.remove(ticket.getType());
-        printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.getType()
+        activeTickets.remove(ticket.getPuppet());
+        printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.getPuppet()
             + " has completed! Attempting to execute next ticket!");
-        tryExecuteNextTicket(ticket.getType());
+        tryExecuteNextTicket(ticket.getPuppet());
     }
 
     public synchronized final void registerPuppet(Class<?> puppetClass, String type) {
@@ -190,10 +195,20 @@ public class Puppeteer {
         printDebug("Registered puppet with type " + type + " [RegistrySize: "
             + registry.getAllActionTypes().size() + "]");
         printDebug("Creating new queue for puppets with type -> " + type);
-        actionQueues.put(type, new PriorityBlockingQueue<>());
+        puppetQueues.put(type, new PriorityBlockingQueue<>());
     }
 
     // getters:
+
+    public synchronized final boolean isPerforming() {
+        return (activeTickets.keySet().stream()
+            .filter(key -> (activeTickets.get(key) != null))
+            .count() != 0
+            || puppetQueues.keySet().stream()
+                .filter(key -> !puppetQueues.get(key).isEmpty())
+                .count() != 0);
+    }
+
     protected synchronized final boolean isActive(String type) {
         return activeTickets.containsKey(type);
     }
@@ -203,11 +218,11 @@ public class Puppeteer {
     }
 
     public synchronized final PriorityBlockingQueue<Ticket> getQueue(String type) {
-        return actionQueues.get(type);
+        return puppetQueues.get(type);
     }
 
     public synchronized final Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
-        return actionQueues;
+        return puppetQueues;
     }
 
     public synchronized final Ticket getActive(String type) {
@@ -222,7 +237,7 @@ public class Puppeteer {
     // TODO: Make private and make tests use reflection to access
     // Protected for simplicity
     protected synchronized final void setActive(Ticket ticket) {
-        activeTickets.put(ticket.getType(), ticket);
+        activeTickets.put(ticket.getPuppet(), ticket);
     }
 
 }
