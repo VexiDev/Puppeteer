@@ -22,6 +22,12 @@ public class Ticket implements Comparable<Ticket> {
                 Map<String, Object> parameters, 
                 CompletableFuture<Result> future) 
     {   
+        // arguemnts are all required 
+        Objects.requireNonNull(puppet, "Ticket puppet cannot be null");
+        Objects.requireNonNull(priority, "Ticket priority cannot be null");
+        Objects.requireNonNull(parameters, "Ticket parameters cannot be null");
+        Objects.requireNonNull(future, "Ticket future cannot be null");
+
         id = UUID.randomUUID();
         this.puppet = puppet.toLowerCase();
         this.priority = priority;

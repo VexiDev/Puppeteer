@@ -180,7 +180,7 @@ class _Puppeteer {
 
         // add all tickets to their respective queue (all the same queue for now)
         for (Ticket ticket : ticket_list) {
-            puppetQueues.get(ticket.getType()).offer(ticket);
+            puppetQueues.get(ticket.getPuppet()).offer(ticket);
         }
         // verify that tickets are in the correct order
         List<TicketPriority> expected_order = List.of(TicketPriority.HIGHEST, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
