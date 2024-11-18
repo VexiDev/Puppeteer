@@ -36,10 +36,10 @@ class _ProblemHandler {
             // timestamp
             assertNotNull(problem.getTimestamp(), "Timestamp cannot be null");
             // the exact timestamp is hard to validate so we just check if the
-            // time difference is within 50ms and if it is its probably correct
+            // time difference is within 10ms and if it is its probably correct
             long now = Instant.now().toEpochMilli();
             long actual = problem.getTimestamp().toEpochMilli();
-            assertTrue(now - actual < 50, "Epoch milli range too large");
+            assertTrue(now - actual < 10, "Epoch milli range too large");
 
             // threadname ,???
             // idk how to test this one tbh idk what the threadname would be T-T
@@ -68,16 +68,18 @@ class _ProblemHandler {
 
     @Test
     public void testHandle() {
-        ProblemHandler ph = new ProblemHandler(1);
-        Exception testException = new RuntimeException("rt_exception");
+        ProblemHandler ph = new ProblemHandler(2);
+        Exception testException1 = new RuntimeException("rt_exception");
+        Exception testException2 = new RuntimeException("rt_exception_2");
 
         Problem problem;
         String actual;
 
-        // throw an exception and handle it in catch
+        // throw exception 1 & 2 and handle them in catch
+
         try {
             if (true)
-                throw testException;
+                throw testException1;
         } catch (Exception e) {
             ph.handle(e);
         }
@@ -86,12 +88,40 @@ class _ProblemHandler {
         problem = ph.getAll().get(0);
 
         actual = problem.getId().split("-")[1];
-        assertEquals(testException.hashCode(), Integer.parseInt(actual), "Hash mismatch");
+        assertEquals(testException1.hashCode(), Integer.parseInt(actual), "Hash mismatch");
 
         actual = problem.getThrowable().getMessage();
         assertEquals("rt_exception", actual, "Message mismatch");
 
         // TODO: Add tests for overflow culling in handle method
+        Exception testException3 = new RuntimeException("rt_exception_3");
+
+        try {
+            if (true)
+                throw testException2;
+        } catch (Exception e) {
+            ph.handle(e);
+        }
+
+        try {
+            // delay 3rd exception so index 0 is always 2nd
+            Thread.sleep(100);
+            if (true)
+                throw testException3;
+        } catch (Exception e) {
+            ph.handle(e);
+        }
+
+        for (Problem p : ph.getRecent(2)) {
+            System.out.println(p);
+            System.out.println(p.getTimestamp());
+        }
+
+        assertEquals(2, ph.size(), "Record list size mismatch");
+        
+        // most recent would be index 0 and should be exception 2 since exception 1 got purged
+        problem = ph.getRecent(1).get(0);
+        assertEquals(testException2, problem.getThrowable(), "Object mismatch");
 
     }
 
@@ -180,7 +210,7 @@ class _ProblemHandler {
         for (int i = 1; i < count - 1; i++) {
             Instant previous_time = recents.get(i - 1).getTimestamp();
             Instant current_time = recents.get(i).getTimestamp();
-            assertTrue(0 <= previous_time.compareTo(current_time), "Timing mismatch");
+            assertTrue(previous_time.compareTo(current_time) <= 0, "Timing mismatch");
         }
 
     }

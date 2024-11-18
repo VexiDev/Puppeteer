@@ -4,48 +4,65 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProblemHandler {
 
     private final ConcurrentHashMap<String, Problem> problems;
     private final int maxSize;
+    private boolean verbose;
 
-    public ProblemHandler(int maxSize) {
+    public ProblemHandler(int maxSize, boolean verbose) {
         this.problems = new ConcurrentHashMap<>();
         this.maxSize = maxSize;
+        this.verbose = verbose;
+    }
+
+    public ProblemHandler(boolean verbose) {
+        this(1000, verbose);
+    }
+
+    public ProblemHandler(int maxSize) {
+        this(maxSize, false);
     }
 
     public ProblemHandler() {
-        this(1000); // Default maxSize of 1000
+        this(1000, false); // Default maxSize of 1000
+    }
+    
+    private String genId(Throwable t) {
+        return String.format("%d-%d",
+            System.currentTimeMillis(),
+            System.identityHashCode(t));
     }
 
-
-//TODO: Create genID() and handleOverflow() tests before implementing
+ 
+    // TODO: handleOverflow() tests before implementing
 
     public Problem handle(Throwable t) {
-        // TODO: Move this to genID(Throwable t) method?
-        // Note: allows for custom ids if wanted
-        // Create simple ID based on timestamp and hash
-        String id = String.format("%d-%d",
-                System.currentTimeMillis(),
-                System.identityHashCode(t));
+
+        // Create simple ID based on millis and hash
+        String id = genId(t);
 
         Problem problem = new Problem(t, id);
 
         // TODO: Explore moving overflow handling to its own method?
         // Note: moving this to its own method could make it a good place to
-        //       hook into and have it do different things when maxSize is reached
+        // hook into and have it do different things when maxSize is reached
         // If we're at capacity, remove oldest entry
         if (problems.size() >= this.maxSize) {
             Optional<String> oldest = problems.entrySet().stream()
-                    .min((e1, e2) -> e1.getValue().getTimestamp()
-                            .compareTo(e2.getValue().getTimestamp()))
-                    .map(e -> e.getKey());
+                .min((e1, e2) -> e1.getValue().getTimestamp()
+                    .compareTo(e2.getValue().getTimestamp()))
+                .map(e -> e.getKey());
             oldest.ifPresent(problems::remove);
         }
 
         problems.put(id, problem);
+        // Note: I have 0 idea if this actually works like I think it does
+        // Also I should prob be running logging with MIN_PRIORITY but thats for later
+        if (verbose) CompletableFuture.runAsync(() -> System.out.println(problem));
         return problem;
     }
 
@@ -59,13 +76,12 @@ public class ProblemHandler {
             handle(t);
             if (t instanceof Exception) {
                 throw (Exception) t;
-            } else if (t instanceof Error) {
-                throw (Error) t;
-            }
+            } else if (t instanceof Error) { throw (Error) t; }
             throw new RuntimeException(t);
         }
     }
-    // Overload for handling void operations 
+
+    // Overload for handling void operations
     public void execute(ThrowableRunnable runnable) throws Exception {
         try {
             runnable.run();
@@ -73,9 +89,7 @@ public class ProblemHandler {
             handle(t);
             if (t instanceof Exception) {
                 throw (Exception) t;
-            } else if (t instanceof Error) {
-                throw (Error) t;
-            }
+            } else if (t instanceof Error) { throw (Error) t; }
             throw new RuntimeException(t);
         }
     }
@@ -102,7 +116,7 @@ public class ProblemHandler {
 
     // Handles with custom error handling logic
     public <T> T attempt(ThrowableSupplier<T> supplier,
-            ErrorHandler<T> errorHandler) {
+        ErrorHandler<T> errorHandler) {
         try {
             return supplier.get();
         } catch (Throwable t) {
@@ -110,6 +124,7 @@ public class ProblemHandler {
             return errorHandler.handleError(problem);
         }
     }
+
     // Overload for handling void operations
     public void attempt(ThrowableRunnable runnable, VoidErrorHandler errorHandler) {
         try {
@@ -119,22 +134,24 @@ public class ProblemHandler {
             errorHandler.handleError(problem);
         }
     }
-    
+
     // For operations with return values
     @FunctionalInterface
     public interface ErrorHandler<T> {
         T handleError(Problem problem);
     }
+
     @FunctionalInterface
     public interface ThrowableSupplier<T> {
         T get() throws Throwable;
     }
-    
+
     // For operations without void return values
     @FunctionalInterface
     public interface ThrowableRunnable {
         void run() throws Throwable;
     }
+
     @FunctionalInterface
     public interface VoidErrorHandler {
         void handleError(Problem problem);
@@ -152,15 +169,15 @@ public class ProblemHandler {
 
     public final List<Problem> getRecent(int count) {
         return problems.values().stream()
-                .sorted((r1, r2) -> r2.getTimestamp().compareTo(r1.getTimestamp()))
-                .limit(count)
-                .collect(Collectors.toList());
+            .sorted() // Problems are sorted by timestamp
+            .limit(count)
+            .collect(Collectors.toList());
     }
 
     public final List<Problem> getByType(Class<? extends Throwable> type) {
         return problems.values().stream()
-                .filter(r -> type.isInstance(r.getThrowable()))
-                .collect(Collectors.toList());
+            .filter(r -> type.isInstance(r.getThrowable()))
+            .collect(Collectors.toList());
     }
 
     public final Optional<Problem> get(String id) {
@@ -178,5 +195,5 @@ public class ProblemHandler {
     public final int maxSize() {
         return this.maxSize;
     }
-    
-    }
+
+}

@@ -4,7 +4,7 @@ package gg.vexi.Puppeteer.Exceptions;
 import java.time.Instant;
 import java.util.Optional;
 
-public class Problem {
+public class Problem implements Comparable<Problem> {
     private final String id;
     private final Throwable throwable;
     private final Instant timestamp;
@@ -22,11 +22,12 @@ public class Problem {
         this.location = Optional.ofNullable(throwable.getStackTrace())
             .filter(stack -> stack.length > 0)
             .map(stack -> {
-                //TODO: Find a better way to filter Puppeteer out
-                String className = ".Puppeteer.Puppeteer."; 
+                // TODO: Find a better way to filter out non-framework
+                String puppeteer = ".Puppeteer.Puppeteer."; // remove puppeteer
+                String jdk = "jdk."; // remove java jdk
                 return java.util.Arrays.stream(stack)
-                    .filter(element -> !element.getClassName()
-                        .contains(className))
+                    .filter(element -> (!element.getClassName().contains(puppeteer) &&
+                                        !element.getClassName().contains(jdk)))
                     .findFirst()
                     .orElse(null); // null forces Unknown location but
                                    // this will never happen
@@ -63,8 +64,13 @@ public class Problem {
     }
 
     @Override
+    public int compareTo(Problem other) {
+        return this.getTimestamp().compareTo(other.getTimestamp());
+    }
+
+    @Override
     public String toString() {
-        return String.format("[%s] %s in %s at %s: %s",
+        return String.format("[%s] %s in \"%s\" at %s: %s",
             id,
             throwable.getClass().getSimpleName(),
             threadName,
