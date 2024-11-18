@@ -49,7 +49,7 @@ public class Puppeteer {
 
         if (!registry.contains(puppet))
             throw new PuppetNotFound(
-                String.format("\"%s\" is not registered", puppet));
+                String.format("\"%s\" is not a registered puppet", puppet));
 
         return pHandler.attemptOrElse(() -> {
             CompletableFuture<Result> ticket_future = new CompletableFuture<>();
@@ -77,7 +77,7 @@ public class Puppeteer {
         pHandler.attempt(() -> {
             if (!registry.contains(ticket.puppet()))
                 throw new PuppetNotFound(
-                    String.format("\"%s\" is not registered", ticket.puppet()));
+                    String.format("\"%s\" is not a registered puppet", ticket.puppet()));
             addTicketToQueue(ticket);
             tryExecuteNextTicket(ticket.puppet());
         }, problem -> {
