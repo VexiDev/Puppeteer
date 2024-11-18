@@ -120,9 +120,9 @@ class _Puppet {
 
         puppet.getFuture().thenAccept((ticketResult) -> {
 
-            assertTrue(ticketResult.getData() instanceof ExampleObject, "TicketResult data is not an instance of ExampleObject");
+            assertTrue(ticketResult.data() instanceof ExampleObject, "TicketResult data is not an instance of ExampleObject");
             // TODO: Implement generics typesafety and remove need to cast result data
-            ExampleObject ticket_result_data = (ExampleObject) ticketResult.getData();
+            ExampleObject ticket_result_data = (ExampleObject) ticketResult.data();
             assertEquals("Showcase", ticket_result_data.data, "Value mismatch");
         });
 

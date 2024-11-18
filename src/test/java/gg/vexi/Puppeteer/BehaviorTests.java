@@ -56,7 +56,7 @@ class _Behavior {
         Ticket ticket = Puppeteer.queueTicket(ticket_type, priority, parameters);
 
         // wait for future
-        CompletableFuture<Result> ticketFuture = ticket.getFuture();
+        CompletableFuture<Result> ticketFuture = ticket.future();
 
         // set check value to ensure execution order
         AtomicInteger check = new AtomicInteger(0);
@@ -118,7 +118,7 @@ class _Behavior {
         for (int i=0; i<=num_test_tickets-1;i++) {
             Ticket ticket = Puppeteer.createTicket(ticket_type, priority, parameters);
             tickets.add(ticket);
-            futures.add(ticket.getFuture());
+            futures.add(ticket.future());
             Puppeteer.queueTicket(ticket);   
             int expected = Puppeteer.getQueue(ticket_type).size();
             assertEquals(expected, i); // 0 on first loop works because the first ticket is immediately polled from the queue

@@ -40,23 +40,23 @@ class _Ticket {
         assertNotNull(ticket, "Ticket is Null");
 
         // verify id exists
-        assertNotNull(ticket.getId(), "Ticket ID is Null");
+        assertNotNull(ticket.id(), "Ticket ID is Null");
         
         // verify type
-        assertNotNull(ticket.getType(), "Ticket has no action type");
-        assertTrue(ticket.getType() instanceof String, "Ticket does not have a valid action type");
+        assertNotNull(ticket.puppet(), "Ticket has no action type");
+        assertTrue(ticket.puppet() instanceof String, "Ticket does not have a valid action type");
 
         // verify priority
-        assertNotNull(ticket.getPriority(), "Ticket has no priority level");
-        assertTrue(ticket.getPriority() instanceof TicketPriority, "Ticket does not have a valid priority level");
+        assertNotNull(ticket.priority(), "Ticket has no priority level");
+        assertTrue(ticket.priority() instanceof TicketPriority, "Ticket does not have a valid priority level");
 
         // verify parameters
-        assertNotNull(ticket.getParameters(), "Ticket has no action type");
-        assertMapEquals(expected_parameters, ticket.getParameters());
+        assertNotNull(ticket.parameters(), "Ticket has no action type");
+        assertMapEquals(expected_parameters, ticket.parameters());
 
         // verify future
-        assertNotNull(ticket.getFuture(), "Ticket has no future");
-        assertTrue(ticket.getFuture() instanceof CompletableFuture<Result>);
+        assertNotNull(ticket.future(), "Ticket has no future");
+        assertTrue(ticket.future() instanceof CompletableFuture<Result>);
 
     }
 
@@ -70,9 +70,9 @@ class _Ticket {
             Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
 
             assertNotNull(Result, "Result is null");
-            assertNotNull(Result.getTicket(), "Result associated ticket is null");
-            assertNotNull(Result.getResultStatus(), "Result status enum (status code) is null");
-            assertNotNull(Result.getProblemsHandler(), "Result ProblemHandler is null");
+            assertNotNull(Result.ticket(), "Result associated ticket is null");
+            assertNotNull(Result.status(), "Result status enum (status code) is null");
+            assertNotNull(Result.problemHandler(), "Result ProblemHandler is null");
         }
 
         @Test

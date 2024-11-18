@@ -180,7 +180,7 @@ class _Puppeteer {
 
         // add all tickets to their respective queue (all the same queue for now)
         for (Ticket ticket : ticket_list) {
-            puppetQueues.get(ticket.getPuppet()).offer(ticket);
+            puppetQueues.get(ticket.puppet()).offer(ticket);
         }
         // verify that tickets are in the correct order
         List<TicketPriority> expected_order = List.of(TicketPriority.HIGHEST, TicketPriority.HIGH, TicketPriority.ELEVATED, TicketPriority.NORMAL);
@@ -190,7 +190,7 @@ class _Puppeteer {
         Ticket current_ticket;
 
         while ((current_ticket = puppetQueues.get("test_action").poll()) != null) {
-            currentPriority = current_ticket.getPriority();
+            currentPriority = current_ticket.priority();
             int currentPriorityIndex = expected_order.indexOf(currentPriority);
 
             assertTrue(currentPriorityIndex != -1, "Unexpected priority found: " + currentPriority);
