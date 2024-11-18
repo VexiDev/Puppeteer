@@ -53,8 +53,8 @@ public class ProblemHandler {
         // If we're at capacity, remove oldest entry
         if (problems.size() >= this.maxSize) {
             Optional<String> oldest = problems.entrySet().stream()
-                .min((e1, e2) -> e1.getValue().getTimestamp()
-                    .compareTo(e2.getValue().getTimestamp()))
+                .min((e1, e2) -> e1.getValue().instant()
+                    .compareTo(e2.getValue().instant()))
                 .map(e -> e.getKey());
             oldest.ifPresent(problems::remove);
         }
@@ -176,7 +176,7 @@ public class ProblemHandler {
 
     public final List<Problem> getByType(Class<? extends Throwable> type) {
         return problems.values().stream()
-            .filter(r -> type.isInstance(r.getThrowable()))
+            .filter(r -> type.isInstance(r.get()))
             .collect(Collectors.toList());
     }
 

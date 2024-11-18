@@ -39,33 +39,29 @@ public class Problem implements Comparable<Problem> {
             .orElse("Unknown location");
     }
 
-    public String getId() {
+    public String id() {
         return id;
     }
 
-    public Throwable getThrowable() {
+    public Throwable get() {
         return throwable;
     }
 
-    public Throwable get() {
-        return getThrowable();
-    }
-
-    public Instant getTimestamp() {
+    public Instant instant() {
         return timestamp;
     }
 
-    public String getThreadName() {
+    public String threadName() {
         return threadName;
     }
 
-    public String getLocation() {
+    public String location() {
         return location;
     }
 
     @Override
     public int compareTo(Problem other) {
-        return this.getTimestamp().compareTo(other.getTimestamp());
+        return this.instant().compareTo(other.instant());
     }
 
     @Override

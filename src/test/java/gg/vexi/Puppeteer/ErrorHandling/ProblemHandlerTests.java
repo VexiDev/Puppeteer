@@ -26,31 +26,31 @@ class _ProblemHandler {
             Problem problem = new Problem(t, "test_problem");
 
             // id
-            assertNotNull(problem.getId(), "ID is null");
-            assertEquals("test_problem", problem.getId(), "Value mismatch");
+            assertNotNull(problem.id(), "ID is null");
+            assertEquals("test_problem", problem.id(), "Value mismatch");
 
             // throwable
-            assertNotNull(problem.getThrowable(), "Throwable is null");
-            assertEquals(problem.getThrowable(), t, "Value mismatch");
+            assertNotNull(problem.get(), "Throwable is null");
+            assertEquals(problem.get(), t, "Value mismatch");
 
             // timestamp
-            assertNotNull(problem.getTimestamp(), "Timestamp cannot be null");
+            assertNotNull(problem.instant(), "Timestamp cannot be null");
             // the exact timestamp is hard to validate so we just check if the
             // time difference is within 10ms and if it is its probably correct
             long now = Instant.now().toEpochMilli();
-            long actual = problem.getTimestamp().toEpochMilli();
+            long actual = problem.instant().toEpochMilli();
             assertTrue(now - actual < 10, "Epoch milli range too large");
 
             // threadname ,???
             // idk how to test this one tbh idk what the threadname would be T-T
             // gotta do some research
-            assertNotNull(problem.getThreadName(), "Threadname is null");
+            assertNotNull(problem.threadName(), "Threadname is null");
 
             // location - where the throwable was created
-            assertNotNull(problem.getLocation(), "Location is null");
+            assertNotNull(problem.location(), "Location is null");
             // only check that its the correct method to avoid code locational tests
             // normally includes line numbers
-            assertEquals(problem.getLocation().substring(0, problem.getLocation().indexOf(":")),
+            assertEquals(problem.location().substring(0, problem.location().indexOf(":")),
                 "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit",
                 "Location mismatch");
         }
@@ -87,10 +87,10 @@ class _ProblemHandler {
         assertEquals(1, ph.size(), "Record list size mismatch");
         problem = ph.getAll().get(0);
 
-        actual = problem.getId().split("-")[1];
+        actual = problem.id().split("-")[1];
         assertEquals(testException1.hashCode(), Integer.parseInt(actual), "Hash mismatch");
 
-        actual = problem.getThrowable().getMessage();
+        actual = problem.get().getMessage();
         assertEquals("rt_exception", actual, "Message mismatch");
 
         // TODO: Add tests for overflow culling in handle method
@@ -114,14 +114,14 @@ class _ProblemHandler {
 
         for (Problem p : ph.getRecent(2)) {
             System.out.println(p);
-            System.out.println(p.getTimestamp());
+            System.out.println(p.instant());
         }
 
         assertEquals(2, ph.size(), "Record list size mismatch");
         
         // most recent would be index 0 and should be exception 2 since exception 1 got purged
         problem = ph.getRecent(1).get(0);
-        assertEquals(testException2, problem.getThrowable(), "Object mismatch");
+        assertEquals(testException2, problem.get(), "Object mismatch");
 
     }
 
@@ -143,12 +143,12 @@ class _ProblemHandler {
         assertEquals(1, ph.size(), "Record list size mismatch");
         problem = ph.getAll().get(0);
 
-        actual = problem.getId().split("-")[1];
+        actual = problem.id().split("-")[1];
 
         assertNotNull(exception, "Null exception");
         assertEquals(exception.hashCode(), Integer.parseInt(actual), "Hash mismatch");
 
-        actual = problem.getThrowable().getMessage();
+        actual = problem.get().getMessage();
         assertEquals("rt_exception", actual, "Message mismatch");
     }
 
@@ -208,8 +208,8 @@ class _ProblemHandler {
         assertEquals(count - 1, recents.size(), "Size mismatch");
 
         for (int i = 1; i < count - 1; i++) {
-            Instant previous_time = recents.get(i - 1).getTimestamp();
-            Instant current_time = recents.get(i).getTimestamp();
+            Instant previous_time = recents.get(i - 1).instant();
+            Instant current_time = recents.get(i).instant();
             assertTrue(previous_time.compareTo(current_time) <= 0, "Timing mismatch");
         }
 
