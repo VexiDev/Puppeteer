@@ -45,7 +45,7 @@ class _Behavior {
     @Test
     public void test_TicketHandling() {
         // create ticket objects
-        String ticket_type = "test_action";
+        String ticket_puppet = "test_action";
         TicketPriority priority = TicketPriority.NORMAL;
         Map<String, Object> parameters = new ConcurrentHashMap<>();
         parameters.put("test_customer_parameter_1", true);
@@ -53,7 +53,7 @@ class _Behavior {
         parameters.put("test_customer_parameter_3", "This is the third parameter for our ticket");
 
         // queue ticket
-        Ticket ticket = Puppeteer.queueTicket(ticket_type, priority, parameters);
+        Ticket ticket = Puppeteer.queueTicket(ticket_puppet, priority, parameters);
 
         // wait for future
         CompletableFuture<Result> ticketFuture = ticket.future();
@@ -101,7 +101,7 @@ class _Behavior {
         //  - This test was written in a sleep deprived state a may not accurately test for queue integrity failure!
         
         // create ticket arguments
-        String ticket_type = "test_action";
+        String ticket_puppet = "test_action";
         TicketPriority priority = TicketPriority.NORMAL;
         Map<String, Object> parameters = new ConcurrentHashMap<>();
         parameters.put("test_customer_parameter_1", true);
@@ -116,11 +116,11 @@ class _Behavior {
 
         // this loop queues puppets and ensures the queue size increases accordingly
         for (int i=0; i<=num_test_tickets-1;i++) {
-            Ticket ticket = Puppeteer.createTicket(ticket_type, priority, parameters);
+            Ticket ticket = Puppeteer.createTicket(ticket_puppet, priority, parameters);
             tickets.add(ticket);
             futures.add(ticket.future());
             Puppeteer.queueTicket(ticket);   
-            int expected = Puppeteer.getQueue(ticket_type).size();
+            int expected = Puppeteer.getQueue(ticket_puppet).size();
             assertEquals(expected, i); // 0 on first loop works because the first ticket is immediately polled from the queue
         }
         
@@ -135,7 +135,7 @@ class _Behavior {
         for (int i=0; i<=tickets.size()-1;i++) {
             // wait for tickets to complete and ensure the queue is the size we expect
             futures.get(i).thenRun(() -> {
-                int actual = Puppeteer.getQueue(ticket_type).size();
+                int actual = Puppeteer.getQueue(ticket_puppet).size();
                 int totalCompleted = completedCount.incrementAndGet();
                 int expected = futures.size()-totalCompleted;
                 if (expected!=actual) { flag.set(true); }

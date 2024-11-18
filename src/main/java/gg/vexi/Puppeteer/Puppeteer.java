@@ -114,10 +114,11 @@ public class Puppeteer {
     }
 
     protected synchronized void addTicketToQueue(Ticket ticket) {
-        printDebug("Adding a ticket to queue " + ticket.puppet() +
-            " [Queue length is currently " + puppetQueues.get(ticket.puppet()).size() + "]");
+        printDebug(String.format("Adding a ticket to queue %s [Queue length is currently %d]",
+            ticket.puppet(), puppetQueues.get(ticket.puppet()).size()));
         puppetQueues.get(ticket.puppet()).offer(ticket);
-        printDebug("Queue size is now " + puppetQueues.get(ticket.puppet()).size());
+        printDebug(
+            String.format("Queue size is now %d", puppetQueues.get(ticket.puppet()).size()));
     }
 
     private synchronized Ticket pollForTicket(String puppet) {
@@ -130,10 +131,11 @@ public class Puppeteer {
             // printDebug("Queue size when polling for type "+type+":
             // "+actionQueues.get(type).size());
             Ticket next_ticket = pollForTicket(puppet);
-            printDebug("Polling... [Queue size is now " + puppetQueues.get(puppet).size() + "]");
+            printDebug(String.format("Polling... [Queue size is now %d]",
+                puppetQueues.get(puppet).size()));
             return next_ticket;
         } else {
-            printDebug("A ticket is already being processed for type " + puppet);
+            printDebug(String.format("A ticket is already being processed for type %s", puppet));
             return null;
         }
     }
@@ -142,8 +144,10 @@ public class Puppeteer {
         Ticket next_ticket = nextTicket(puppet);
         if (next_ticket == null) {
             // we should check to see if isEmpty() returns true
-            printDebug("nextTicket for type " + puppet
-                + " returned null! (a ticket might be active or the queue is empty)");
+            printDebug(String.format(
+                "nextTicket for type %s returned null! " +
+                    "(a ticket might be active or the queue is empty)",
+                puppet));
             return;
         }
         executeTicket(next_ticket);
@@ -177,8 +181,9 @@ public class Puppeteer {
     protected final void completeTicket(Ticket ticket, Result result) {
         ticket.future().complete(result);
         activeTickets.remove(ticket.puppet());
-        printDebug(System.currentTimeMillis() + " - A Ticket of type " + ticket.puppet()
-            + " has completed! Attempting to execute next ticket!");
+        printDebug(String.format(
+            "%l - A Ticket of type %s has completed! Attempting to execute next ticket!",
+            System.currentTimeMillis(), ticket.puppet()));
         tryExecuteNextTicket(ticket.puppet());
     }
 
@@ -192,9 +197,9 @@ public class Puppeteer {
                 throw new RuntimeException("Failed to instantiate puppet class", e);
             }
         });
-        printDebug("Registered puppet with type " + name + " [RegistrySize: "
-            + registry.all().keySet().size() + "]");
-        printDebug("Creating new queue for puppets with type -> " + name);
+        printDebug(String.format("Registered puppet with name %s [RegistrySize: %d]",
+            name, registry.all().keySet().size()));
+        printDebug(String.format("Creating new queue for puppets with name -> %s", name));
         puppetQueues.put(name, new PriorityBlockingQueue<>());
     }
 
@@ -209,24 +214,24 @@ public class Puppeteer {
                 .count() != 0);
     }
 
-    protected synchronized final boolean isActive(String type) {
-        return activeTickets.containsKey(type);
+    protected synchronized final boolean isActive(String puppet) {
+        return activeTickets.containsKey(puppet);
     }
 
     public synchronized final ProblemHandler getProblemHandler() {
         return pHandler;
     }
 
-    public synchronized final PriorityBlockingQueue<Ticket> getQueue(String type) {
-        return puppetQueues.get(type);
+    public synchronized final PriorityBlockingQueue<Ticket> getQueue(String puppet) {
+        return puppetQueues.get(puppet);
     }
 
     public synchronized final Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
         return puppetQueues;
     }
 
-    public synchronized final Ticket getActive(String type) {
-        return activeTickets.get(type);
+    public synchronized final Ticket getActive(String puppet) {
+        return activeTickets.get(puppet);
     }
 
     public synchronized final Map<String, Ticket> getAllActive() {
