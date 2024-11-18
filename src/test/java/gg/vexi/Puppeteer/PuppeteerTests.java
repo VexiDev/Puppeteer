@@ -50,7 +50,7 @@ class _Puppeteer {
 
         // build expected objects
         Map<String, PriorityBlockingQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
-        for (String key : registry.getFullRegistry().keySet()) {
+        for (String key : registry.all().keySet()) {
             expected_queues.put(key, new PriorityBlockingQueue<>());
         }
 

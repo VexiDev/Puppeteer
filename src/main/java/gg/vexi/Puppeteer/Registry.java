@@ -2,7 +2,6 @@ package gg.vexi.Puppeteer;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -18,7 +17,7 @@ public class Registry {
         // System.out.println(String.format("Registered puppet %s%s%s with associated type %s%s%s", "\033[0;32m", type.toLowerCase(), "\033[0m", "\033[0;92m", factory.getClass().getSimpleName(), "\033[0m"));
     }
 
-    public Puppet getPuppet(Ticket ticket) {
+    public Puppet retreive(Ticket ticket) {
         String type = ticket.puppet();
         Function<Ticket, Puppet> constructor = registry.get(type.toLowerCase(Locale.ROOT));
         if (constructor == null) {
@@ -27,15 +26,12 @@ public class Registry {
         return constructor.apply(ticket);
     }
 
-    public boolean has(String type) {
+    public boolean contains(String type) {
         return registry.containsKey(type);
     }
     
-    public Map<String, Function<Ticket, Puppet>> getFullRegistry() {
+    public Map<String, Function<Ticket, Puppet>> all() {
         return registry;
     }
 
-    public Set<String> getAllActionTypes() {
-        return registry.keySet();
-    }
 }

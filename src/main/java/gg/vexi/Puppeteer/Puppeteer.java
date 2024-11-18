@@ -47,7 +47,7 @@ public class Puppeteer {
         TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
 
-        if (!registry.has(action_type))
+        if (!registry.contains(action_type))
             throw new PuppetNotFound(
                 String.format("\"%s\" is not registered", action_type));
 
@@ -75,7 +75,7 @@ public class Puppeteer {
     public void queueTicket(Ticket ticket) {
         if (ticket == null) throw new NullPointerException("Ticket cannot be null");
         pHandler.attempt(() -> {
-            if (!registry.has(ticket.puppet()))
+            if (!registry.contains(ticket.puppet()))
                 throw new PuppetNotFound(
                     String.format("\"%s\" is not registered", ticket.puppet()));
             addTicketToQueue(ticket);
@@ -154,7 +154,7 @@ public class Puppeteer {
         activeTickets.putIfAbsent(ticket.puppet(), ticket);
 
         // initialise the relevant puppet and get the puppet future
-        Puppet puppet = registry.getPuppet(ticket);
+        Puppet puppet = registry.retreive(ticket);
 
         CompletableFuture<Result> puppetFuture = puppet.getFuture();
 
@@ -193,7 +193,7 @@ public class Puppeteer {
             }
         });
         printDebug("Registered puppet with type " + type + " [RegistrySize: "
-            + registry.getAllActionTypes().size() + "]");
+            + registry.all().keySet().size() + "]");
         printDebug("Creating new queue for puppets with type -> " + type);
         puppetQueues.put(type, new PriorityBlockingQueue<>());
     }
