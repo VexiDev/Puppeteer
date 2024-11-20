@@ -36,7 +36,13 @@ class _Registry {
 
     @Test
     public void testRegister() {
-
+        // register puppet
+        reg.registerPuppet("test", ExamplePuppet_String.class);
+        // check if registry map size matches
+        assertEquals(1, reg_map.size(), "Size mismatch");
+        // check if registry map contains key "test"
+        assertTrue(reg_map.containsKey("test"), "Key missing");
+        // TODO: Check if value is expected object?
     }
 
     @Test
