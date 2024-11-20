@@ -325,8 +325,9 @@ class _Puppeteer {
         // assert all queued tickets are canceled
         PriorityBlockingQueue<Ticket<?>> q = puppeteer.getQueue("test_action");
         assertTrue(q.isEmpty(), "Ticket queue was not empty after shutdown");
-
-        ticket_list.stream().forEach(t -> {
+        
+        // skip first ticket in ticket_list since it is our "active" puppet
+        ticket_list.stream().skip(1).forEach(t -> {
             assertTrue(t.future().isDone(), "Queued ticket futures were not completed");
             assertEquals(ResultStatus.CANCELED, t.future().join().status(),
                 "ticket future result was not CANCELED");
