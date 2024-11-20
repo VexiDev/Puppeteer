@@ -1,11 +1,9 @@
 package gg.vexi.Puppeteer;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
-
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
@@ -15,10 +13,10 @@ import gg.vexi.Puppeteer.Ticket.Result;
 
 public class Puppeteer {
 
-    private final Registry registry = new Registry();
+    private final Registry registry;
     private final ProblemHandler pHandler;
-    private final Map<String, PriorityBlockingQueue<Ticket>> puppetQueues;
-    private final Map<String, Ticket> activeTickets;
+    private final Map<String, PriorityBlockingQueue<Ticket<?>>> puppetQueues;
+    private final Map<String, Ticket<?>> activeTickets;
 
     private final boolean verbose;
 
@@ -27,6 +25,7 @@ public class Puppeteer {
         printDebug("Initializing puppeteer!");
         if (verbose) pHandler = new ProblemHandler(verbose);
         else pHandler = new ProblemHandler();
+        registry = new Registry();
         puppetQueues = new ConcurrentHashMap<>();
         activeTickets = new ConcurrentHashMap<>();
     }
@@ -39,10 +38,11 @@ public class Puppeteer {
         if (verbose) {
             System.out.println(msg);
             System.out.flush();
+
         }
     }
 
-    public Ticket createTicket(
+    public <T> Ticket<T> createTicket(
         String puppet,
         TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
@@ -52,27 +52,26 @@ public class Puppeteer {
                 String.format("\"%s\" is not a registered puppet", puppet));
 
         return pHandler.attemptOrElse(() -> {
-            CompletableFuture<Result> ticket_future = new CompletableFuture<>();
-            Ticket ticket =
-                new Ticket(puppet, ticket_priority, ticket_parameters, ticket_future);
+            CompletableFuture<Result<T>> future = new CompletableFuture<>();
+            Ticket<T> ticket = new Ticket<>(puppet, ticket_priority, ticket_parameters, future);
             return ticket;
         }, null);
     }
 
     // overloads for create ticket (default priority NORMAL, default parameters Empty Map
-    public Ticket createTicket(String puppet) {
+    public <T> Ticket<T> createTicket(String puppet) {
         return createTicket(puppet, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public Ticket createTicket(String puppet, TicketPriority ticket_priority) {
+    public <T> Ticket<T> createTicket(String puppet, TicketPriority ticket_priority) {
         return createTicket(puppet, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public Ticket createTicket(String puppet, Map<String, Object> ticket_parameters) {
+    public <T> Ticket<T> createTicket(String puppet, Map<String, Object> ticket_parameters) {
         return createTicket(puppet, TicketPriority.NORMAL, ticket_parameters);
     }
 
-    public void queueTicket(Ticket ticket) {
+    public void queueTicket(Ticket<?> ticket) {
         if (ticket == null) throw new NullPointerException("Ticket cannot be null");
         pHandler.attempt(() -> {
             if (!registry.contains(ticket.puppet()))
@@ -83,37 +82,32 @@ public class Puppeteer {
         }, problem -> {
             ProblemHandler ph = new ProblemHandler();
             ph.handle(new Exception(problem.get()));
-            Result failedResult = new Result(
-                ph,
-                ticket,
-                ResultStatus.ERROR_FAILED,
-                null);
-            ticket.future().complete(failedResult);
+            ticket.future().complete(Result.complete(ResultStatus.ERROR_FAILED, ph));
         });
     }
 
     // overloads if customer has not already created the ticket themselves with
     // createTicket()
-    public Ticket queueTicket(String puppet, TicketPriority ticket_priority,
+    public <T> Ticket<T> queueTicket(String puppet, TicketPriority ticket_priority,
         Map<String, Object> ticket_parameters) {
-        Ticket ticket = createTicket(puppet, ticket_priority, ticket_parameters);
+        Ticket<T> ticket = createTicket(puppet, ticket_priority, ticket_parameters);
         queueTicket(ticket);
         return ticket;
     }
 
-    public Ticket queueTicket(String puppet) {
+    public <T> Ticket<T> queueTicket(String puppet) {
         return queueTicket(puppet, new ConcurrentHashMap<>());
     }
 
-    public Ticket queueTicket(String puppet, TicketPriority priority) {
+    public <T> Ticket<T> queueTicket(String puppet, TicketPriority priority) {
         return queueTicket(puppet, priority, new ConcurrentHashMap<>());
     }
 
-    public Ticket queueTicket(String puppet, Map<String, Object> ticket_parameters) {
+    public <T> Ticket<T> queueTicket(String puppet, Map<String, Object> ticket_parameters) {
         return queueTicket(puppet, TicketPriority.NORMAL, ticket_parameters);
     }
 
-    protected synchronized void addTicketToQueue(Ticket ticket) {
+    protected synchronized void addTicketToQueue(Ticket<?> ticket) {
         printDebug(String.format("Adding a ticket to queue %s [Queue length is currently %d]",
             ticket.puppet(), puppetQueues.get(ticket.puppet()).size()));
         puppetQueues.get(ticket.puppet()).offer(ticket);
@@ -121,16 +115,16 @@ public class Puppeteer {
             String.format("Queue size is now %d", puppetQueues.get(ticket.puppet()).size()));
     }
 
-    private synchronized Ticket pollForTicket(String puppet) {
+    private synchronized Ticket<?> pollForTicket(String puppet) {
         // printDebug("Polling for ticket of type "+type);
         return puppetQueues.get(puppet).poll();
     }
 
-    protected final Ticket nextTicket(String puppet) {
+    protected final Ticket<?> nextTicket(String puppet) {
         if (!isActive(puppet)) {
             // printDebug("Queue size when polling for type "+type+":
             // "+actionQueues.get(type).size());
-            Ticket next_ticket = pollForTicket(puppet);
+            Ticket<?> next_ticket = pollForTicket(puppet);
             printDebug(String.format("Polling... [Queue size is now %d]",
                 puppetQueues.get(puppet).size()));
             return next_ticket;
@@ -141,7 +135,7 @@ public class Puppeteer {
     }
 
     protected final void tryExecuteNextTicket(String puppet) {
-        Ticket next_ticket = nextTicket(puppet);
+        Ticket<?> next_ticket = nextTicket(puppet);
         if (next_ticket == null) {
             // we should check to see if isEmpty() returns true
             printDebug(String.format(
@@ -153,14 +147,14 @@ public class Puppeteer {
         executeTicket(next_ticket);
     }
 
-    protected final void executeTicket(final Ticket ticket) {
+    protected final <T> void executeTicket(final Ticket<?> ticket) {
         // make ticket active
         activeTickets.putIfAbsent(ticket.puppet(), ticket);
 
         // initialise the relevant puppet and get the puppet future
-        Puppet puppet = registry.retreive(ticket);
+        Puppet<T> puppet = this.registry.retreive(ticket);
 
-        CompletableFuture<Result> puppetFuture = puppet.getFuture();
+        CompletableFuture<Result<T>> puppetFuture = puppet.getFuture();
 
         // run puppet
         // - (eventually using a custom thread executor instead of CmplFutr)
@@ -178,12 +172,14 @@ public class Puppeteer {
         });
     }
 
-    protected final void completeTicket(Ticket ticket, Result result) {
-        ticket.future().complete(result);
+    @SuppressWarnings("unchecked")
+    protected final <T> void completeTicket(Ticket<?> ticket, Result<?> result) {
+        printDebug(String.format("A %s puppet has completed", ticket.puppet()));
+        // this method preserves the type relationship between ticket and result
+        ((Ticket<T>) ticket).future().complete((Result<T>) result);
         activeTickets.remove(ticket.puppet());
-        printDebug(String.format(
-            "%l - A Ticket of type %s has completed! Attempting to execute next ticket!",
-            System.currentTimeMillis(), ticket.puppet()));
+        printDebug(
+            String.format("Attempting to execute next ticket for puppet %s", ticket.puppet()));
         tryExecuteNextTicket(ticket.puppet());
     }
 
@@ -201,6 +197,7 @@ public class Puppeteer {
 
     // getters:
 
+    // if any tickets are queued or active puppeteer is "performing"
     public synchronized final boolean isPerforming() {
         return (activeTickets.keySet().stream()
             .filter(key -> (activeTickets.get(key) != null))
@@ -218,26 +215,25 @@ public class Puppeteer {
         return pHandler;
     }
 
-    public synchronized final PriorityBlockingQueue<Ticket> getQueue(String puppet) {
+    public synchronized final PriorityBlockingQueue<Ticket<?>> getQueue(String puppet) {
         return puppetQueues.get(puppet);
     }
 
-    public synchronized final Map<String, PriorityBlockingQueue<Ticket>> getAllQueues() {
+    public synchronized final Map<String, PriorityBlockingQueue<Ticket<?>>> getAllQueues() {
         return puppetQueues;
     }
 
-    public synchronized final Ticket getActive(String puppet) {
+    public synchronized final Ticket<?> getActive(String puppet) {
         return activeTickets.get(puppet);
     }
 
-    public synchronized final Map<String, Ticket> getAllActive() {
+    public synchronized final Map<String, Ticket<?>> getAllActive() {
         return activeTickets;
     }
 
     // setters
     // TODO: Make private and make tests use reflection to access
-    // Protected for simplicity
-    protected synchronized final void setActive(Ticket ticket) {
+    protected synchronized final void setActive(Ticket<?> ticket) {
         activeTickets.put(ticket.puppet(), ticket);
     }
 
