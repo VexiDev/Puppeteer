@@ -187,20 +187,16 @@ public class Puppeteer {
         tryExecuteNextTicket(ticket.puppet());
     }
 
-    public synchronized final void registerPuppet(Class<?> puppetClass, String name) {
-        registry.registerPuppet(name, (ticket) -> {
-            try {
-                return (Puppet) puppetClass.getDeclaredConstructor(Ticket.class)
-                    .newInstance(ticket);
-            } catch (IllegalArgumentException | InstantiationException | NoSuchMethodException
-                | SecurityException | InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException("Failed to instantiate puppet class", e);
-            }
-        });
-        printDebug(String.format("Registered puppet with name %s [RegistrySize: %d]",
+    public synchronized final <T> void registerPuppet(
+        String name,
+        Class<? extends Puppet<T>> puppetClass) {
+        registry.registerPuppet(name, puppetClass);
+        printDebug(String.format(
+            "Registered puppet with name %s [RegistrySize: %d]",
             name, registry.all().keySet().size()));
-        printDebug(String.format("Creating new queue for puppets with name -> %s", name));
+
         puppetQueues.put(name, new PriorityBlockingQueue<>());
+        printDebug(String.format("Created new queue for puppets with name -> %s", name));
     }
 
     // getters:
