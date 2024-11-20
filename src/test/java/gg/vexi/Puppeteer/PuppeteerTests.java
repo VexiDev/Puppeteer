@@ -6,11 +6,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ class _Puppeteer {
 
     private Puppeteer puppeteer;
     private Registry registry;
+    private AtomicInteger state;
     private Map<String, PriorityBlockingQueue<Ticket<?>>> ticketQueues;
     private Map<String, Puppet<?>> activePuppets;
 
@@ -39,13 +41,18 @@ class _Puppeteer {
         registry_field.setAccessible(true);
         registry = (Registry) registry_field.get(puppeteer);
 
-        // get actions_queue using reflection
+        // get state using reflection
+        Field state_field = puppeteer.getClass().getDeclaredField("state");
+        state_field.setAccessible(true);
+        state = (AtomicInteger) state_field.get(puppeteer);
+
+        // get tickets queue using reflection
         Field ticket_queue_field = puppeteer.getClass().getDeclaredField("ticketQueues");
         ticket_queue_field.setAccessible(true);
         ticketQueues =
             (Map<String, PriorityBlockingQueue<Ticket<?>>>) ticket_queue_field.get(puppeteer);
 
-        // get actions_queue using reflection
+        // get active puppet map using reflection
         Field active_map_field = puppeteer.getClass().getDeclaredField("activePuppets");
         active_map_field.setAccessible(true);
         activePuppets = (Map<String, Puppet<?>>) active_map_field.get(puppeteer);
@@ -316,7 +323,7 @@ class _Puppeteer {
         for (Ticket<String> ticket : ticket_list) {
             puppeteer.queueTicket(ticket);
         }
-        
+
         // get active ticket
         Ticket<?> active = puppeteer.getActive("test_action");
 
@@ -325,7 +332,7 @@ class _Puppeteer {
         // assert all queued tickets are canceled
         PriorityBlockingQueue<Ticket<?>> q = puppeteer.getQueue("test_action");
         assertTrue(q.isEmpty(), "Ticket queue was not empty after shutdown");
-        
+
         // skip first ticket in ticket_list since it is our "active" puppet
         ticket_list.stream().skip(1).forEach(t -> {
             assertTrue(t.future().isDone(), "Queued ticket futures were not completed");
