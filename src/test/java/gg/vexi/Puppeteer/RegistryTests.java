@@ -62,7 +62,9 @@ class _Registry {
 
     @Test
     public void testContains() {
-
+        // register puppet
+        reg.registerPuppet("test", ExamplePuppet_String.class);
+        assertEquals(reg.contains("test"), reg_map.containsKey("test"));
     }
 
 }
