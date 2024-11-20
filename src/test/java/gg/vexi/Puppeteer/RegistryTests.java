@@ -47,7 +47,17 @@ class _Registry {
 
     @Test
     public void testRetrieve() {
-
+        // register puppet
+        reg.registerPuppet("test", ExamplePuppet_String.class);
+        Puppet<String> p = reg.retreive(
+            new Ticket<String>("test", TicketPriority.NORMAL,
+            new HashMap<>(), new CompletableFuture<>())
+        );
+        // check not null
+        assertNotNull(p);
+        // check correct puppet type
+        assertTrue(p instanceof ExamplePuppet_String, 
+                "Retrieved puppet is not correct registered puppet implementation");
     }
 
     @Test
