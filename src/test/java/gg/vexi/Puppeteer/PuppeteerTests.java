@@ -344,4 +344,29 @@ class _Puppeteer {
         //This should cancel all queued and interrupt all active
     }
 
+    @Test
+    public void testStateHandling() {
+        
+        // for state is 0, 1 or 2 
+        //   trying to queuing a ticket should throw an exception
+
+        for (int i = 0; i <= 2; i++) {
+            // set state to closed
+            state.set(i);
+
+            int flag = 0;
+            // try queue a ticket
+            try {
+                // queue ticket should throw an exception
+                Ticket<String> t = puppeteer.queueTicket("test_action");
+            } catch (IllegalStateException e) {
+                flag = 1;
+            }
+
+            // assert that queue ticket threw the exception and flag was set to 1
+            assertEquals(1, flag, "queueTicket did not throw an exception for state "+i);
+
+        }
+    }
+
 }

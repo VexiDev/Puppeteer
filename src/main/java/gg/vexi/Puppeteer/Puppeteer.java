@@ -198,28 +198,70 @@ public class Puppeteer {
         tryExecuteNextTicket(ticket.puppet());
     }
 
-    public synchronized final <T> void registerPuppet(
-        String name,
-        Class<? extends Puppet<T>> puppetClass) {
-        registry.registerPuppet(name, puppetClass);
-        printDebug(String.format(
-            "Registered puppet with name %s [RegistrySize: %d]",
-            name, registry.all().keySet().size()));
+    /*
+     *  Returns true if is shutdown
+     *  Returns false if already shutting down
+     */
+    public final boolean shutdown(boolean hard) {
+        int s = this.state.get();
+        if (s == 0) return true;
+        else if (s == 1) return false;
 
-        puppetQueues.put(name, new PriorityBlockingQueue<>());
-        printDebug(String.format("Created new queue for puppets with name -> %s", name));
+        // set Puppeteer state to SHUTTING_DOWN
+        this.state.set(1);
+
+        // for each queue in the queue map, go through its queued tickets and cancel them
+        cancelQueued();
+
+        // wait for active tickets to finish processing
+
+        //if (hard) cancelActive(); //<-- uncomment when cancelActive is implemented!
+        while (anyActive()) continue; // else this if not hard
+
+
+
+        // set Puppeteer state to SHUTDOWN
+        this.state.set(0);
+
+        // return successfull shutdown
+        return true;
+    }
+
+    //Currently since we use CmplFtr.runAsync(() -> puppet.start()); to run puppets
+    //it is difficult to interrupt the thread running the puppet.
+    //until an alternative method for running puppets is implemented soft shutdown is the only
+    //available shutdown mode
+    private void cancelActive() {
+        //TODO: Implement ability for puppeteer to interrupt active puppets
+        //something like:
+        // activeTickets.values().stream().forEach(p -> p::interrupt);
+    }
+
+    private synchronized void cancelQueued() {
+        ticketQueues.values().stream().forEach(ticketQ -> {
+            while (ticketQ.peek() != null)
+                ticketQ.poll().cancel(new ProblemHandler());
+        });
     }
 
     // getters:
 
     // if any tickets are queued or active puppeteer is "performing"
     public synchronized final boolean isPerforming() {
-        return (activeTickets.keySet().stream()
-            .filter(key -> (activeTickets.get(key) != null))
-            .count() != 0
-            || ticketQueues.keySet().stream()
-                .filter(key -> !ticketQueues.get(key).isEmpty())
-                .count() != 0);
+        return (anyActive() || anyQueued());
+    }
+
+    private final boolean anyActive() {
+        return (activePuppets.keySet().stream()
+            .filter(key -> (activePuppets.get(key) != null))
+            .count() != 0);
+    }
+
+    private final boolean anyQueued() {
+        return (ticketQueues.keySet().stream()
+            .filter(key -> !ticketQueues.get(key).isEmpty())
+            .count() != 0);
+
     }
 
     protected synchronized final boolean isActive(String puppet) {
