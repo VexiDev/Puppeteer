@@ -16,21 +16,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ExamplePuppets.Puppet_TestAction;
+import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
 class _Puppeteer {
 
     private Puppeteer puppeteer;
     private Registry registry;
-    private Map<String, PriorityBlockingQueue<Ticket>> puppetQueues;
+    private Map<String, PriorityBlockingQueue<Ticket<?>>> puppetQueues;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         puppeteer = new Puppeteer();
 
-        puppeteer.registerPuppet(Puppet_TestAction.class, "test_action"); 
+        puppeteer.registerPuppet("test_action", ExamplePuppet_String.class);
 
         // get the registry using reflection
         Field registry_field = puppeteer.getClass().getDeclaredField("registry");
@@ -40,7 +40,7 @@ class _Puppeteer {
         // get actions_queue using reflection
         Field actions_queue_field = puppeteer.getClass().getDeclaredField("puppetQueues");
         actions_queue_field.setAccessible(true);
-        puppetQueues = (Map<String, PriorityBlockingQueue<Ticket>>) actions_queue_field.get(puppeteer);
+        puppetQueues = (Map<String, PriorityBlockingQueue<Ticket<?>>>) actions_queue_field.get(puppeteer);
 
     }
 
@@ -49,7 +49,7 @@ class _Puppeteer {
         // check if puppeteer actually initialized correctly 
 
         // build expected objects
-        Map<String, PriorityBlockingQueue<Ticket>> expected_queues = new ConcurrentHashMap<>();
+        Map<String, PriorityBlockingQueue<Ticket<String>>> expected_queues = new ConcurrentHashMap<>();
         for (String key : registry.all().keySet()) {
             expected_queues.put(key, new PriorityBlockingQueue<>());
         }
@@ -58,7 +58,7 @@ class _Puppeteer {
         assertNotNull(puppeteer, "puppeteer is Null");
 
         // get actual active map 
-        Map<String, Ticket> actual_active_map = puppeteer.getAllActive();
+        Map<String, Ticket<?>> actual_active_map = puppeteer.getAllActive();
 
 
         // verify active tickets map exists
@@ -67,12 +67,12 @@ class _Puppeteer {
         assertEquals(new ConcurrentHashMap<>().size(), actual_active_map.size());
         
         // get actual puppeteer queues
-        Map<String, PriorityBlockingQueue<Ticket>> actual_queues = puppeteer.getAllQueues();
+        Map<String, PriorityBlockingQueue<Ticket<?>>> actual_queues = puppeteer.getAllQueues();
 
         // verify we have all queues (we should have a queue for each action type)
         assertEquals(expected_queues.size(), actual_queues.size(), "puppeteer does not have a concurrent queue for each puppet");
         // verify puppeteer queue map contense against expected contense
-        for (Map.Entry<String, PriorityBlockingQueue<Ticket>> entry : expected_queues.entrySet()) {
+        for (Map.Entry<String, PriorityBlockingQueue<Ticket<String>>> entry : expected_queues.entrySet()) {
             // verify the puppeteer queue map contains expected key
             assertTrue(actual_queues.containsKey(entry.getKey()), "Missing queue for action type: " + entry.getKey());
             // verify the queue is of the correct length (0)
@@ -84,17 +84,17 @@ class _Puppeteer {
     @Test
     public void test_addTicketToQueue() {
 
-        Ticket Ticket = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> Ticket = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // build expected queue object
-        PriorityBlockingQueue<Ticket> expected_q = new PriorityBlockingQueue<>();
+        PriorityBlockingQueue<Ticket<String>> expected_q = new PriorityBlockingQueue<>();
         expected_q.offer(Ticket);
 
         // add ticket to that ticket's action queue
         puppeteer.addTicketToQueue(Ticket);
 
         // get queue length
-        PriorityBlockingQueue<Ticket> actual_q = puppeteer.getQueue("test_action");
+        PriorityBlockingQueue<Ticket<?>> actual_q = puppeteer.getQueue("test_action");
 
         // check queue length
         assertEquals(expected_q.size(), actual_q.size(), "Queue sizes do not match");
@@ -106,15 +106,16 @@ class _Puppeteer {
     @Test
     public void test_NextTicket() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
         // create necessary objects
-        Ticket ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> ticket1 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> ticket2 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // verify tickets exist
         assertNotNull(ticket1, "puppeteer returned null value for queueTicket() [ticket1]");
         assertNotNull(ticket2, "puppeteer returned null value for queueTicket() [ticket2]");
 
         // attempt to get next ticket before adding any tickets (will always null)
-        Ticket nextTicket = puppeteer.nextTicket("test_action");
+        Ticket<?> nextTicket = puppeteer.nextTicket("test_action");
+
         assertEquals(null, nextTicket, "nextTicket returned a not null value before we added any tickets to the queue: "+nextTicket);
 
         // Simulate the queue if we had 2 tickets in in the queue (actionQueues reflected from puppeteer in setup() )
@@ -142,7 +143,7 @@ class _Puppeteer {
     @Test
     public void test_executeTicket() {
         // create ticket object
-        Ticket ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> ticket1 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // verify ticket isn't null
         assertNotNull(ticket1, "Ticket is null");
@@ -156,19 +157,20 @@ class _Puppeteer {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void test_TicketPriorityOrdering() throws NoSuchFieldException, IllegalArgumentException, IllegalArgumentException, IllegalAccessException {
 
         // created test tickets
-        Ticket normal_ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket normal_ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket elevated_ticket1 = new Ticket("test_action", TicketPriority.ELEVATED, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket high_ticket1 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket high_ticket2 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket high_ticket3 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket highest_ticket1 = new Ticket("test_action", TicketPriority.HIGHEST, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> normal_ticket1 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> normal_ticket2 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> elevated_ticket1 = new Ticket<>("test_action", TicketPriority.ELEVATED, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> high_ticket1 = new Ticket<>("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> high_ticket2 = new Ticket<>("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> high_ticket3 = new Ticket<>("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> highest_ticket1 = new Ticket<>("test_action", TicketPriority.HIGHEST, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
         // bundle tickets into a list (out of order)
-        List<Ticket> ticket_list = List.of(
+        List<Ticket<String>> ticket_list = List.of(
                 high_ticket2,
                 normal_ticket1,
                 elevated_ticket1,
@@ -179,7 +181,7 @@ class _Puppeteer {
         );
 
         // add all tickets to their respective queue (all the same queue for now)
-        for (Ticket ticket : ticket_list) {
+        for (Ticket<String> ticket : ticket_list) {
             puppetQueues.get(ticket.puppet()).offer(ticket);
         }
         // verify that tickets are in the correct order
@@ -187,9 +189,9 @@ class _Puppeteer {
         TicketPriority lastPriority = null;
         TicketPriority currentPriority;
         int lastPriorityIndex = -1;
-        Ticket current_ticket;
-
-        while ((current_ticket = puppetQueues.get("test_action").poll()) != null) {
+        Ticket<String> current_ticket;
+        
+        while ((current_ticket = (Ticket<String>) puppetQueues.get("test_action").poll()) != null) {
             currentPriority = current_ticket.priority();
             int currentPriorityIndex = expected_order.indexOf(currentPriority);
 
@@ -208,16 +210,16 @@ class _Puppeteer {
     public void testIsPerforming() {
 
         // created test tickets
-        Ticket normal_ticket1 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket normal_ticket2 = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket elevated_ticket1 = new Ticket("test_action", TicketPriority.ELEVATED, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket high_ticket1 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket high_ticket2 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket high_ticket3 = new Ticket("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
-        Ticket highest_ticket1 = new Ticket("test_action", TicketPriority.HIGHEST, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> normal_ticket1 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> normal_ticket2 = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> elevated_ticket1 = new Ticket<>("test_action", TicketPriority.ELEVATED, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> high_ticket1 = new Ticket<>("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> high_ticket2 = new Ticket<>("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> high_ticket3 = new Ticket<>("test_action", TicketPriority.HIGH, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        Ticket<String> highest_ticket1 = new Ticket<>("test_action", TicketPriority.HIGHEST, new ConcurrentHashMap<>(), new CompletableFuture<>());
 
-        // bundle tickets into a list 
-        List<Ticket> ticket_list = List.of(
+        //<String> bundle tickets into a list 
+        List<Ticket<String>> ticket_list = List.of(
                 high_ticket2,
                 normal_ticket1,
                 elevated_ticket1,
@@ -228,7 +230,7 @@ class _Puppeteer {
         );
 
         // queue all the tickets 
-        for (Ticket ticket : ticket_list) {
+        for (Ticket<String> ticket : ticket_list) {
             puppeteer.queueTicket(ticket);
         }
         
