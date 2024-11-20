@@ -19,13 +19,13 @@ import gg.vexi.Puppeteer.Ticket.Result;
 
 class _Ticket {
 
-    private Ticket ticket;
+    private Ticket<String> ticket;
 
     @BeforeEach
     public void setup() {
         Map<String, Object> parameters = new ConcurrentHashMap<>();
         parameters.put("setting_example", true);
-        ticket = new Ticket("test_action", TicketPriority.NORMAL, parameters, new CompletableFuture<>());
+        ticket = new Ticket<>("test_action", TicketPriority.NORMAL, parameters, new CompletableFuture<>());
     }
 
     @Test
@@ -56,7 +56,7 @@ class _Ticket {
 
         // verify future
         assertNotNull(ticket.future(), "Ticket has no future");
-        assertTrue(ticket.future() instanceof CompletableFuture<Result>);
+        assertTrue(ticket.future() instanceof CompletableFuture<Result<String>>);
 
     }
 
@@ -67,10 +67,9 @@ class _Ticket {
         @Test
         public void test_init() {
 
-            Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
+            Result<String> Result = new Result<>(null, ResultStatus.SUCCESS, new ProblemHandler());
 
             assertNotNull(Result, "Result is null");
-            assertNotNull(Result.ticket(), "Result associated ticket is null");
             assertNotNull(Result.status(), "Result status enum (status code) is null");
             assertNotNull(Result.problemHandler(), "Result ProblemHandler is null");
         }
@@ -79,7 +78,7 @@ class _Ticket {
         // @Disabled("Test not implemented") 
         public void test_isSuccessful() {
 
-            Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
+            Result<String> Result = new Result<>(null, ResultStatus.SUCCESS, new ProblemHandler());
 
             boolean isSuccessful = Result.isSuccessful();
 
@@ -92,7 +91,7 @@ class _Ticket {
         // @Disabled("Test not implemented")
         public void test_hasExceptions() {
 
-            Result Result = new Result(new ProblemHandler(), ticket, ResultStatus.FAILED, null);
+            Result<String> Result = new Result<>(null, ResultStatus.FAILED, new ProblemHandler());
 
             boolean hasExceptions = Result.hasExceptions();
 
