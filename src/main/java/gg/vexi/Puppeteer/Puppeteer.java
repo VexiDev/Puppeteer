@@ -3,7 +3,11 @@ package gg.vexi.Puppeteer;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
@@ -12,11 +16,17 @@ import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
 public class Puppeteer {
+    // Valid stats and their associated new ticket handling
+    // 0 = SHUTDOWN      <- CANNOT be queued
+    // 1 = SHUTTING_DOWN <- CANNOT be queued 
+    // 2 = CLOSED        <- CANNOT be queued
+    // 3 = OPEN          <- CAN be queued
+    private final AtomicInteger state = new AtomicInteger(2);
 
     private final Registry registry;
     private final ProblemHandler pHandler;
     private final Map<String, PriorityBlockingQueue<Ticket<?>>> ticketQueues;
-    private final Map<String, Ticket<?>> activeTickets;
+    private final Map<String, Puppet<?>> activePuppets;
 
     private final boolean verbose;
 
@@ -27,7 +37,8 @@ public class Puppeteer {
         else pHandler = new ProblemHandler();
         registry = new Registry();
         ticketQueues = new ConcurrentHashMap<>();
-        activeTickets = new ConcurrentHashMap<>();
+        activePuppets = new ConcurrentHashMap<>();
+        this.state.set(3);
     }
 
     public Puppeteer() {
@@ -50,11 +61,13 @@ public class Puppeteer {
             "Registered puppet with name %s [RegistrySize: %d]",
             name, registry.all().keySet().size()));
 
-        puppetQueues.put(name, new PriorityBlockingQueue<>());
+        ticketQueues.put(name, new PriorityBlockingQueue<>());
         printDebug(String.format("Created new queue for puppets with name -> %s", name));
     }
 
-
+    /*
+     *
+     */
     public <T> Ticket<T> createTicket(
         String puppet,
         TicketPriority ticket_priority,
@@ -86,9 +99,10 @@ public class Puppeteer {
     /*
      *
      */
-    // overloads if customer has not already created the ticket themselves with
-    // createTicket()
     public void queueTicket(Ticket<?> ticket) {
+        if (this.state.get() < 3)
+            throw new IllegalStateException(
+                String.format("Cannot queue new tickets, state is %d", this.state.get()));
         if (ticket == null) throw new NullPointerException("Ticket cannot be null");
         pHandler.attempt(() -> {
             if (!registry.contains(ticket.puppet()))
@@ -163,12 +177,13 @@ public class Puppeteer {
     }
 
     protected final <T> void executeTicket(final Ticket<?> ticket) {
-        // make ticket active
-        activeTickets.putIfAbsent(ticket.puppet(), ticket);
-
         // initialise the relevant puppet and get the puppet future
         Puppet<T> puppet = this.registry.retreive(ticket);
 
+        // set puppet active
+        activePuppets.putIfAbsent(ticket.puppet(), puppet);
+
+        // get puppet future
         CompletableFuture<Result<T>> puppetFuture = puppet.getFuture();
 
         // run puppet
@@ -192,10 +207,15 @@ public class Puppeteer {
         printDebug(String.format("A %s puppet has completed", ticket.puppet()));
         // this method preserves the type relationship between ticket and result
         ((Ticket<T>) ticket).future().complete((Result<T>) result);
-        activeTickets.remove(ticket.puppet());
+        activePuppets.remove(ticket.puppet());
         printDebug(
             String.format("Attempting to execute next ticket for puppet %s", ticket.puppet()));
         tryExecuteNextTicket(ticket.puppet());
+    }
+
+    // Default to soft shutdown
+    public final boolean shutdown() {
+        return shutdown(false);
     }
 
     /*
@@ -217,8 +237,6 @@ public class Puppeteer {
 
         //if (hard) cancelActive(); //<-- uncomment when cancelActive is implemented!
         while (anyActive()) continue; // else this if not hard
-
-
 
         // set Puppeteer state to SHUTDOWN
         this.state.set(0);
@@ -265,7 +283,7 @@ public class Puppeteer {
     }
 
     protected synchronized final boolean isActive(String puppet) {
-        return activeTickets.containsKey(puppet);
+        return activePuppets.containsKey(puppet);
     }
 
     public synchronized final ProblemHandler getProblemHandler() {
@@ -281,17 +299,13 @@ public class Puppeteer {
     }
 
     public synchronized final Ticket<?> getActive(String puppet) {
-        return activeTickets.get(puppet);
+        return activePuppets.get(puppet).getTicket();
     }
 
     public synchronized final Map<String, Ticket<?>> getAllActive() {
-        return activeTickets;
-    }
+        return activePuppets.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getTicket()));
 
-    // setters
-    // TODO: Make private and make tests use reflection to access
-    protected synchronized final void setActive(Ticket<?> ticket) {
-        activeTickets.put(ticket.puppet(), ticket);
     }
 
 }
