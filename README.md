@@ -1,6 +1,7 @@
 
 > [!Warning]
-> **This README is Out of Date!**
+> **This README is outdated!**
+> *Documented code will no longer work!*
 
 <!-- Project Title -->
 # Puppeteer
