@@ -1,42 +1,34 @@
 package gg.vexi.Puppeteer;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.ExampleObject;
-import gg.vexi.Puppeteer.ExamplePuppets.Implementations.CustomObjectResult_Puppet;
-import gg.vexi.Puppeteer.ExamplePuppets.Implementations.MapResult_Puppet;
-import gg.vexi.Puppeteer.ExamplePuppets.Implementations.PrimitiveTypeResult_Puppet;
-import gg.vexi.Puppeteer.ExamplePuppets.Implementations.VoidResult_Puppet;
+import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
+import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_Object;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
 
 class _Puppet {
 
-    Ticket ticket;
+    Ticket<String> ticket;
 
     @BeforeEach
     public void setup() {
-        ticket = new Ticket("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        ticket = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
     }
 
-    // Since puppets are just going to be implementations of an abstract puppet class
-    // As per my current understanding of testing abstract classes:
-    // we should just mock what a puppet could be and ensure its has all expected attributes and methods
     @Test
     public void test_init() {
 
@@ -69,8 +61,9 @@ class _Puppet {
 
     @Test
     public void test_start() throws InterruptedException {
+         
 
-        VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
+        ExamplePuppet_String puppet = new ExamplePuppet_String(ticket);
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -79,10 +72,10 @@ class _Puppet {
             latch.countDown();
         });
 
-        latch.await(500, TimeUnit.MILLISECONDS);
+        latch.await(50, TimeUnit.MILLISECONDS); // wait for puppet to start before checking
         assertEquals(PuppetStatus.PROCESSING, puppet.getStatus());
 
-        assertEquals(PuppetStatus.PROCESSING, puppet.getStatus(), "Void Puppet status is not PROCESSING after start");
+        assertEquals(PuppetStatus.PROCESSING, puppet.getStatus(), "Puppet status is not PROCESSING after start");
     }
 
     // tests the complete() method which takes a result status and data to build the TicketResult and completes its future with it
@@ -90,12 +83,12 @@ class _Puppet {
     // @Disabled("Test not implemented yet")
     public void test_complete() {
 
-        VoidResult_Puppet puppet = new VoidResult_Puppet(ticket);
-        CompletableFuture<Result> puppetFuture = puppet.getFuture();
+        ExamplePuppet_String puppet = new ExamplePuppet_String(ticket);
+        CompletableFuture<Result<String>> puppetFuture = puppet.getFuture();
 
         puppetFuture.thenAccept(actualResult -> {
             // build expected result
-            Result expectedResult = new Result(new ProblemHandler(), ticket, ResultStatus.SUCCESS, null);
+            Result<String> expectedResult = new Result<>("Test_Action Worker Data", ResultStatus.SUCCESS, new ProblemHandler());
             assertEquals(expectedResult, actualResult, "Result mismatch");
         });
 
@@ -115,14 +108,14 @@ class _Puppet {
 
     @Test
     public void test_resultGenericType() {
-         
-        CustomObjectResult_Puppet puppet = new CustomObjectResult_Puppet(ticket);
+        
+        Ticket<ExampleObject> t = new Ticket<>("example_object_puppet", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+
+        ExamplePuppet_Object puppet = new ExamplePuppet_Object(t);
 
         puppet.getFuture().thenAccept((ticketResult) -> {
 
-            assertTrue(ticketResult.data() instanceof ExampleObject, "TicketResult data is not an instance of ExampleObject");
-            // TODO: Implement generics typesafety and remove need to cast result data
-            ExampleObject ticket_result_data = (ExampleObject) ticketResult.data();
+            ExampleObject ticket_result_data = ticketResult.data();
             assertEquals("Showcase", ticket_result_data.data, "Value mismatch");
         });
 
