@@ -79,4 +79,9 @@ public class Ticket<T> implements Comparable<Ticket<?>> {
             Result.complete(null, ResultStatus.ERROR_FAILED, problemHandler));
     }
 
+    public final void cancel(ProblemHandler problemHandler) {
+        this.future.complete(
+            Result.complete(null, ResultStatus.CANCELED, problemHandler));
+    }
+
 }
