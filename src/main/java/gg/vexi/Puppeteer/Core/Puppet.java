@@ -8,21 +8,21 @@ import gg.vexi.Puppeteer.PuppetStatus;
 import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
 
-public abstract class Puppet {
+public abstract class Puppet<T> {
 
     private PuppetStatus status = PuppetStatus.CREATED;
-    private final CompletableFuture<Result> future;
-    private final Ticket ticket;
+    private final CompletableFuture<Result<T>> future;
+    private final Ticket<T> ticket;
     protected final ProblemHandler problemHandler;
     // TODO: Consider making parameter map read only?
     protected final Map<String, Object> parameters;
 
-    public Puppet(Ticket ticket) {
+    public Puppet(Ticket<T> ticket) {
         this.ticket = ticket;
-        problemHandler = new ProblemHandler();
-        future = new CompletableFuture<>();
-        parameters = ticket.parameters();
-        status = PuppetStatus.READY;
+        this.problemHandler = new ProblemHandler();
+        this.future = new CompletableFuture<>();
+        this.parameters = ticket.parameters();
+        this.status = PuppetStatus.READY;
 
     }
 
@@ -33,13 +33,12 @@ public abstract class Puppet {
     // This allows for automatic unhandled exception handling
     // using the ProblemHandler in case one is missed
     public final void start() {
-        problemHandler.attempt(() -> {
+        this.problemHandler.attempt(() -> {
             setStatus(PuppetStatus.PROCESSING);
             main();
         }, problem -> {
-            status = PuppetStatus.ERROR;
-            complete(ResultStatus.FAILED, null);
-        }); 
+            completeExceptionally();
+        });
     }
 
     // exit point of puppet
@@ -47,24 +46,29 @@ public abstract class Puppet {
         complete(result_status, null);
     }
 
-    protected void complete(ResultStatus result_status, Object data) {
-        status = PuppetStatus.COMPLETED;
-        Result result = new Result(problemHandler, ticket, result_status, data);
+    protected final void complete(ResultStatus result_status, T data) {
+        this.status = PuppetStatus.COMPLETED;
+        Result<T> result = Result.complete(data, result_status, this.problemHandler);
+        this.future.complete(result);
+    }
 
-        future.complete(result);
+    protected final void completeExceptionally() {
+        this.status = PuppetStatus.ERROR;
+        this.future.complete(
+            Result.complete(null, ResultStatus.ERROR_FAILED, this.problemHandler));
     }
 
     // getters
     public PuppetStatus getStatus() {
-        return status;
+        return this.status;
     }
 
-    public CompletableFuture<Result> getFuture() {
-        return future;
+    public CompletableFuture<Result<T>> getFuture() {
+        return this.future;
     }
 
-    public Ticket getTicket() {
-        return ticket;
+    public Ticket<T> getTicket() {
+        return this.ticket;
     }
 
     // setters
