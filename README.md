@@ -8,10 +8,10 @@
 <!-- Description -->
 
 > [!Note]
-> Puppeteer is an exploratory project into concurrency and thread management!
-> Applying concepts from:
-> • Doug Lea, "Concurrent Programming in Java, 2nd Edition"
-> • ...put rest here
+> Puppeteer is an exploratory project into concurrency and thread management!<br>
+> Applying readings:<br>
+> • Doug Lea, "Concurrent Programming in Java, 2nd Edition"<br>
+> • ...put rest here<br>
 
 <span style="color: #00C2FF;">`TL;DR`</span> A process manager for queued execution of repeating asynchronous tasks
 
