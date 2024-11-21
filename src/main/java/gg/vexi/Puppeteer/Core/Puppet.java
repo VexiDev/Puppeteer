@@ -16,7 +16,7 @@ public abstract class Puppet<T> {
     // TODO: Consider making parameter map read only?
     protected final Map<String, Object> parameters;
 
-    public Puppet( Ticket<T> ticket ) {
+    public Puppet(Ticket<T> ticket) {
         this.ticket = ticket;
         this.problemHandler = new ProblemHandler();
         this.future = new CompletableFuture<>();
@@ -30,24 +30,24 @@ public abstract class Puppet<T> {
     // start point of puppet (run by puppeteer)
     // This allows for automatic unhandled exception handling using the ProblemHandler in case one is missed
     public final void start() {
-        this.problemHandler.attempt( () -> {
-            setStatus( PuppetStatus.PROCESSING );
+        this.problemHandler.attempt(() -> {
+            setStatus(PuppetStatus.PROCESSING);
             main();
-        }, problem -> { completeExceptionally(); } );
+        }, problem -> { completeExceptionally(); });
     }
 
     // exit point of puppet
-    protected void complete( ResultStatus result_status ) { complete( result_status, null ); }
+    protected void complete(ResultStatus result_status) { complete(result_status, null); }
 
-    protected final void complete( ResultStatus result_status, T data ) {
+    protected final void complete(ResultStatus result_status, T data) {
         this.status = PuppetStatus.COMPLETED;
-        Result<T> result = Result.complete( data, result_status, this.problemHandler );
-        this.future.complete( result );
+        Result<T> result = Result.complete(data, result_status, this.problemHandler);
+        this.future.complete(result);
     }
 
     protected final void completeExceptionally() {
         this.status = PuppetStatus.ERROR;
-        this.future.complete( Result.complete( null, ResultStatus.ERROR_FAILED, this.problemHandler ) );
+        this.future.complete(Result.complete(null, ResultStatus.ERROR_FAILED, this.problemHandler));
     }
 
     public Ticket<T> getTicket() { return this.ticket; }
@@ -56,5 +56,5 @@ public abstract class Puppet<T> {
 
     public CompletableFuture<Result<T>> getFuture() { return this.future; }
 
-    public void setStatus( PuppetStatus status ) { this.status = status; }
+    public void setStatus(PuppetStatus status) { this.status = status; }
 }
