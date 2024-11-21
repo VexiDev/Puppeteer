@@ -1,7 +1,7 @@
 package gg.vexi.Puppeteer.Ticket;
 
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
-import gg.vexi.Puppeteer.ResultStatus;
+import gg.vexi.Puppeteer.Core.ResultStatus;
 
 public class Result<T> {
 

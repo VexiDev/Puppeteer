@@ -2,7 +2,7 @@ package gg.vexi.Puppeteer.ExamplePuppets;
 
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ResultStatus;
+import gg.vexi.Puppeteer.Core.ResultStatus;
 
 // THIS IS THE PLACEHOLDER WORKER FOR ALL GENERAL UNIT TESTS
 

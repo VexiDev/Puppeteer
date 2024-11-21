@@ -3,9 +3,9 @@ package gg.vexi.Puppeteer.Core;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import gg.vexi.Puppeteer.Core.ResultStatus;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.PuppetStatus;
-import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
 
 public abstract class Puppet<T> {

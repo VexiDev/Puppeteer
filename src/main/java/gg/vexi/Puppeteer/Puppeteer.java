@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
+import gg.vexi.Puppeteer.Core.ResultStatus;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Exceptions.PuppetNotFound;
 import gg.vexi.Puppeteer.Ticket.Result;

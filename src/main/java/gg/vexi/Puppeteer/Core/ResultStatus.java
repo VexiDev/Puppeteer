@@ -1,4 +1,4 @@
-package gg.vexi.Puppeteer;
+package gg.vexi.Puppeteer.Core;
 
 public enum ResultStatus {
     SUCCESS,

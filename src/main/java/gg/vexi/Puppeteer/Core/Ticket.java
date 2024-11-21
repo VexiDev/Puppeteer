@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
-import gg.vexi.Puppeteer.ResultStatus;
+import gg.vexi.Puppeteer.Core.ResultStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
