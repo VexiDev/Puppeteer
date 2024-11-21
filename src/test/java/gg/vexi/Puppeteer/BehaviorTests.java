@@ -1,5 +1,8 @@
 package gg.vexi.Puppeteer;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,16 +13,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import gg.vexi.Puppeteer.Core.Ticket;
+import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
+import gg.vexi.Puppeteer.Ticket.Result;
+import gg.vexi.Puppeteer.Ticket.TicketPriority;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
-import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.Ticket.Result;
 
 class _Behavior {
 
@@ -29,7 +30,6 @@ class _Behavior {
     public void setup() {
         puppeteer = new Puppeteer();
         puppeteer.registerPuppet("test_action", ExamplePuppet_String.class);
-
     }
 
     // -----------------------------------------------------------------------------
@@ -62,34 +62,25 @@ class _Behavior {
 
         // <<<< EXECUTES FIRST WHEN TICKET FUTURE COMPLETE >>>>>>>
         ticketFuture.thenAccept(result -> {
-
             // verify current check and incrememnt check by 1
-            assertEquals(new AtomicInteger(0).get(), check.getAndSet(1),
-                "ticketFuture.thenAccept did not run first");
-
+            assertEquals(new AtomicInteger(0).get(), check.getAndSet(1), "ticketFuture.thenAccept did not run first");
         });
 
         // wait for ticket result
         AtomicReference<Result<String>> ticket_result_holder = new AtomicReference<>();
-        assertTimeoutPreemptively(
-            Duration.ofSeconds(5),
-            () -> {
-                Result<String> ticket_result = ticketFuture.join();
-                ticket_result_holder.set(ticket_result);
-            },
-            "Ticket future took too long to complete\n");
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            Result<String> ticket_result = ticketFuture.join();
+            ticket_result_holder.set(ticket_result);
+        }, "Ticket future took too long to complete\n");
 
         Result<String> ticket_result = ticket_result_holder.get();
 
         // <<<< EXECUTES AFTER thenAccept >>>>>>>
-        assertEquals(expected_check.get(), check.get(),
-            "ticketFuture.thenAccept did not run first");
+        assertEquals(expected_check.get(), check.get(), "ticketFuture.thenAccept did not run first");
 
         // verify ticket_result
         assertNotNull(ticket_result, "Ticket result does not exist");
-        assertEquals(true, ticket_result instanceof Result,
-            "Ticket future result is not a TicketResult object");
-
+        assertEquals(true, ticket_result instanceof Result, "Ticket future result is not a TicketResult object");
     }
 
     @Test
@@ -106,7 +97,7 @@ class _Behavior {
         List<Ticket<String>> tickets = new ArrayList<>();
         List<CompletableFuture<Result<String>>> futures = new ArrayList<>();
 
-        for (int i = 0; i <= num_test_tickets - 1; i++) {
+        for ( int i = 0; i <= num_test_tickets - 1; i++ ) {
             Ticket<String> ticket = puppeteer.createTicket(ticket_puppet, priority, parameters);
             tickets.add(ticket);
             futures.add(ticket.future());
@@ -114,24 +105,23 @@ class _Behavior {
 
         AtomicInteger a = new AtomicInteger(0);
         // queue all the tickets
-        for (Ticket<String> ticket : tickets) {
+        for ( Ticket<String> ticket : tickets ) {
             puppeteer.queueTicket(ticket);
             ticket.future().thenAccept(result -> {
-                if (result.isSuccessful()) {
-                    a.getAndIncrement(); 
-                }
+                if ( result.isSuccessful() ) { a.getAndIncrement(); }
             });
         }
-        
+
         // ensure all puppets completed successfully within the alloted time
         assertTimeoutPreemptively(
             Duration.ofMillis(tickets.size() * 300), // 100ms overhead for each future
-            () -> {
-                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+            ()
+                -> {
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[] ::new)).join();
                 assertEquals(tickets.size(), a.get(), "All Puppets did not complete");
             },
-            "Puppets did not complete in time");
-
+            "Puppets did not complete in time"
+        );
     }
 
     @Test
@@ -158,14 +148,16 @@ class _Behavior {
         AtomicInteger completedCount = new AtomicInteger(0);
 
         // this loop queues puppets and ensures the queue size increases accordingly
-        for (int i = 0; i <= num_test_tickets - 1; i++) {
+        for ( int i = 0; i <= num_test_tickets - 1; i++ ) {
 
             Ticket<String> ticket = puppeteer.createTicket(ticket_puppet, priority, parameters);
             tickets.add(ticket);
             futures.add(ticket.future());
             puppeteer.queueTicket(ticket);
             int expected = puppeteer.getQueue(ticket_puppet).size();
-            assertEquals(expected, i); // 0 on first loop works because the first ticket is immediately polled from the queue
+            assertEquals(
+                expected, i
+            ); // 0 on first loop works because the first ticket is immediately polled from the queue
         }
 
         assertEquals(5, tickets.size());
@@ -180,26 +172,25 @@ class _Behavior {
         // (we could have puppets be able to kill themselves or
         // ticketmanager kills a puppet [heartbeat style implementation])
         AtomicBoolean flag = new AtomicBoolean(false);
-        for (int i = 0; i <= tickets.size() - 1; i++) {
+        for ( int i = 0; i <= tickets.size() - 1; i++ ) {
 
             // wait for tickets to complete and ensure the queue is the size we expect
             futures.get(i).thenRun(() -> {
-
                 int actual = puppeteer.getQueue(ticket_puppet).size();
                 int totalCompleted = completedCount.incrementAndGet();
                 int expected = futures.size() - totalCompleted;
-                if (expected != actual) {
-                    flag.set(true);
-                }
+                if ( expected != actual ) { flag.set(true); }
             });
         }
         assertTimeoutPreemptively(
             Duration.ofMillis(futures.size() * 2000), // 100ms overhead for each future
-            () -> {
-                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+            ()
+                -> {
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[] ::new)).join();
                 assertEquals(false, flag.get(), "Queue count mismatch during processing!");
             },
-            "Queued tickets took to long to execute (likely means that we failed to execute all tickets!)\nEnsure that ticket queues are not being cleared and all ticket futures complete eventually!\n");
+            "Queued tickets took to long to execute (likely means that we failed to execute all tickets!)\nEnsure "
+                + "that ticket queues are not being cleared and all ticket futures complete eventually!\n"
+        );
     }
-
 }

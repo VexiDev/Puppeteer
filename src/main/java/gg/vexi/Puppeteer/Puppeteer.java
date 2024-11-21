@@ -3,25 +3,23 @@ package gg.vexi.Puppeteer;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Exceptions.PuppetNotFound;
-import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
+import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
 public class Puppeteer {
-    // Valid stats and their associated new ticket handling
-    // 0 = SHUTDOWN      <- CANNOT be queued
-    // 1 = SHUTTING_DOWN <- CANNOT be queued 
-    // 2 = CLOSED        <- CANNOT be queued
-    // 3 = OPEN          <- CAN be queued
-    private final AtomicInteger state = new AtomicInteger(2);
+    public final byte SHUTDOWN_STATE = 0;      // <- CANNOT be queued
+    public final byte SHUTTING_DOWN_STATE = 1; // <- CANNOT be queued
+    public final byte CLOSED_STATE = 2;        // <- CANNOT be queued
+    public final byte OPEN_STATE = 3;          // <- CAN be queued
+    private final AtomicInteger state = new AtomicInteger(CLOSED_STATE);
 
     private final Registry registry;
     private final ProblemHandler pHandler;
@@ -33,33 +31,28 @@ public class Puppeteer {
     public Puppeteer(boolean verbose) {
         this.verbose = verbose;
         printDebug("Initializing puppeteer!");
-        if (verbose) pHandler = new ProblemHandler(verbose);
+        if ( verbose ) pHandler = new ProblemHandler(verbose);
         else pHandler = new ProblemHandler();
         registry = new Registry();
         ticketQueues = new ConcurrentHashMap<>();
         activePuppets = new ConcurrentHashMap<>();
-        this.state.set(3);
+        this.state.set(OPEN_STATE);
     }
 
-    public Puppeteer() {
-        this(false);
-    }
+    public Puppeteer() { this(false); }
 
     public final void printDebug(String msg) {
-        if (verbose) {
+        if ( verbose ) {
             System.out.println(msg);
             System.out.flush();
-
         }
     }
 
-    public synchronized final <T> void registerPuppet(
-        String name,
-        Class<? extends Puppet<T>> puppetClass) {
+    public synchronized final <T> void registerPuppet(String name, Class<? extends Puppet<T>> puppetClass) {
         registry.registerPuppet(name, puppetClass);
-        printDebug(String.format(
-            "Registered puppet with name %s [RegistrySize: %d]",
-            name, registry.all().keySet().size()));
+        printDebug(
+            String.format("Registered puppet with name %s [RegistrySize: %d]", name, registry.all().keySet().size())
+        );
 
         ticketQueues.put(name, new PriorityBlockingQueue<>());
         printDebug(String.format("Created new queue for puppets with name -> %s", name));
@@ -68,15 +61,10 @@ public class Puppeteer {
     /*
      *
      */
-    public <T> Ticket<T> createTicket(
-        String puppet,
-        TicketPriority ticket_priority,
-        Map<String, Object> ticket_parameters) {
-
-        if (!registry.contains(puppet))
-            throw new PuppetNotFound(
-                String.format("\"%s\" is not a registered puppet", puppet));
-
+    public <T> Ticket<T>
+        createTicket(String puppet, TicketPriority ticket_priority, Map<String, Object> ticket_parameters) {
+        if ( !registry.contains(puppet) )
+            throw new PuppetNotFound(String.format("\"%s\" is not a registered puppet", puppet));
         return pHandler.attemptOrElse(() -> {
             CompletableFuture<Result<T>> future = new CompletableFuture<>();
             Ticket<T> ticket = new Ticket<>(puppet, ticket_priority, ticket_parameters, future);
@@ -100,14 +88,12 @@ public class Puppeteer {
      *
      */
     public void queueTicket(Ticket<?> ticket) {
-        if (this.state.get() < 3)
-            throw new IllegalStateException(
-                String.format("Cannot queue new tickets, state is %d", this.state.get()));
-        if (ticket == null) throw new NullPointerException("Ticket cannot be null");
+        if ( this.state.get() < OPEN_STATE )
+            throw new IllegalStateException(String.format("Cannot queue new tickets, state is %d", this.state.get()));
+        if ( ticket == null ) throw new NullPointerException("Ticket cannot be null");
         pHandler.attempt(() -> {
-            if (!registry.contains(ticket.puppet()))
-                throw new PuppetNotFound(
-                    String.format("\"%s\" is not a registered puppet", ticket.puppet()));
+            if ( !registry.contains(ticket.puppet()) )
+                throw new PuppetNotFound(String.format("\"%s\" is not a registered puppet", ticket.puppet()));
             addTicketToQueue(ticket);
             tryExecuteNextTicket(ticket.puppet());
         }, problem -> {
@@ -117,16 +103,14 @@ public class Puppeteer {
         });
     }
 
-    public <T> Ticket<T> queueTicket(String puppet, TicketPriority ticket_priority,
-        Map<String, Object> ticket_parameters) {
+    public <T> Ticket<T>
+        queueTicket(String puppet, TicketPriority ticket_priority, Map<String, Object> ticket_parameters) {
         Ticket<T> ticket = createTicket(puppet, ticket_priority, ticket_parameters);
         queueTicket(ticket);
         return ticket;
     }
 
-    public <T> Ticket<T> queueTicket(String puppet) {
-        return queueTicket(puppet, new ConcurrentHashMap<>());
-    }
+    public <T> Ticket<T> queueTicket(String puppet) { return queueTicket(puppet, new ConcurrentHashMap<>()); }
 
     public <T> Ticket<T> queueTicket(String puppet, TicketPriority priority) {
         return queueTicket(puppet, priority, new ConcurrentHashMap<>());
@@ -137,11 +121,13 @@ public class Puppeteer {
     }
 
     protected synchronized void addTicketToQueue(Ticket<?> ticket) {
-        printDebug(String.format("Adding a ticket to queue %s [Queue length is currently %d]",
-            ticket.puppet(), ticketQueues.get(ticket.puppet()).size()));
+        printDebug(String.format(
+            "Adding a ticket to queue %s [Queue length is currently %d]",
+            ticket.puppet(),
+            ticketQueues.get(ticket.puppet()).size()
+        ));
         ticketQueues.get(ticket.puppet()).offer(ticket);
-        printDebug(
-            String.format("Queue size is now %d", ticketQueues.get(ticket.puppet()).size()));
+        printDebug(String.format("Queue size is now %d", ticketQueues.get(ticket.puppet()).size()));
     }
 
     private synchronized Ticket<?> pollForTicket(String puppet) {
@@ -150,12 +136,11 @@ public class Puppeteer {
     }
 
     protected final Ticket<?> nextTicket(String puppet) {
-        if (!isActive(puppet)) {
+        if ( !isActive(puppet) ) {
             // printDebug("Queue size when polling for type "+type+":
             // "+actionQueues.get(type).size());
             Ticket<?> next_ticket = pollForTicket(puppet);
-            printDebug(String.format("Polling... [Queue size is now %d]",
-                ticketQueues.get(puppet).size()));
+            printDebug(String.format("Polling... [Queue size is now %d]", ticketQueues.get(puppet).size()));
             return next_ticket;
         } else {
             printDebug(String.format("A ticket is already being processed for type %s", puppet));
@@ -165,12 +150,13 @@ public class Puppeteer {
 
     protected final void tryExecuteNextTicket(String puppet) {
         Ticket<?> next_ticket = nextTicket(puppet);
-        if (next_ticket == null) {
+        if ( next_ticket == null ) {
             // we should check to see if isEmpty() returns true
             printDebug(String.format(
-                "nextTicket for type %s returned null! " +
-                    "(a ticket might be active or the queue is empty)",
-                puppet));
+                "nextTicket for type %s returned null! "
+                    + "(a ticket might be active or the queue is empty)",
+                puppet
+            ));
             return;
         }
         executeTicket(next_ticket);
@@ -195,11 +181,7 @@ public class Puppeteer {
         // "+actionQueues.get(ticket.getType()).size());
 
         // pass result to ticket future when compelte (we may do more stuff here later)
-        puppetFuture.thenAccept(result -> {
-
-            completeTicket(ticket, result);
-
-        });
+        puppetFuture.thenAccept(result -> { completeTicket(ticket, result); });
     }
 
     @SuppressWarnings("unchecked")
@@ -208,15 +190,12 @@ public class Puppeteer {
         // this method preserves the type relationship between ticket and result
         ((Ticket<T>) ticket).future().complete((Result<T>) result);
         activePuppets.remove(ticket.puppet());
-        printDebug(
-            String.format("Attempting to execute next ticket for puppet %s", ticket.puppet()));
+        printDebug(String.format("Attempting to execute next ticket for puppet %s", ticket.puppet()));
         tryExecuteNextTicket(ticket.puppet());
     }
 
     // Default to soft shutdown
-    public final boolean shutdown() {
-        return shutdown(false);
-    }
+    public final boolean shutdown() { return shutdown(false); }
 
     /*
      *  Returns true if is shutdown
@@ -224,88 +203,71 @@ public class Puppeteer {
      */
     public final boolean shutdown(boolean hard) {
         int s = this.state.get();
-        if (s == 0) return true;
-        else if (s == 1) return false;
+        if ( s == 0 ) return true;
+        else if ( s == 1 ) return false;
 
-        // set Puppeteer state to SHUTTING_DOWN
-        this.state.set(1);
+        this.state.set(SHUTTING_DOWN_STATE);
 
-        // for each queue in the queue map, go through its queued tickets and cancel them
+        // Note:
+        // SOFT shutdown risks long lock times if running puppets take a long time to complete!
         cancelQueued();
+        // if (hard) cancelActive(); //not implemented
+        while ( anyActive() ) continue;
 
-        // wait for active tickets to finish processing
-
-        //if (hard) cancelActive(); //<-- uncomment when cancelActive is implemented!
-        while (anyActive()) continue; // else this if not hard
-
-        // set Puppeteer state to SHUTDOWN
-        this.state.set(0);
-
-        // return successfull shutdown
+        this.state.set(SHUTDOWN_STATE);
         return true;
     }
 
-    //Currently since we use CmplFtr.runAsync(() -> puppet.start()); to run puppets
-    //it is difficult to interrupt the thread running the puppet.
-    //until an alternative method for running puppets is implemented soft shutdown is the only
-    //available shutdown mode
+    // Currently since we use CmplFtr.runAsync(() -> puppet.start()); to run puppets we don't
+    // hold references to the thread running a given puppet. Until we do keep this reference
+    //(probably via a custom executor design) we cannot interrupt puppets early (this is bad)
+    @SuppressWarnings("unused")
     private void cancelActive() {
-        //TODO: Implement ability for puppeteer to interrupt active puppets
-        //something like:
-        // activeTickets.values().stream().forEach(p -> p::interrupt);
+        // TODO: Implement ability for puppeteer to interrupt active puppets
+        // something like:
+        //  activeTickets.values().stream().forEach(p -> p::interrupt);
     }
 
     private synchronized void cancelQueued() {
         ticketQueues.values().stream().forEach(ticketQ -> {
-            while (ticketQ.peek() != null)
-                ticketQ.poll().cancel(new ProblemHandler());
+            while ( ticketQ.peek() != null ) ticketQ.poll().cancel(new ProblemHandler());
         });
     }
 
     // getters:
 
-    // if any tickets are queued or active puppeteer is "performing"
-    public synchronized final boolean isPerforming() {
-        return (anyActive() || anyQueued());
-    }
+    public synchronized final boolean isPerforming() { return (anyActive() || anyQueued()); }
 
     private final boolean anyActive() {
         return (activePuppets.keySet().stream()
-            .filter(key -> (activePuppets.get(key) != null))
-            .count() != 0);
+                    .filter(key -> (activePuppets.get(key) != null))
+                    .count() != 0);
     }
 
     private final boolean anyQueued() {
         return (ticketQueues.keySet().stream()
-            .filter(key -> !ticketQueues.get(key).isEmpty())
-            .count() != 0);
-
+                    .filter(key -> !ticketQueues.get(key).isEmpty())
+                    .count() != 0);
     }
 
-    protected synchronized final boolean isActive(String puppet) {
-        return activePuppets.containsKey(puppet);
-    }
+    public synchronized final ProblemHandler getProblemHandler() { return pHandler; }
 
-    public synchronized final ProblemHandler getProblemHandler() {
-        return pHandler;
-    }
+    public synchronized final Map<String, PriorityBlockingQueue<Ticket<?>>> getAllQueues() { return ticketQueues; }
 
     public synchronized final PriorityBlockingQueue<Ticket<?>> getQueue(String puppet) {
         return ticketQueues.get(puppet);
     }
 
-    public synchronized final Map<String, PriorityBlockingQueue<Ticket<?>>> getAllQueues() {
-        return ticketQueues;
-    }
+    protected synchronized final boolean isActive(String puppet) { return activePuppets.containsKey(puppet); }
 
     public synchronized final Ticket<?> getActive(String puppet) {
-        return activePuppets.get(puppet).getTicket();
+        Puppet<?> p = activePuppets.get(puppet);
+        return (p == null) ? null : p.getTicket();
     }
 
     public synchronized final Map<String, Ticket<?>> getAllActive() {
-        return activePuppets.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getTicket()));
-
+        return activePuppets.entrySet().stream().collect(
+            Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getTicket())
+        );
     }
-
 }

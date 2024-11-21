@@ -16,11 +16,11 @@ public class Registry {
     public <T> void registerPuppet(String name, Class<? extends Puppet<T>> puppetClass) {
         Function<Ticket<T>, Puppet<T>> factory = (ticket) -> {
             try {
-                return puppetClass
-                    .getDeclaredConstructor(Ticket.class)
-                    .newInstance(ticket);
-            } catch (IllegalAccessException | InstantiationException | NoSuchMethodException
-                | SecurityException | InvocationTargetException e) {
+                return puppetClass.getDeclaredConstructor(Ticket.class).newInstance(ticket);
+            } catch (
+                IllegalAccessException | InstantiationException | NoSuchMethodException | SecurityException
+                | InvocationTargetException e
+            ) {
                 throw new RuntimeException("Failed to instantiate puppet class", e);
             }
         };
@@ -42,19 +42,13 @@ public class Registry {
     @SuppressWarnings("unchecked")
     public <T> Puppet<T> retreive(Ticket<?> ticket) {
         String name = ticket.puppet().toLowerCase(Locale.ROOT);
-        if (!contains(name))
-            throw new PuppetNotFound(String.format("\"%s\" is not a registered puppet", name));
+        if ( !contains(name) ) throw new PuppetNotFound(String.format("\"%s\" is not a registered puppet", name));
         Function<Ticket<?>, Puppet<?>> constructor = registry.get(name.toLowerCase(Locale.ROOT));
         // safe cast since function maintains the type relationship between puppet and ticket
         return (Puppet<T>) constructor.apply(ticket);
     }
 
-    public boolean contains(String puppetName) {
-        return this.registry.containsKey(puppetName);
-    }
+    public boolean contains(String puppetName) { return this.registry.containsKey(puppetName); }
 
-    public Map<String, Function<Ticket<?>, Puppet<?>>> all() {
-        return this.registry;
-    }
-
+    public Map<String, Function<Ticket<?>, Puppet<?>>> all() { return this.registry; }
 }

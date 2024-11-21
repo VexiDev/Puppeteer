@@ -19,45 +19,36 @@ public class Problem implements Comparable<Problem> {
 
         // Get the first non-framework stack trace element
         // This will be the throwable location
-        this.location = Optional.ofNullable(throwable.getStackTrace())
-            .filter(stack -> stack.length > 0)
-            .map(stack -> {
-                // TODO: Find a better way to filter out non-framework
-                String puppeteer = ".Puppeteer.Puppeteer."; // remove puppeteer
-                String jdk = "jdk."; // remove java jdk
-                return java.util.Arrays.stream(stack)
-                    .filter(element -> (!element.getClassName().contains(puppeteer) &&
-                                        !element.getClassName().contains(jdk)))
-                    .findFirst()
-                    .orElse(null); // null forces Unknown location but
-                                   // this will never happen
-                                   // (said every dev ever)
-            })
-            .map(element -> element.getClassName() + "." +
-                element.getMethodName() + ":" +
-                element.getLineNumber())
-            .orElse("Unknown location");
+        this.location =
+            Optional.ofNullable(throwable.getStackTrace())
+                .filter(stack -> stack.length > 0)
+                .map(stack -> {
+                    // TODO: Find a better way to filter out non-framework
+                    String puppeteer = ".Puppeteer.Puppeteer."; // remove puppeteer
+                    String jdk = "jdk.";                        // remove java jdk
+                    return java.util.Arrays.stream(stack)
+                        .filter(
+                            element
+                            -> (!element.getClassName().contains(puppeteer) && !element.getClassName().contains(jdk))
+                        )
+                        .findFirst()
+                        .orElse(null); // null forces Unknown location but
+                                       // this will never happen
+                                       // (said every dev ever)
+                })
+                .map(element -> element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber())
+                .orElse("Unknown location");
     }
 
-    public String id() {
-        return id;
-    }
+    public String id() { return id; }
 
-    public Throwable get() {
-        return throwable;
-    }
+    public Throwable get() { return throwable; }
 
-    public Instant instant() {
-        return timestamp;
-    }
+    public Instant instant() { return timestamp; }
 
-    public String threadName() {
-        return threadName;
-    }
+    public String threadName() { return threadName; }
 
-    public String location() {
-        return location;
-    }
+    public String location() { return location; }
 
     @Override
     public int compareTo(Problem other) {
@@ -66,11 +57,13 @@ public class Problem implements Comparable<Problem> {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s in \"%s\" at %s: %s",
+        return String.format(
+            "[%s] %s in \"%s\" at %s: %s",
             id,
             throwable.getClass().getSimpleName(),
             threadName,
             location,
-            throwable.getMessage());
+            throwable.getMessage()
+        );
     }
 }

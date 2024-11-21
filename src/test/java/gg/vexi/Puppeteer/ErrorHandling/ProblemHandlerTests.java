@@ -1,17 +1,18 @@
 package gg.vexi.Puppeteer.ErrorHandling;
 
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import gg.vexi.Puppeteer.Exceptions.Problem;
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
-import gg.vexi.Puppeteer.Exceptions.Problem;
 
 //TODO: Make tests have good/bad path to better cover edge case handling
 
@@ -50,11 +51,12 @@ class _ProblemHandler {
             assertNotNull(problem.location(), "Location is null");
             // only check that its the correct method to avoid code locational tests
             // normally includes line numbers
-            assertEquals(problem.location().substring(0, problem.location().indexOf(":")),
+            assertEquals(
+                problem.location().substring(0, problem.location().indexOf(":")),
                 "gg.vexi.Puppeteer.ErrorHandling._ProblemHandler$_ProblemTests.testInit",
-                "Location mismatch");
+                "Location mismatch"
+            );
         }
-
     }
 
     @Test
@@ -78,11 +80,8 @@ class _ProblemHandler {
         // throw exception 1 & 2 and handle them in catch
 
         try {
-            if (true)
-                throw testException1;
-        } catch (Exception e) {
-            ph.handle(e);
-        }
+            if ( true ) throw testException1;
+        } catch ( Exception e ) { ph.handle(e); }
 
         assertEquals(1, ph.size(), "Record list size mismatch");
         problem = ph.getAll().get(0);
@@ -97,32 +96,25 @@ class _ProblemHandler {
         Exception testException3 = new RuntimeException("rt_exception_3");
 
         try {
-            if (true)
-                throw testException2;
-        } catch (Exception e) {
-            ph.handle(e);
-        }
+            if ( true ) throw testException2;
+        } catch ( Exception e ) { ph.handle(e); }
 
         try {
             // delay 3rd exception so index 0 is always 2nd
             Thread.sleep(100);
-            if (true)
-                throw testException3;
-        } catch (Exception e) {
-            ph.handle(e);
-        }
+            if ( true ) throw testException3;
+        } catch ( Exception e ) { ph.handle(e); }
 
-        for (Problem p : ph.getRecent(2)) {
+        for ( Problem p : ph.getRecent(2) ) {
             System.out.println(p);
             System.out.println(p.instant());
         }
 
         assertEquals(2, ph.size(), "Record list size mismatch");
-        
+
         // most recent would be index 0 and should be exception 2 since exception 1 got purged
         problem = ph.getRecent(1).get(0);
         assertEquals(testException2, problem.get(), "Object mismatch");
-
     }
 
     @Test
@@ -133,12 +125,8 @@ class _ProblemHandler {
         String actual;
 
         try {
-            ph.execute(() -> {
-                throw new RuntimeException("rt_exception");
-            });
-        } catch (Exception e) {
-            exception = e;
-        }
+            ph.execute(() -> { throw new RuntimeException("rt_exception"); });
+        } catch ( Exception e ) { exception = e; }
 
         assertEquals(1, ph.size(), "Record list size mismatch");
         problem = ph.getAll().get(0);
@@ -156,13 +144,9 @@ class _ProblemHandler {
     public void testAttempt() {
         ProblemHandler ph = new ProblemHandler();
 
-        String result = ph.attempt(
-            () -> {
-                throw new RuntimeException("rt_exception");
-            },
-            record -> {
-                return "error-value";
-            });
+        String result = ph.attempt(() -> { throw new RuntimeException("rt_exception"); }, record -> {
+            return "error-value";
+        });
 
         assertEquals("error-value", result, "Value mismatch");
     }
@@ -170,9 +154,7 @@ class _ProblemHandler {
     @Test
     public void testAttemptOptional() {
         ProblemHandler ph = new ProblemHandler();
-        Optional<String> result = ph.attemptOptional(() -> {
-            throw new RuntimeException("rt_exception");
-        });
+        Optional<String> result = ph.attemptOptional(() -> { throw new RuntimeException("rt_exception"); });
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -184,9 +166,7 @@ class _ProblemHandler {
     @Test
     public void testAttemptWithDefault() {
         ProblemHandler ph = new ProblemHandler();
-        String result = ph.attemptOrElse(() -> {
-            throw new RuntimeException("rt_exception");
-        }, "default");
+        String result = ph.attemptOrElse(() -> { throw new RuntimeException("rt_exception"); }, "default");
 
         assertEquals(1, ph.size(), "Record list size mismatch");
 
@@ -199,32 +179,28 @@ class _ProblemHandler {
 
         int count = 5;
 
-        for (int i = 1; i <= count; i++) {
-            ph.handle(new RuntimeException("rt_exception_" + i));
-        }
+        for ( int i = 1; i <= count; i++ ) { ph.handle(new RuntimeException("rt_exception_" + i)); }
 
         List<Problem> recents = ph.getRecent(count - 1);
 
         assertEquals(count - 1, recents.size(), "Size mismatch");
 
-        for (int i = 1; i < count - 1; i++) {
+        for ( int i = 1; i < count - 1; i++ ) {
             Instant previous_time = recents.get(i - 1).instant();
             Instant current_time = recents.get(i).instant();
             assertTrue(previous_time.compareTo(current_time) <= 0, "Timing mismatch");
         }
-
     }
 
     @Test
     public void testGetByType() {
         ProblemHandler ph = new ProblemHandler();
 
-        for (int i = 1; i <= 3; i++) {
+        for ( int i = 1; i <= 3; i++ ) {
             ph.handle(new IndexOutOfBoundsException("iob_exception_" + i));
             ph.handle(new NullPointerException("np_exception_" + i));
             ph.handle(new StackOverflowError("so_error_" + i));
-            if (i % 3 == 0)
-                ph.handle(new IllegalAccessException("ia_exception_" + i));
+            if ( i % 3 == 0 ) ph.handle(new IllegalAccessException("ia_exception_" + i));
         }
 
         assertEquals(10, ph.size(), "Size mismatch");
@@ -236,7 +212,5 @@ class _ProblemHandler {
         typeList = ph.getByType(IllegalAccessException.class);
 
         assertEquals(1, typeList.size(), "Size mismatch");
-
     }
-
 }

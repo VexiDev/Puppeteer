@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestUtils {
 
@@ -22,48 +22,47 @@ public class TestUtils {
     public static <T> void assertMapEquals(Map<String, T> expected, Map<String, T> actual, String... path) {
         String currentPath = path.length > 0 ? String.join(".", path) + "." : "";
 
-        for (String key : expected.keySet()) {
+        for ( String key : expected.keySet() ) {
             String fullPath = currentPath + key;
             assertTrue(actual.containsKey(key), "Missing key at " + fullPath);
 
             T expectedValue = expected.get(key);
             T actualValue = actual.get(key);
 
-            if (expectedValue == null) {
+            if ( expectedValue == null ) {
                 assertNull(actualValue, "Value at " + fullPath + " should be null");
             } else {
                 assertNotNull(actualValue, "Value at " + fullPath + " should not be null");
 
-                if (expectedValue instanceof Map) {
-                    assertTrue(actualValue instanceof Map,
-                            "Value at " + fullPath + " should be a Map but was "
-                                    + actualValue.getClass().getSimpleName());
+                if ( expectedValue instanceof Map ) {
+                    assertTrue(
+                        actualValue instanceof Map,
+                        "Value at " + fullPath + " should be a Map but was " + actualValue.getClass().getSimpleName()
+                    );
                     assertMapEquals(
-                            (Map<String, Object>) expectedValue,
-                            (Map<String, Object>) actualValue,
-                            appendPath(path, key));
-                } else if (expectedValue instanceof List) {
-                    assertTrue(actualValue instanceof List,
-                            "Value at " + fullPath + " should be a List but was "
-                                    + actualValue.getClass().getSimpleName());
-                    assertListEquals(
-                            (List<Object>) expectedValue,
-                            (List<Object>) actualValue,
-                            appendPath(path, key));
+                        (Map<String, Object>) expectedValue, (Map<String, Object>) actualValue, appendPath(path, key)
+                    );
+                } else if ( expectedValue instanceof List ) {
+                    assertTrue(
+                        actualValue instanceof List,
+                        "Value at " + fullPath + " should be a List but was " + actualValue.getClass().getSimpleName()
+                    );
+                    assertListEquals((List<Object>) expectedValue, (List<Object>) actualValue, appendPath(path, key));
                 } else {
                     assertEquals(
-                            expectedValue,
-                            actualValue,
-                            "Mismatch at " + fullPath + ": expected " + expectedValue + " but got " + actualValue);
+                        expectedValue,
+                        actualValue,
+                        "Mismatch at " + fullPath + ": expected " + expectedValue + " but got " + actualValue
+                    );
                 }
             }
         }
 
         assertEquals(
-                expected.size(),
-                actual.size(),
-                "Different Map sizes at " + currentPath + " - expected: " + expected.size() + ", actual: "
-                        + actual.size());
+            expected.size(),
+            actual.size(),
+            "Different Map sizes at " + currentPath + " - expected: " + expected.size() + ", actual: " + actual.size()
+        );
     }
 
     /**
@@ -78,42 +77,45 @@ public class TestUtils {
         String currentPath = String.join(".", path);
 
         assertEquals(
-                expected.size(),
-                actual.size(),
-                "Different List sizes at " + currentPath + " - expected: " + expected.size() + ", actual: "
-                        + actual.size());
+            expected.size(),
+            actual.size(),
+            "Different List sizes at " + currentPath + " - expected: " + expected.size() + ", actual: " + actual.size()
+        );
 
-        for (int i = 0; i < expected.size(); i++) {
+        for ( int i = 0; i < expected.size(); i++ ) {
             Object expectedValue = expected.get(i);
             Object actualValue = actual.get(i);
             String fullPath = currentPath + "[" + i + "]";
 
-            if (expectedValue == null) {
+            if ( expectedValue == null ) {
                 assertNull(actualValue, "Value at " + fullPath + " should be null");
             } else {
                 assertNotNull(actualValue, "Value at " + fullPath + " should not be null");
 
-                if (expectedValue instanceof Map) {
-                    assertTrue(actualValue instanceof Map,
-                            "Value at " + fullPath + " should be a Map but was "
-                                    + actualValue.getClass().getSimpleName());
+                if ( expectedValue instanceof Map ) {
+                    assertTrue(
+                        actualValue instanceof Map,
+                        "Value at " + fullPath + " should be a Map but was " + actualValue.getClass().getSimpleName()
+                    );
                     assertMapEquals(
-                            (Map<String, Object>) expectedValue,
-                            (Map<String, Object>) actualValue,
-                            appendPath(path, String.valueOf(i)));
-                } else if (expectedValue instanceof List) {
-                    assertTrue(actualValue instanceof List,
-                            "Value at " + fullPath + " should be a List but was "
-                                    + actualValue.getClass().getSimpleName());
+                        (Map<String, Object>) expectedValue,
+                        (Map<String, Object>) actualValue,
+                        appendPath(path, String.valueOf(i))
+                    );
+                } else if ( expectedValue instanceof List ) {
+                    assertTrue(
+                        actualValue instanceof List,
+                        "Value at " + fullPath + " should be a List but was " + actualValue.getClass().getSimpleName()
+                    );
                     assertListEquals(
-                            (List<Object>) expectedValue,
-                            (List<Object>) actualValue,
-                            appendPath(path, String.valueOf(i)));
+                        (List<Object>) expectedValue, (List<Object>) actualValue, appendPath(path, String.valueOf(i))
+                    );
                 } else {
                     assertEquals(
-                            expectedValue,
-                            actualValue,
-                            "Mismatch at " + fullPath + ": expected " + expectedValue + " but got " + actualValue);
+                        expectedValue,
+                        actualValue,
+                        "Mismatch at " + fullPath + ": expected " + expectedValue + " but got " + actualValue
+                    );
                 }
             }
         }

@@ -6,29 +6,30 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import gg.vexi.Puppeteer.Ticket.TicketPriority;
-import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
+import gg.vexi.Puppeteer.ResultStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
+import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
 public class Ticket<T> implements Comparable<Ticket<?>> {
-
     private final UUID id;
     private final Instant timestamp;
     private final String puppet;
     private final TicketPriority priority;
     private final Map<String, Object> parameters;
     private final CompletableFuture<Result<T>> future;
-    
-    //TODO: Add overloads
+
+    // TODO: Add overloads
 
     public Ticket(
+        // clang-format off
         String puppet,
         TicketPriority priority,
-        // TODO: Convert parameters to be generic instead of Object
         Map<String, Object> parameters,
-        CompletableFuture<Result<T>> future) {
-        // arguemnts are all required
+        CompletableFuture<Result<T>> future)
+    {
+        // clang-format on :
+        // Arguments are all required
         Objects.requireNonNull(puppet, "Ticket puppet cannot be null");
         Objects.requireNonNull(priority, "Ticket priority cannot be null");
         Objects.requireNonNull(parameters, "Ticket parameters cannot be null");
@@ -50,38 +51,31 @@ public class Ticket<T> implements Comparable<Ticket<?>> {
         return (p != 0) ? p : this.timestamp().compareTo(other.timestamp);
     }
 
-    public String puppet() {
-        return this.puppet;
-    }
-
-    public TicketPriority priority() {
-        return this.priority;
-    }
-
-    public synchronized Map<String, Object> parameters() {
-        return this.parameters;
-    }
-
     public UUID id() {
         return this.id;
     }
 
+    public String puppet() {
+        return this.puppet;
+    }
     public Instant timestamp() {
         return this.timestamp;
     }
-
+    public TicketPriority priority() {
+        return this.priority;
+    }
     public CompletableFuture<Result<T>> future() {
         return this.future;
     }
+    public synchronized Map<String, Object> parameters() {
+        return this.parameters;
+    }
 
     public final void completeExceptionally(ProblemHandler problemHandler) {
-        this.future.complete(
-            Result.complete(null, ResultStatus.ERROR_FAILED, problemHandler));
+        this.future.complete(Result.complete(null, ResultStatus.ERROR_FAILED, problemHandler));
     }
 
     public final void cancel(ProblemHandler problemHandler) {
-        this.future.complete(
-            Result.complete(null, ResultStatus.CANCELED, problemHandler));
+        this.future.complete(Result.complete(null, ResultStatus.CANCELED, problemHandler));
     }
-
 }

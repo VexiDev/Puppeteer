@@ -1,24 +1,25 @@
 package gg.vexi.Puppeteer;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.ExampleObject;
-import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
 import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_Object;
+import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
-import gg.vexi.Puppeteer.Ticket.TicketPriority;
 import gg.vexi.Puppeteer.Ticket.Result;
+import gg.vexi.Puppeteer.Ticket.TicketPriority;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 class _Puppet {
 
@@ -26,18 +27,18 @@ class _Puppet {
 
     @BeforeEach
     public void setup() {
-        ticket = new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+        ticket =
+            new Ticket<>("test_action", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
     }
 
     @Test
     @Disabled
     public void test_init() {
-        //TODO: Implement tests for verifying Puppet initialization 
+        //TODO: Implement tests for verifying Puppet initialization
     }
 
     @Test
     public void test_start() throws InterruptedException {
-         
 
         ExamplePuppet_String puppet = new ExamplePuppet_String(ticket);
 
@@ -64,39 +65,36 @@ class _Puppet {
 
         puppetFuture.thenAccept(actualResult -> {
             // build expected result
-            Result<String> expectedResult = new Result<>("Test_Action Worker Data", ResultStatus.SUCCESS, new ProblemHandler());
+            Result<String> expectedResult =
+                new Result<>("Test_Action Worker Data", ResultStatus.SUCCESS, new ProblemHandler());
             assertEquals(expectedResult, actualResult, "Result mismatch");
         });
 
         // run the puppet
         puppet.main();
-        
-        assertTimeoutPreemptively(
-            Duration.ofSeconds(5),
-            () -> {
-                puppetFuture.join();
-                assertEquals(PuppetStatus.COMPLETED, puppet.getStatus(), "Puppet Status is not COMPLETED after complete()");
-            },
-            "Puppet future took too long to complete (>5 seconds)"
-        );
+
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            puppetFuture.join();
+            assertEquals(
+                PuppetStatus.COMPLETED, puppet.getStatus(), "Puppet Status is not COMPLETED after complete()"
+            );
+        }, "Puppet future took too long to complete (>5 seconds)");
     }
-    
 
     @Test
     public void test_resultGenericType() {
-        
-        Ticket<ExampleObject> t = new Ticket<>("example_object_puppet", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>());
+
+        Ticket<ExampleObject> t = new Ticket<>(
+            "example_object_puppet", TicketPriority.NORMAL, new ConcurrentHashMap<>(), new CompletableFuture<>()
+        );
 
         ExamplePuppet_Object puppet = new ExamplePuppet_Object(t);
 
         puppet.getFuture().thenAccept((ticketResult) -> {
-
             ExampleObject ticket_result_data = ticketResult.data();
             assertEquals("Showcase", ticket_result_data.data, "Value mismatch");
         });
 
         puppet.main();
-
     }
-
 }

@@ -1,19 +1,22 @@
 package gg.vexi.Puppeteer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.ExamplePuppets.ExamplePuppet_String;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //TODO: Happy/Unhappy paths
 
@@ -31,7 +34,6 @@ class _Registry {
         Field reg_map_field = reg.getClass().getDeclaredField("registry");
         reg_map_field.setAccessible(true);
         reg_map = (Map<String, Function<Ticket<?>, Puppet<?>>>) reg_map_field.get(reg);
-
     }
 
     @Test
@@ -50,14 +52,14 @@ class _Registry {
         // register puppet
         reg.registerPuppet("test", ExamplePuppet_String.class);
         Puppet<String> p = reg.retreive(
-            new Ticket<String>("test", TicketPriority.NORMAL,
-            new HashMap<>(), new CompletableFuture<>())
+            new Ticket<String>("test", TicketPriority.NORMAL, new HashMap<>(), new CompletableFuture<>())
         );
         // check not null
         assertNotNull(p);
         // check correct puppet type
-        assertTrue(p instanceof ExamplePuppet_String, 
-                "Retrieved puppet is not correct registered puppet implementation");
+        assertTrue(
+            p instanceof ExamplePuppet_String, "Retrieved puppet is not correct registered puppet implementation"
+        );
     }
 
     @Test
@@ -66,5 +68,4 @@ class _Registry {
         reg.registerPuppet("test", ExamplePuppet_String.class);
         assertEquals(reg.contains("test"), reg_map.containsKey("test"));
     }
-
 }
