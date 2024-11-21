@@ -14,7 +14,7 @@ import gg.vexi.Puppeteer.Exceptions.PuppetNotFound;
 import gg.vexi.Puppeteer.Ticket.Result;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
-public class Puppeteer {
+public class Puppeteer {                       // New tickets:
     public final byte SHUTDOWN_STATE = 0;      // <- CANNOT be queued
     public final byte SHUTTING_DOWN_STATE = 1; // <- CANNOT be queued
     public final byte CLOSED_STATE = 2;        // <- CANNOT be queued
@@ -23,10 +23,12 @@ public class Puppeteer {
 
     private final Registry registry;
     private final ProblemHandler pHandler;
-    private final Map<String, PriorityBlockingQueue<Ticket<?>>> ticketQueues;
     private final Map<String, Puppet<?>> activePuppets;
+    private final Map<String, PriorityBlockingQueue<Ticket<?>>> ticketQueues;
 
     private final boolean verbose;
+
+    public Puppeteer() { this(false); }
 
     public Puppeteer(boolean verbose) {
         this.verbose = verbose;
@@ -36,10 +38,8 @@ public class Puppeteer {
         registry = new Registry();
         ticketQueues = new ConcurrentHashMap<>();
         activePuppets = new ConcurrentHashMap<>();
-        this.state.set(OPEN_STATE);
+        this.state.compareAndSet(CLOSED_STATE, OPEN_STATE);
     }
-
-    public Puppeteer() { this(false); }
 
     public final void printDebug(String msg) {
         if ( verbose ) {
@@ -61,8 +61,9 @@ public class Puppeteer {
     /*
      *
      */
-    public <T> Ticket<T>
-        createTicket(String puppet, TicketPriority ticket_priority, Map<String, Object> ticket_parameters) {
+    public final <T> Ticket<T> createTicket(
+        String puppet, TicketPriority ticket_priority, Map<String, Object> ticket_parameters
+    ) {
         if ( !registry.contains(puppet) )
             throw new PuppetNotFound(String.format("\"%s\" is not a registered puppet", puppet));
         return pHandler.attemptOrElse(() -> {
@@ -72,22 +73,22 @@ public class Puppeteer {
         }, null);
     }
 
-    public <T> Ticket<T> createTicket(String puppet) {
+    public final <T> Ticket<T> createTicket(String puppet) {
         return createTicket(puppet, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public <T> Ticket<T> createTicket(String puppet, TicketPriority ticket_priority) {
+    public final <T> Ticket<T> createTicket(String puppet, TicketPriority ticket_priority) {
         return createTicket(puppet, TicketPriority.NORMAL, new ConcurrentHashMap<>());
     }
 
-    public <T> Ticket<T> createTicket(String puppet, Map<String, Object> ticket_parameters) {
+    public final <T> Ticket<T> createTicket(String puppet, Map<String, Object> ticket_parameters) {
         return createTicket(puppet, TicketPriority.NORMAL, ticket_parameters);
     }
 
     /*
      *
      */
-    public void queueTicket(Ticket<?> ticket) {
+    public final void queueTicket(Ticket<?> ticket) {
         if ( this.state.get() < OPEN_STATE )
             throw new IllegalStateException(String.format("Cannot queue new tickets, state is %d", this.state.get()));
         if ( ticket == null ) throw new NullPointerException("Ticket cannot be null");
@@ -103,20 +104,21 @@ public class Puppeteer {
         });
     }
 
-    public <T> Ticket<T>
-        queueTicket(String puppet, TicketPriority ticket_priority, Map<String, Object> ticket_parameters) {
+    public final <T> Ticket<T> queueTicket(
+        String puppet, TicketPriority ticket_priority, Map<String, Object> ticket_parameters
+    ) {
         Ticket<T> ticket = createTicket(puppet, ticket_priority, ticket_parameters);
         queueTicket(ticket);
         return ticket;
     }
 
-    public <T> Ticket<T> queueTicket(String puppet) { return queueTicket(puppet, new ConcurrentHashMap<>()); }
+    public final <T> Ticket<T> queueTicket(String puppet) { return queueTicket(puppet, new ConcurrentHashMap<>()); }
 
-    public <T> Ticket<T> queueTicket(String puppet, TicketPriority priority) {
+    public final <T> Ticket<T> queueTicket(String puppet, TicketPriority priority) {
         return queueTicket(puppet, priority, new ConcurrentHashMap<>());
     }
 
-    public <T> Ticket<T> queueTicket(String puppet, Map<String, Object> ticket_parameters) {
+    public final <T> Ticket<T> queueTicket(String puppet, Map<String, Object> ticket_parameters) {
         return queueTicket(puppet, TicketPriority.NORMAL, ticket_parameters);
     }
 
@@ -206,7 +208,7 @@ public class Puppeteer {
         if ( s == 0 ) return true;
         else if ( s == 1 ) return false;
 
-        this.state.set(SHUTTING_DOWN_STATE);
+        this.state.compareAndSet(s, SHUTTING_DOWN_STATE);
 
         // Note:
         // SOFT shutdown risks long lock times if running puppets take a long time to complete!
@@ -214,7 +216,7 @@ public class Puppeteer {
         // if (hard) cancelActive(); //not implemented
         while ( anyActive() ) continue;
 
-        this.state.set(SHUTDOWN_STATE);
+        this.state.compareAndSet(SHUTTING_DOWN_STATE, SHUTDOWN_STATE);
         return true;
     }
 
@@ -238,6 +240,7 @@ public class Puppeteer {
 
     public synchronized final boolean isPerforming() { return (anyActive() || anyQueued()); }
 
+    // clang-format off
     private final boolean anyActive() {
         return (activePuppets.keySet().stream()
                     .filter(key -> (activePuppets.get(key) != null))
@@ -248,7 +251,7 @@ public class Puppeteer {
         return (ticketQueues.keySet().stream()
                     .filter(key -> !ticketQueues.get(key).isEmpty())
                     .count() != 0);
-    }
+    } // clang-format on
 
     public synchronized final ProblemHandler getProblemHandler() { return pHandler; }
 
