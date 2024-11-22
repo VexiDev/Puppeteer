@@ -1,65 +1,91 @@
-
-> [!Warning]
-> **This README is outdated!**
-> *Documented code will no longer work!*
-
 <!-- Project Title -->
 # Puppeteer
 <!-- Description -->
 
 > [!Note]
-> Puppeteer is an exploratory project into concurrency and thread management!<br>
-> Applying readings:<br>
-> • Doug Lea, "Concurrent Programming in Java, 2nd Edition"<br>
-> • ...put rest here<br>
+> Puppeteer is __not__ polished, safe or intended for production use<br>
+> This project followed `Test Driven Development`(TDD) for code implementation<br>
+> During development I read:<br>
+> • Doug Lea, "Concurrent Programming in Java," 2nd Edition"<br>
+> • Javier Fernández González, "Mastering Concurrency Programming with Java 8"
 
-<span style="color: #00C2FF;">`TL;DR`</span> A process manager for queued execution of repeating asynchronous tasks
+`TL;DR`: Manager for non-blocking sequential execution of predefined tasks
 
-Real description: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
+
+Puppeteer is a thread manager for sequential asynchronous execution of tasks.
+Only one of each registered task type may execute concurrently while any
+additional requests for a specific type wait in a PriorityQueue.
+
+Puppeteer's original purpose was to be used within a concurrent environment 
+and handle blocking tasks in a seperate thread while only letting one of these
+tasks be executed at a time since they access shared state and having multiple
+of these tasks running concurrently would lead to corrupted states.
+
+While working on Puppeteer Ive fallen into the rabbithole of Concurrency
+and Parallelism and transitioned Puppeteer into a more theoretical exploration
+to help me better understand the general concepts of concurrency and thread safety.
+I also spent a good amount of time looking into how threads and concurrency are 
+managed by the JVM in Java.
+
+Puppeteer is technically complete but it is still missing many features.
+It has also become very messy during development as I learned new concepts and 
+attempted to apply them without a complete understanding of them. 
+
+---
+
+<!-- License -->
+## License
+- __This project is licensed under the terms of the [Apache 2.0 License](./LICENSE).__
+
 
 ---
 <!-- Installation -->
-## Installation
-
-Using Gradle: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
-
-Using Maven: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
-
----
+<!-- ## Installation
+<!-- 
+<!-- Using Gradle: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
+<!-- 
+<!-- Using Maven: <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
+<!-- 
+<!-- --- -->
 
 <!-- Usage -->
 ## How to use Puppeteer
-
 #### Definitions:
- - `Puppet` : The worker class where you define a task 
- - `Ticket` : The object used to request a Puppet's execution
- - `TicketResult` : The returned object when a Puppet is done executing
-    - Puppeteer will always return a TicketResult even if the puppet fails
+ - `Puppet<T>` : The parent class that all puppets extend from
+    - I know, "boo inheritance!👎"
+ - `Ticket<T>` : The object used to request a puppet's execution and get its result
+ - `Result<T>` : The object returned by a puppet's future.
 
-### Define a `Puppet` by extending `Puppet` :
+### Define a `Puppet` by extending `Puppet<T>` :
 ```java
 package org.example;
 
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ResultStatus;
-
-public class ReverseTextPuppet extends Puppet {
+import gg.vexi.Puppeteer.Core.ResultStatus;
+ 
+// Puppet<String> indicated the puppet will take in a Ticket<String> 
+// and will return a Result<String> object when completed
+public class ReverseTextPuppet extends Puppet<String> {
 
     private String data;
 
-    public ReverseTextPuppet(Ticket ticket) {
+    public ReverseTextPuppet(Ticket<String> ticket) {
         super(ticket);
     }
 
     // main() is the entry point to a puppet
     @Override
     public void main() {
-        // Access your ticket parameters with `parameters`
-        String text = parameters.get("text").getAsString();
+        
+        // Access the ticket's parameters with `parameters`
+        // parameters is a Map<String, Object> so requires casting
+        String text = (String) parameters.get("text");
         
         data = new StringBuilder(text).reverse().toString();
-        
+
+        // Calling super.complete() will exit the puppet 
+        // and return a Result object to the Ticket future
         super.complete(ResultStatus.SUCCESS, data);
     }
 }
@@ -69,26 +95,26 @@ public class ReverseTextPuppet extends Puppet {
 
 ### Create an instance of `Puppeteer` and register your `Puppets` :
 ```java
+import gg.vexi.Puppeteer.Puppeteer;
+
 public class MainClass {
     
     static final Puppeteer puppeteer = new Puppeteer();
 
     public static void main(String[] args) {
-        // Register your puppets
-        puppeteer.registerPuppet(ReverseTextPuppet.class, "ReverseText");
+        // Register your puppet
+        puppeteer.registerPuppet("ReverseText", ReverseTextPuppet.class);
     }
 }
 ```
-- Puppeteer **may** have annotation based registration in the future to make puppet registration simpler
 
 
-
-### Create a `Ticket` to schedule a `Puppet` :
+### Create a `Ticket<T>` to schedule a `Puppet` :
 ```java
 import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
-public static Ticket getExampleTicket(String text){
+public static Ticket<String> getExampleTicket(String text){
 
     // REQUIRED: The name of the puppet you want to execute
     String puppetName = "ReverseText";
@@ -97,18 +123,25 @@ public static Ticket getExampleTicket(String text){
     // - Defaults to NORMAL
     TicketPriority priority = TicketPriority.NORMAL;
 
-    // OPTIONAL: Json paramaters for puppet
-    // - Defaults to empty JsonObject
-    JsonObject parameters = new JsonObject();
-    parameters.addProperty("text", text);
+    // OPTIONAL: Map<String, Objec t> of paramaters for puppet
+    // - Defaults to an empty map
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("text", text);
 
     // There are two ways to get a Ticket object:
+   
 
     // 1. Create and retreive it using `createTicket()`:
-    Ticket ticket = puppeteer.createTicket(puppetName, priority, parameters);
+    // Throws an exception:
+    //  - If the ticket doesn't exist
+    Ticket<String> ticket = puppeteer.createTicket(puppetName, priority, parameters);
 
     // 2. Create and queue it immediately using `queueTicket()`:
-    // Ticket ticket = puppeteer.queueTicket(ticket_type, priority, parameters);
+    // Throws an exception:
+    //  - If the ticket doesn't exist
+    //  - If the expected ticket type does not match the requested Puppet's type
+    // Ticket<String> ticket = puppeteer.queueTicket(puppetName, priority, parameters);
+
 
     return ticket;
 }
@@ -119,33 +152,36 @@ public static Ticket getExampleTicket(String text){
 ### Running a `Puppet` using a `Ticket` :
 ```java
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ResultStatus;
+import gg.vexi.Puppeteer.Core.ResultStatus;
 
 public class MainClass {
 
     static final Puppeteer puppeteer = new Puppeteer();
     
     public static void main(String[] args) {
-        puppeteer.registerPuppet(ReverseTextPuppet.class, "ReverseText");
+        puppeteer.registerPuppet("ReverseText", ReverseTextPuppet.class);
         runExampleTask();
     }
 
     public static void runExampleTask() {
         // create the example ticket
-        Ticket ticket = getExampleTicket("Hello World!");
+        Ticket<String> ticket = getExampleTicket("Hello World!");
 
         // Queue the ticket
+        // Throws an exception:
+        //  - If the ticket doesn't exist
+        //  - If ticket doesn't match the exepcted type for the puppet it's requesting
         puppeteer.queueTicket(ticket);
 
         // Get the ticket's CompletableFuture
-        CompletableFuture<Result> future = ticket.getFuture();
+        CompletableFuture<Result<String>> future = ticket.getFuture();
 
         // Once the performance is complete process the result
         future.thenAccept(result -> {
 
             if (result.isSuccessful()) {
-                // result.getData() returns `Object data` which can be null!
-                String reversedString = (String) result.getData();
+
+                String reversedString = result.getData();
                 System.out.println(reversedString); 
                 // Outputs -> !dlroW olleH
 
@@ -154,14 +190,21 @@ public class MainClass {
                     "Request was not successful! (STATUS:%s)\nHas Exceptions: %b",
                     result.getStatus().toString(), result.hasExceptions()
                 ));
+            }                
+            if (result.hasExceptions()) {
+                // ProblemHandler is the builtin Puppeteer exception handler and
+                // will wrap all Throwables with additional context
+                List<Problem> l = result.problemHandler().getAll();
+                for (Problem p : l) System.out.println(p);
             }
+
         });
 
 
         // wait for future to complete [BLOCKING]
         future.join();
         // Note: Generally Puppeteer is not meant to be used with blocking operations like 
-        //       join() since it would usually be running in a loop
+        //       since it's intead to be running within a game loop
     }
 
     // Defined in previous step
@@ -169,16 +212,70 @@ public class MainClass {
 }
 ```
 
+### Using the `ProblemHandler`
+- The Puppeteer `ProblemHandler` allows for centralized exception handling behaving similarly
+  to try-catch blocks 
+- An instance of `ProblemHandler` is returned in every `Result` object so Ticket holders
+  can easily see all the exceptions that occured when running a Puppet 
+    - The Puppet superclass wraps the Puppet `main()` method within its `ProblemHandler`
+      to cleanly log unhandled exceptions and automatically complete the Puppet
+- It offers convenience methods for executing code and having
+  it handle exceptions automatically
+    - `execute()`: Runs the given code, logs exceptions and rethrows them
+    - `<T> attemptOptional()`: Returns an `Optional<T>` of the expected type
+    - `attemptOrElse()`: Logs exceptions, returning a default value
+    - `attempt()`: Logs exceptions and runs the provided handler code (fancy try catch)
+- `Problem` is a wrapper class around a `Throwable` that contains more
+  context than a simple message and cause that a normal exception can have
+```java
+
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
+
+{
+    // pass in an optional boolean for verbose logging of errors to StdOut
+    ProblemHandler ph = new ProblemHandler(true); 
+
+    // logs and rethrows the exception
+    ph.execute(() -> { throw new RuntimeException"rt_exception"); });
+
+    // Returns an Optional<String>, logs exception if it occures
+    Optional<String> result = ph.attemptOptional(() -> { 
+        throw new RuntimeException("rt_exception"); 
+    }); 
+    String value = result.orElse("default"); // result is empty
+
+    // logs the exception and returns the default value
+    String result = ph.attemptOrElse(() -> { 
+        throw new RuntimeException("rt_exception"); 
+    }, "default");
+
+    // logs the exception and runs the provided handler (basically try-catch)
+    problemHandler.attempt(() -> {
+        run();
+    }, problem -> { // the Problem object of the logged exception
+        System.out.println(problem.timestamp()); // Problem timestamp is an Instant object
+    });
+}
+
+```
 
 
 <!-- Features -->
-## Feature List
-<span style="color: #00C2FF;">`TO BE WRITTEN`</span>
+<!-- ## Feature List
+<!-- <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
 
 
 <!-- Limitations -->
 ## Limitations
-<span style="color: #00C2FF;">`TO BE WRITTEN`</span>
+- Puppeteer currently does not use a `ExecutorService` since I wnated to write my own 
+  so it directly uses `CompletableFuture.runAsync()`
+  - This means we cannot interrupt a Puppet thread since we hold no reference
+    to it.
+- Puppeteer has no lifetime tracking so if a puppet future never completes that 
+  task will be marked active forever and we would never poll its queue
+  - *eg:* if the puppet thread is interrupted
+  - Currently the only way to resolve this is to create a new Puppeteer object and re-register all
+    puppets
 
 ---
 
@@ -190,7 +287,7 @@ public class MainClass {
 
 <li style="margin-bottom: 10px;">
 <details>
-    <summary style="cursor: pointer; font-weight: bold;">Multiple of the same puppet type running in parallel</summary>
+    <summary style="cursor: pointer; font-weight: bold;">Multiple of the same puppet type running concurrently/in parallel</summary>
         <ul style="list-style-type: disc; padding-left: 20px;">
     <li>Currently only 1 puppet of each type can perform at a time
     <ul style="list-style-type: circle; padding-left: 20px;">
@@ -224,144 +321,40 @@ public class MainClass {
 
 </ul>
 
-
-<span style="color: #00C2FF;">`MORE TO BE WRITTEN`</span>
-
-<!-- License -->
-## License
-- __This project is licensed under the terms of the [Apache 2.0 License](./LICENSE).__
-
-
 <!-- Contributing -->
-## Contributing
-<span style="color: #00C2FF;">`TO BE WRITTEN`</span>
+<!-- ## Contributing
+<!-- <span style="color: #00C2FF;">`TO BE WRITTEN`</span>
 
 ---
 
 
 
 <!-- Templates -->
-## Templates
 ### Puppet Template
 ```java
 import gg.vexi.Puppeteer.Core.Puppet;
 import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.ResultStatus;
+import gg.vexi.Puppeteer.Core.ResultStatus;
 
-public class TemplatePuppet extends Puppet {
+public class TemplatePuppet extends Puppet<TEMPLATE> {
 
     private String data;
 
-    public TemplatePuppet(Ticket ticket) {
+    public TemplatePuppet(Ticket<TEMPLATE> ticket) {
         super(ticket);
     }
-
 
     @Override
     public void main() {
         // - access ticket parameters with `parameter`
-        // - use the builtin ProblemHandler to automatically log and pass exceptions to
-        //   ticket holders
-        data = "Template";
-        super.complete(PuppetStatus.SUCCESS, data);
+        // - use the builtin ProblemHandler instead of try-catch to centralize exception logging
+        problemHandler.attempt(() -> {
+            data = "Template";
+        }, problem -> {
+            // complete the puppet with an FAILED_ERROR status
+            super.completeExceptionally();
+        }
+        super.complete(ResultStatus.SUCCESS, data);
     }
 }
 ```
-
-
-
-<!-- Advanced example -->
-## Examples
-### Get numbers between two primes using segmented Sieve of Eratosthenes
-```java
-package org.example;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-import java.util.stream.IntStream;
-
-import gg.vexi.Puppeteer.Core.Puppet;
-import gg.vexi.Puppeteer.Core.Ticket;
-import gg.vexi.Puppeteer.Status;
-
-public class PrimesBetweenPuppet extends Puppet {
-
-    private long[] data;
-
-    public PrimesBetweenPuppet(Ticket ticket) {
-        super(ticket);
-    }
-
-    @Override
-    public void main() {
-
-        long start = ticket_parameters.get("start_num").getAsLong();
-        long end = ticket_parameters.get("end_num").getAsLong();
-        
-        // If this method were to fail it would be automatically handled by the
-        // ProblemHandler and the puppet would exit cleanly with a failed state 
-        data = getPrimeNumbersBetween(start, end);
-
-        super.complete(PuppetStatus.SUCCESS, data);
-    }
-
-
-    private long[] getPrimeNumbersBetween(long start, long end) {
-        if (start < 2) start = 2;
-        if (end < start) return new long[0];
-
-        int segmentSize = 1 << 20; // Use a segment size of 1M bits (128KB)
-        BitSet isPrime = new BitSet(segmentSize);
-        List<Long> primes = new ArrayList<>();
-
-        // Generate small primes up to sqrt(end)
-        long sqrtEnd = Math.min((long) Math.sqrt(end), Integer.MAX_VALUE - 1);
-        BitSet smallPrimes = new BitSet((int) sqrtEnd + 1);
-        smallPrimes.set(2, (int) sqrtEnd + 1);
-        for (long i = 2; i * i <= sqrtEnd; i++) {
-            if (smallPrimes.get((int) i)) {
-                for (long j = i * i; j <= sqrtEnd; j += i) {
-                    smallPrimes.clear((int) j);
-                }
-            }
-        }
-
-        // Main segmented sieve loop
-        for (long low = start; low <= end; low += segmentSize) {
-            isPrime.clear();
-            isPrime.set(0, segmentSize);
-            long high = Math.min(low + segmentSize - 1, end);
-
-            // Sieve the segment
-            for (long i = 2; i <= sqrtEnd; i++) {
-                if (smallPrimes.get((int) i)) {
-                    long loLim = Math.max(i * i, (low + i - 1) / i * i);
-                    for (long j = loLim; j <= high; j += i) {
-                        isPrime.clear((int) (j - low));
-                    }
-                }
-            }
-
-            // Collect primes from this segment
-            final long segmentLow = low;
-            IntStream.range(0, segmentSize)
-                .filter(isPrime::get)
-                .mapToLong(i -> i + segmentLow)
-                .filter(i -> i <= high)  // Ensure we don't exceed the high bound
-                .forEach(primes::add);
-        }
-
-        // Handle the special case of 2 if it's in range
-        if (start <= 2 && 2 <= end) {
-            primes.add(0, 2L);
-        }
-
-        // Convert List<Long> to long[]
-        return primes.stream().mapToLong(Long::longValue).toArray();
-    }
-}
-```
-
-### [other examples here]
