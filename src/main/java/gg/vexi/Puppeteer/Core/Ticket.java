@@ -1,13 +1,13 @@
 package gg.vexi.Puppeteer.Core;
 
 import java.time.Instant;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
-import gg.vexi.Puppeteer.Core.ResultStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
@@ -28,7 +28,7 @@ public class Ticket<T> implements Comparable<Ticket<?>> {
         Map<String, Object> parameters,
         CompletableFuture<Result<T>> future)
     {
-        // clang-format on :
+        // clang-format on
         // Arguments are all required
         Objects.requireNonNull(puppet, "Ticket puppet cannot be null");
         Objects.requireNonNull(priority, "Ticket priority cannot be null");
@@ -51,31 +51,23 @@ public class Ticket<T> implements Comparable<Ticket<?>> {
         return (p != 0) ? p : this.timestamp().compareTo(other.timestamp);
     }
 
-    public UUID id() {
-        return this.id;
-    }
+    public UUID id() { return this.id; }
 
-    public String puppet() {
-        return this.puppet;
-    }
-    public Instant timestamp() {
-        return this.timestamp;
-    }
-    public TicketPriority priority() {
-        return this.priority;
-    }
-    public CompletableFuture<Result<T>> future() {
-        return this.future;
-    }
-    public synchronized Map<String, Object> parameters() {
-        return this.parameters;
-    }
+    public String puppet() { return this.puppet; }
+
+    public Instant timestamp() { return this.timestamp; }
+
+    public TicketPriority priority() { return this.priority; }
+
+    public CompletableFuture<Result<T>> future() { return this.future; }
+
+    public synchronized Map<String, Object> parameters() { return this.parameters; }
 
     public final void completeExceptionally(ProblemHandler problemHandler) {
-        this.future.complete(Result.complete(null, ResultStatus.ERROR_FAILED, problemHandler));
+        this.future.complete(Result.success(null, ResultStatus.ERROR_FAILED, problemHandler));
     }
 
     public final void cancel(ProblemHandler problemHandler) {
-        this.future.complete(Result.complete(null, ResultStatus.CANCELED, problemHandler));
+        this.future.complete(Result.success(null, ResultStatus.CANCELED, problemHandler));
     }
 }

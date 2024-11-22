@@ -1,6 +1,7 @@
 package gg.vexi.Puppeteer;
 
 import java.lang.reflect.InvocationTargetException;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -8,20 +8,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import gg.vexi.Puppeteer.Core.Puppet;
-import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Core.ResultStatus;
+import gg.vexi.Puppeteer.Core.Ticket;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Exceptions.PuppetNotFound;
 import gg.vexi.Puppeteer.Ticket.Result;
 import gg.vexi.Puppeteer.Ticket.TicketPriority;
 
-public class Puppeteer {                       // New tickets:
+public class Puppeteer {
+    //                                         New tickets:
     public final byte SHUTDOWN_STATE = 0;      // <- CANNOT be queued
     public final byte SHUTTING_DOWN_STATE = 1; // <- CANNOT be queued
     public final byte CLOSED_STATE = 2;        // <- CANNOT be queued
     public final byte OPEN_STATE = 3;          // <- CAN be queued
     private final AtomicInteger state = new AtomicInteger(CLOSED_STATE);
-
+    
     private final Registry registry;
     private final ProblemHandler pHandler;
     private final Map<String, Puppet<?>> activePuppets;
@@ -101,7 +102,7 @@ public class Puppeteer {                       // New tickets:
         }, problem -> {
             ProblemHandler ph = new ProblemHandler();
             ph.handle(new Exception(problem.get()));
-            ticket.future().complete(Result.complete(ResultStatus.ERROR_FAILED, ph));
+            ticket.future().complete(Result.failed(ResultStatus.ERROR_FAILED, ph));
         });
     }
 
@@ -213,7 +214,7 @@ public class Puppeteer {                       // New tickets:
 
         // Note:
         // SOFT shutdown risks long lock times if running puppets take a long time to complete!
-        cancelQueued();
+        cancelQueued("Puppeteer is shutting down");
         // if (hard) cancelActive(); //not implemented
         while ( anyActive() ) continue;
 
@@ -221,9 +222,10 @@ public class Puppeteer {                       // New tickets:
         return true;
     }
 
-    // Currently since we use CmplFtr.runAsync(() -> puppet.start()); to run puppets we don't
-    // hold references to the thread running a given puppet. Until we do keep this reference
-    //(probably via a custom executor design) we cannot interrupt puppets early (this is bad)
+    // Currently since we use CmplFtr.runAsync(() -> puppet.start()); without an ExecutorService
+    // to run puppets we don't hold references to the thread running a given puppet.
+    // Until we do keep this reference (probably via a custom executor design)
+    // we cannot interrupt puppets early 
     @SuppressWarnings("unused")
     private void cancelActive() {
         // TODO: Implement ability for puppeteer to interrupt active puppets
@@ -231,9 +233,13 @@ public class Puppeteer {                       // New tickets:
         //  activeTickets.values().stream().forEach(p -> p::interrupt);
     }
 
-    private synchronized void cancelQueued() {
+    private synchronized void cancelQueued(String reason) {
         ticketQueues.values().stream().forEach(ticketQ -> {
-            while ( ticketQ.peek() != null ) ticketQ.poll().cancel(new ProblemHandler());
+            while ( ticketQ.peek() != null ) {
+                ProblemHandler canceled_ph = new ProblemHandler();
+                canceled_ph.handle(new IllegalStateException(reason));
+                ticketQ.poll().cancel(canceled_ph);
+            }
         });
     }
 

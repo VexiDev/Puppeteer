@@ -3,7 +3,6 @@ package gg.vexi.Puppeteer.Core;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import gg.vexi.Puppeteer.Core.ResultStatus;
 import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.PuppetStatus;
 import gg.vexi.Puppeteer.Ticket.Result;
@@ -13,7 +12,7 @@ public abstract class Puppet<T> {
     private final CompletableFuture<Result<T>> future;
     private final Ticket<T> ticket;
     protected final ProblemHandler problemHandler;
-    // TODO: Consider making parameter map read only?
+    // TODO: Make this map read only somehow?
     protected final Map<String, Object> parameters;
 
     public Puppet(Ticket<T> ticket) {
@@ -41,13 +40,13 @@ public abstract class Puppet<T> {
 
     protected final void complete(ResultStatus result_status, T data) {
         this.status = PuppetStatus.COMPLETED;
-        Result<T> result = Result.complete(data, result_status, this.problemHandler);
+        Result<T> result = Result.success(data, result_status, this.problemHandler);
         this.future.complete(result);
     }
 
     protected final void completeExceptionally() {
         this.status = PuppetStatus.ERROR;
-        this.future.complete(Result.complete(null, ResultStatus.ERROR_FAILED, this.problemHandler));
+        this.future.complete(Result.success(null, ResultStatus.ERROR_FAILED, this.problemHandler));
     }
 
     public Ticket<T> getTicket() { return this.ticket; }

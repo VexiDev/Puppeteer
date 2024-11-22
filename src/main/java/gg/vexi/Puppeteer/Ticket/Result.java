@@ -1,7 +1,7 @@
 package gg.vexi.Puppeteer.Ticket;
 
-import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 import gg.vexi.Puppeteer.Core.ResultStatus;
+import gg.vexi.Puppeteer.Exceptions.ProblemHandler;
 
 public class Result<T> {
 
@@ -15,11 +15,11 @@ public class Result<T> {
         this.data = data;
     }
 
-    public static <T> Result<T> complete(T value, ResultStatus status, ProblemHandler problemHandler) {
+    public static <T> Result<T> success(T value, ResultStatus status, ProblemHandler problemHandler) {
         return new Result<>(value, status, problemHandler);
     }
 
-    public static <T> Result<T> complete(ResultStatus status, ProblemHandler problemHandler) {
+    public static <T> Result<T> failed(ResultStatus status, ProblemHandler problemHandler) {
         return new Result<>(null, status, problemHandler);
     }
 
